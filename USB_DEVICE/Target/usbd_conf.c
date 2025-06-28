@@ -4,6 +4,7 @@
 #include "usbd_core.h"
 
 #include "usbd_hid.h"
+#include "usbd_customhid.h"
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 void Error_Handler(void);

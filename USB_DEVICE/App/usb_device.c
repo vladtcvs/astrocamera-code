@@ -3,11 +3,12 @@
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_hid.h"
+#include "usbd_customhid.h"
 #include "usbd_composite_builder.h"
 
 /* USB Device Core handle declaration. */
 USBD_HandleTypeDef hUsbDeviceHS;
-uint8_t HID_EpAdd_Inst = HID_EPIN_ADDR;
+uint8_t HID_EpAdd_Inst = CUSTOM_HID_EPIN_ADDR;
 
 /**
  * Init USB device Library, add supported class and start the library
@@ -26,7 +27,8 @@ void MX_USB_DEVICE_Init(void)
     {
         Error_Handler();
     }
-    if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_HID, CLASS_TYPE_HID, &HID_EpAdd_Inst) != USBD_OK)
+    /*if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_HID, &HID_EpAdd_Inst) != USBD_OK)*/
+    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_HID) != USBD_OK)
     {
 	    Error_Handler();
     }
