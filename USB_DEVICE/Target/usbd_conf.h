@@ -12,19 +12,12 @@ extern "C"
 #include "stm32f4xx.h"
 #include "stm32f4xx_hal.h"
 
-/*---------- -----------*/
 #define USBD_MAX_NUM_INTERFACES 2U
-/*---------- -----------*/
 #define USBD_MAX_NUM_CONFIGURATION 1U
-/*---------- -----------*/
 #define USBD_MAX_STR_DESC_SIZ 512U
-/*---------- -----------*/
 #define USBD_DEBUG_LEVEL 0U
-/*---------- -----------*/
 #define USBD_LPM_ENABLED 0U
-/*---------- -----------*/
 #define USBD_SELF_POWERED 0U
-/*---------- -----------*/
 #define HID_HS_BINTERVAL 0x7U
 
 /****************************************/
@@ -46,7 +39,7 @@ extern "C"
 /** Alias for delay. */
 #define USBD_Delay HAL_Delay
 
-    /* DEBUG macros */
+/* DEBUG macros */
 
 #if (USBD_DEBUG_LEVEL > 0)
 #define USBD_UsrLog(...) \

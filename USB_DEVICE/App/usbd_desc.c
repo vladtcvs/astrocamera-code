@@ -23,17 +23,15 @@ uint8_t *USBD_HS_SerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
 uint8_t *USBD_HS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
 uint8_t *USBD_HS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
 
-#if (USBD_LPM_ENABLED == 1)
-uint8_t *USBD_HS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);
-#endif /* (USBD_LPM_ENABLED == 1) */
-
 USBD_DescriptorsTypeDef HS_Desc =
-    {
-        USBD_HS_DeviceDescriptor, USBD_HS_LangIDStrDescriptor, USBD_HS_ManufacturerStrDescriptor, USBD_HS_ProductStrDescriptor, USBD_HS_SerialStrDescriptor, USBD_HS_ConfigStrDescriptor, USBD_HS_InterfaceStrDescriptor
-#if (USBD_LPM_ENABLED == 1)
-        ,
-        USBD_HS_USR_BOSDescriptor
-#endif /* (USBD_LPM_ENABLED == 1) */
+{
+    USBD_HS_DeviceDescriptor,
+    USBD_HS_LangIDStrDescriptor,
+    USBD_HS_ManufacturerStrDescriptor,
+    USBD_HS_ProductStrDescriptor,
+    USBD_HS_SerialStrDescriptor,
+    USBD_HS_ConfigStrDescriptor,
+    USBD_HS_InterfaceStrDescriptor
 };
 
 /** USB standard device descriptor. */
@@ -41,14 +39,7 @@ __ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
     {
         0x12,                 /*bLength */
         USB_DESC_TYPE_DEVICE, /*bDescriptorType*/
-#if (USBD_LPM_ENABLED == 1)
-        0x01, /*bcdUSB */ /* changed to USB version 2.01
-                             in order to support LPM L1 suspend
-                             resume test of USBCV3.0*/
-#else
         0x00, /*bcdUSB */
-#endif /* (USBD_LPM_ENABLED == 1) */
-
         0x02,
         0x00,                /*bDeviceClass*/
         0x00,                /*bDeviceSubClass*/
@@ -66,32 +57,14 @@ __ALIGN_BEGIN uint8_t USBD_HS_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
         USBD_MAX_NUM_CONFIGURATION /*bNumConfigurations*/
 };
 
-/** BOS descriptor. */
-#if (USBD_LPM_ENABLED == 1)
-__ALIGN_BEGIN uint8_t USBD_HS_BOSDesc[USB_SIZ_BOS_DESC] __ALIGN_END =
-    {
-        0x5,
-        USB_DESC_TYPE_BOS,
-        0xC,
-        0x0,
-        0x1, /* 1 device capability */
-             /* device capability */
-        0x7,
-        USB_DEVICE_CAPABITY_TYPE,
-        0x2,
-        0x2, /*LPM capability bit set */
-        0x0,
-        0x0,
-        0x0};
-#endif /* (USBD_LPM_ENABLED == 1) */
-
 /** USB lang identifier descriptor. */
 __ALIGN_BEGIN uint8_t USBD_LangIDDesc[USB_LEN_LANGID_STR_DESC] __ALIGN_END =
     {
         USB_LEN_LANGID_STR_DESC,
         USB_DESC_TYPE_STRING,
         LOBYTE(USBD_LANGID_STRING),
-        HIBYTE(USBD_LANGID_STRING)};
+        HIBYTE(USBD_LANGID_STRING)
+    };
 
 /* Internal string descriptor. */
 __ALIGN_BEGIN uint8_t USBD_StrDesc[USBD_MAX_STR_DESC_SIZ] __ALIGN_END;
@@ -214,21 +187,6 @@ uint8_t *USBD_HS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *lengt
     }
     return USBD_StrDesc;
 }
-
-#if (USBD_LPM_ENABLED == 1)
-/**
- * @brief  Return the BOS descriptor
- * @param  speed : Current device speed
- * @param  length : Pointer to data length variable
- * @retval Pointer to descriptor buffer
- */
-uint8_t *USBD_HS_USR_BOSDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
-{
-    UNUSED(speed);
-    *length = sizeof(USBD_HS_BOSDesc);
-    return (uint8_t *)USBD_HS_BOSDesc;
-}
-#endif /* (USBD_LPM_ENABLED == 1) */
 
 /**
  * @brief  Create the serial number string descriptor
