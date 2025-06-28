@@ -13,7 +13,7 @@ extern "C"
 #include "stm32f4xx_hal.h"
 
 /*---------- -----------*/
-#define USBD_MAX_NUM_INTERFACES 1U
+#define USBD_MAX_NUM_INTERFACES 2U
 /*---------- -----------*/
 #define USBD_MAX_NUM_CONFIGURATION 1U
 /*---------- -----------*/
