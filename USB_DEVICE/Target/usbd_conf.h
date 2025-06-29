@@ -26,8 +26,16 @@ extern "C"
 #define USBD_MAX_CLASS_INTERFACES 3U
 #define USBD_MAX_SUPPORTED_CLASS 4U
 #define USE_USB_HS 1U
+#define USBD_MAX_POWER 250U
+
+//#define USBD_CUSTOMHID_REPORT_DESC_SIZE_ENABLED
+#define USBD_CUSTOM_HID_REPORT_DESC_SIZE            114U
+
 #define USBD_CUSTOMHID_CTRL_REQ_GET_REPORT_ENABLED
-#define USBD_CUSTOM_HID_REPORT_DESC_SIZE            78U
+#define USBD_CUSTOMHID_CTRL_REQ_COMPLETE_CALLBACK_ENABLED
+
+
+
 
 /****************************************/
 /* #define for FS and HS identification */

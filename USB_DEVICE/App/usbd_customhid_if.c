@@ -1,15 +1,16 @@
 
 #include "usbd_customhid_if.h"
 
-static int8_t TEMPLATE_CUSTOM_HID_Init(void);
-static int8_t TEMPLATE_CUSTOM_HID_DeInit(void);
-static int8_t TEMPLATE_CUSTOM_HID_OutEvent(uint8_t event_idx, uint8_t state);
-static uint8_t *TEMPLATE_CUSTOM_HID_GetReport(uint16_t *ReportLength);
+static int8_t HID_Init(void);
+static int8_t HID_DeInit(void);
+static int8_t HID_OutEvent(uint8_t event_idx, uint8_t state);
+static int8_t HID_CtrlReqComplete(uint8_t request, uint16_t wLength);
+static uint8_t *HID_GetReport(uint16_t *ReportLength);
 
 /* Private variables ---------------------------------------------------------*/
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
-__ALIGN_BEGIN static uint8_t TEMPLATE_CUSTOM_HID_ReportDesc[USBD_CUSTOM_HID_REPORT_DESC_SIZE] __ALIGN_END =
+__ALIGN_BEGIN static uint8_t HID_ReportDesc[USBD_CUSTOM_HID_REPORT_DESC_SIZE] __ALIGN_END =
     {
         0x06, 0x00, 0xFF, // Usage Page (Vendor-defined 0xFF00)
         0x09, 0x01,       // Usage (Vendor-defined)
@@ -23,7 +24,7 @@ __ALIGN_BEGIN static uint8_t TEMPLATE_CUSTOM_HID_ReportDesc[USBD_CUSTOM_HID_REPO
         0x26, 0xFF, 0x7F, //   Logical Max (32767)
         0x75, 0x10,       //   Report Size (16 bits)
         0x95, 0x01,       //   Report Count (1)
-        0xB1, 0x02,       //   Feature (Data, Var, Abs) — Read Only on host
+        0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
 
         // ----- Target Temperature (RW, 16-bit) -----
         0x09, 0x11, //   Usage (Target Temperature)
@@ -57,51 +58,78 @@ __ALIGN_BEGIN static uint8_t TEMPLATE_CUSTOM_HID_ReportDesc[USBD_CUSTOM_HID_REPO
         0x95, 0x01,
         0xB1, 0x02,
 
+        // ----- Mode (RW, 2-bit) -----
+        0x09, 0x15, //   Usage (Mode)
+        0x15, 0x00,    // Logical Minimum (0)
+        0x25, 0x02,    // Logical Maximum (2)
+        0x75, 0x02,
+        0x95, 0x01,
+        0xB1, 0x02,
+
+        // ----- Exposure trigger (WO, 1-bit) -----
+        0x09, 0x20,       // Usage (Vendor-defined or your assigned usage for Trigger)
+        0x15, 0x00,       // Logical Minimum (0)
+        0x25, 0x01,       // Logical Maximum (1)
+        0x75, 0x01,       // Report Size = 1 bit
+        0x95, 0x01,       // Report Count = 1 (1 bit)
+        0x91, 0x02,       // Output (Data, Variable, Absolute)
+
         // ----- Padding to align to next byte -----
-        0x75, 0x05,
+        0x75, 0x04,
         0x95, 0x01,
         0xB1, 0x03, //   Feature (Const, Var, Abs) — padding
+
+        // ----- Padding to align to next byte -----
+        0x75, 0x07,
+        0x95, 0x01,
+        0x81, 0x03, //   Input (Const, Var, Abs) — padding
+
+        // ----- Padding to align to next byte -----
+        0x75, 0x07,
+        0x95, 0x01,
+        0x91, 0x03, //   Output (Const, Var, Abs) — padding
 
         0xC0 // End Collection
 };
 
 USBD_CUSTOM_HID_ItfTypeDef USBD_CustomHID_fops =
     {
-        TEMPLATE_CUSTOM_HID_ReportDesc,
+        .pReport = HID_ReportDesc,
 #ifdef USBD_CUSTOMHID_REPORT_DESC_SIZE_ENABLED
-        USBD_CUSTOM_HID_REPORT_DESC_SIZE,
-#endif /* USBD_CUSTOMHID_REPORT_DESC_SIZE_ENABLED */
-        TEMPLATE_CUSTOM_HID_Init,
-        TEMPLATE_CUSTOM_HID_DeInit,
-        TEMPLATE_CUSTOM_HID_OutEvent,
+        .wReportDescLen = USBD_CUSTOM_HID_REPORT_DESC_SIZE,
+#endif
+        .Init = HID_Init,
+        .DeInit = HID_DeInit,
+        .OutEvent = HID_OutEvent,
 #ifdef USBD_CUSTOMHID_CTRL_REQ_COMPLETE_CALLBACK_ENABLED
-        TEMPLATE_CUSTOM_HID_CtrlReqComplete,
-#endif /* USBD_CUSTOMHID_CTRL_REQ_COMPLETE_CALLBACK_ENABLED */
+        .CtrlReqComplete = HID_CtrlReqComplete,
+#endif
+
 #ifdef USBD_CUSTOMHID_CTRL_REQ_GET_REPORT_ENABLED
-        TEMPLATE_CUSTOM_HID_GetReport,
-#endif /* USBD_CUSTOMHID_CTRL_REQ_GET_REPORT_ENABLED */
+        .GetReport = HID_GetReport,
+#endif
 };
 
 /* Private functions ---------------------------------------------------------*/
 
 /**
- * @brief  TEMPLATE_CUSTOM_HID_Init
+ * @brief  HID_Init
  *         Initializes the CUSTOM HID media low layer
  * @param  None
  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
  */
-static int8_t TEMPLATE_CUSTOM_HID_Init(void)
+static int8_t HID_Init(void)
 {
     return (0);
 }
 
 /**
- * @brief  TEMPLATE_CUSTOM_HID_DeInit
+ * @brief  HID_DeInit
  *         DeInitializes the CUSTOM HID media low layer
  * @param  None
  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
  */
-static int8_t TEMPLATE_CUSTOM_HID_DeInit(void)
+static int8_t HID_DeInit(void)
 {
     /*
        Add your deinitialization code here
@@ -110,14 +138,13 @@ static int8_t TEMPLATE_CUSTOM_HID_DeInit(void)
 }
 
 /**
- * @brief  TEMPLATE_CUSTOM_HID_Control
+ * @brief  HID_Control
  *         Manage the CUSTOM HID class events
  * @param  event_idx: event index
  * @param  state: event state
  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
  */
-
-static int8_t TEMPLATE_CUSTOM_HID_OutEvent(uint8_t event_idx, uint8_t state)
+static int8_t HID_OutEvent(uint8_t event_idx, uint8_t state)
 {
     UNUSED(event_idx);
     UNUSED(state);
@@ -132,16 +159,46 @@ static int8_t TEMPLATE_CUSTOM_HID_OutEvent(uint8_t event_idx, uint8_t state)
 }
 
 /**
- * @brief  TEMPLATE_CUSTOM_HID_GetReport
+ * @brief  HID_GetReport
  *         Manage the CUSTOM HID control Get Report request
  * @param  event_idx: event index
  * @param  state: event state
  * @retval return pointer to HID report
  */
-static uint8_t *TEMPLATE_CUSTOM_HID_GetReport(uint16_t *ReportLength)
+static uint8_t *HID_GetReport(uint16_t *ReportLength)
 {
     UNUSED(ReportLength);
     uint8_t *pbuff = NULL;
 
     return (pbuff);
 }
+
+#ifdef USBD_CUSTOMHID_CTRL_REQ_COMPLETE_CALLBACK_ENABLED
+/**
+  * @brief  HID_CtrlReqComplete
+  *         Manage the HID control request complete
+  * @param  request: control request
+  * @param  wLength: request wLength
+  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
+  */
+static int8_t HID_CtrlReqComplete(uint8_t request, uint16_t wLength)
+{
+  UNUSED(wLength);
+
+  switch (request)
+  {
+    case CUSTOM_HID_REQ_SET_REPORT:
+
+      break;
+
+    case CUSTOM_HID_REQ_GET_REPORT:
+
+      break;
+
+    default:
+      break;
+  }
+
+  return (0);
+}
+#endif /* USBD_CUSTOMHID_CTRL_REQ_COMPLETE_CALLBACK_ENABLED */
