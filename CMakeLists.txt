@@ -18,23 +18,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 project(${CMAKE_PROJECT_NAME})
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
-enable_language(C ASM)
-
-
-add_executable(${CMAKE_PROJECT_NAME})
-
-
+add_subdirectory(src/system_config)
 add_subdirectory(cmake/stm32cubemx)
-
-target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE)
-
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE)
-
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE)
-
-target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE)
-
-target_link_libraries(${CMAKE_PROJECT_NAME} stm32cubemx)
-
-add_custom_target(${CMAKE_PROJECT_NAME}.hex ALL ${CMAKE_OBJCOPY} ${CMAKE_PROJECT_NAME}.elf -O ihex ${CMAKE_PROJECT_NAME}.hex DEPENDS ${CMAKE_PROJECT_NAME})
-add_custom_target(${CMAKE_PROJECT_NAME}.bin ALL ${CMAKE_OBJCOPY} ${CMAKE_PROJECT_NAME}.elf -O binary ${CMAKE_PROJECT_NAME}.bin DEPENDS ${CMAKE_PROJECT_NAME})
+add_subdirectory(src/usb_device)
+add_subdirectory(src/application)

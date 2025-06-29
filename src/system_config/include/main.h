@@ -5,10 +5,6 @@ extern "C"
 {
 #endif
 
-#include "stm32f4xx_hal.h"
-
-void Error_Handler(void);
-
 /* Private defines -----------------------------------------------------------*/
 #define USB_RST_Pin GPIO_PIN_1
 #define USB_RST_GPIO_Port GPIOC
@@ -28,6 +24,8 @@ void Error_Handler(void);
 #define COMMAND_INT_GPIO_Port GPIOD
 #define COMMAND_TRG_Pin GPIO_PIN_5
 #define COMMAND_TRG_GPIO_Port GPIOD
+
+void Error_Handler(void);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,6 @@
 #include "main.h"
 #include "stm32f4xx_it.h"
+#include "stm32f4xx.h"
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
