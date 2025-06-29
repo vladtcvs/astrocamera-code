@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "usbd_hid.h": "c",
+        "usbd_ioreq.h": "c",
+        "usbd_def.h": "c",
+        "usbd_conf.h": "c",
+        "usbd_composite_builder.h": "c",
+        "stm32f4xx_hal.h": "c",
+        "usbd_customhid_if.h": "c"
+    }
+}

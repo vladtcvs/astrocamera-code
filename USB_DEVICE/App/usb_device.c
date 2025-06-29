@@ -28,12 +28,19 @@ void MX_USB_DEVICE_Init(void)
     {
         Error_Handler();
     }
-    /*if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_HID, &HID_EpAdd_Inst) != USBD_OK)*/
-    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CUSTOM_HID) != USBD_OK)
+
+    int hidClassId = hUsbDeviceHS.classId;
+    if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_CHID, &HID_EpAdd_Inst) != USBD_OK)
+    //if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_HID, CLASS_TYPE_HID, &HID_EpAdd_Inst) != USBD_OK)
     {
 	    Error_Handler();
     }
-    USBD_CUSTOM_HID_RegisterInterface(&hUsbDeviceHS, &USBD_CustomHID_fops);
+    hUsbDeviceHS.pUserData[hidClassId] = &USBD_CustomHID_fops;
+
+    /*if (USBD_CUSTOM_HID_RegisterInterface(&hUsbDeviceHS, &USBD_CustomHID_fops) != USBD_OK)
+    {
+	    Error_Handler();
+    }*/
 
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
     {
