@@ -28,6 +28,7 @@ set(MX_Application_Src
     ${CMAKE_SOURCE_DIR}/USB_DEVICE/Target/usbd_conf.c
     ${CMAKE_SOURCE_DIR}/USB_DEVICE/App/usb_device.c
     ${CMAKE_SOURCE_DIR}/USB_DEVICE/App/usbd_desc.c
+    ${CMAKE_SOURCE_DIR}/USB_DEVICE/App/usbd_customhid_if.c
     ${CMAKE_SOURCE_DIR}/Core/Src/main.c
     ${CMAKE_SOURCE_DIR}/Core/Src/stm32f4xx_it.c
     ${CMAKE_SOURCE_DIR}/Core/Src/stm32f4xx_hal_msp.c

@@ -5,6 +5,7 @@
 #include "usbd_hid.h"
 #include "usbd_customhid.h"
 #include "usbd_composite_builder.h"
+#include "usbd_customhid_if.h"
 
 /* USB Device Core handle declaration. */
 USBD_HandleTypeDef hUsbDeviceHS;
@@ -28,10 +29,11 @@ void MX_USB_DEVICE_Init(void)
         Error_Handler();
     }
     /*if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_HID, &HID_EpAdd_Inst) != USBD_OK)*/
-    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_HID) != USBD_OK)
+    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CUSTOM_HID) != USBD_OK)
     {
 	    Error_Handler();
     }
+    USBD_CUSTOM_HID_RegisterInterface(&hUsbDeviceHS, &USBD_CustomHID_fops);
 
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
     {
