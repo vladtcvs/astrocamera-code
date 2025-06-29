@@ -1,4 +1,4 @@
-#include "main.h"
+#include "pinout.h"
 #include "stm32f4xx_it.h"
 #include "stm32f4xx.h"
 

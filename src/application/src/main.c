@@ -1,5 +1,6 @@
-#include "main.h"
+#include "pinout.h"
 #include "usb_device.h"
+#include "system.h"
 
 I2C_HandleTypeDef hi2c1;
 
@@ -262,19 +263,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-}
-
-/**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
-void Error_Handler(void)
-{
-
-    __disable_irq();
-    while (1)
-    {
-    }
 }
 
 #ifdef USE_FULL_ASSERT

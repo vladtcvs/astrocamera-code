@@ -6,6 +6,8 @@
         "usbd_conf.h": "c",
         "usbd_composite_builder.h": "c",
         "stm32f4xx_hal.h": "c",
-        "usbd_customhid_if.h": "c"
+        "usbd_customhid_if.h": "c",
+        "stm32f4xx.h": "c",
+        "system.h": "c"
     }
 }

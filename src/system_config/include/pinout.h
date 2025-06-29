@@ -25,8 +25,6 @@ extern "C"
 #define COMMAND_TRG_Pin GPIO_PIN_5
 #define COMMAND_TRG_GPIO_Port GPIOD
 
-void Error_Handler(void);
-
 #ifdef __cplusplus
 }
 #endif

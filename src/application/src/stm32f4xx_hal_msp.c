@@ -1,6 +1,5 @@
-#include "main.h"
+#include "pinout.h"
 #include "stm32f4xx.h"
-
 
 /**
  * Initializes the Global MSP.
