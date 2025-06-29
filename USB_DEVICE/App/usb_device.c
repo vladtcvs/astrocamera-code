@@ -2,14 +2,16 @@
 #include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
-#include "usbd_hid.h"
+//#include "usbd_hid.h"
+#include "usbd_video.h"
 #include "usbd_customhid.h"
 #include "usbd_composite_builder.h"
 #include "usbd_customhid_if.h"
 
 /* USB Device Core handle declaration. */
 USBD_HandleTypeDef hUsbDeviceHS;
-uint8_t HID_EpAdd_Inst = CUSTOM_HID_EPIN_ADDR;
+uint8_t HID_EpAdd_Inst = 0x81;
+uint8_t VIDEO_EpAdd_Inst = 0x83;
 
 /**
  * Init USB device Library, add supported class and start the library
@@ -30,14 +32,19 @@ void MX_USB_DEVICE_Init(void)
     }
 
     int hidClassId = hUsbDeviceHS.classId;
-    if(USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_CHID, &HID_EpAdd_Inst) != USBD_OK)
+    if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_CHID, &HID_EpAdd_Inst) != USBD_OK)
     {
 	    Error_Handler();
     }
-
     hUsbDeviceHS.pUserData[hidClassId] = &USBD_CustomHID_fops;
     
-
+    /*int videoClassId = hUsbDeviceHS.classId;
+    if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_VIDEO, CLASS_TYPE_VIDEO, &VIDEO_EpAdd_Inst) != USBD_OK)
+    {
+        Error_Handler();
+    }
+    hUsbDeviceHS.pUserData[videoClassId] = NULL;
+*/
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
     {
         Error_Handler();
