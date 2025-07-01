@@ -21,10 +21,12 @@ static TaskHandle_t sensors_poll_task;
 static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static StaticTask_t sensors_poll_task_buffer;
 
-static void sensors_poll_function(void *arg)
+static void sensors_poll_function(void *ctx)
 {
+    const TickType_t xDelay = 10 / portTICK_PERIOD_MS;
     while (1) {
-        HAL_Delay(10);
+        send_sensors((struct usb_context_s *)ctx, 0);
+        vTaskDelay(xDelay);
     }
 }
 
@@ -56,7 +58,7 @@ int main(void)
     sensors_poll_task = xTaskCreateStatic(sensors_poll_function,
                                           "sensors",
                                           SENSORS_POLL_TASK_STACK_SIZE,
-                                          NULL,
+                                          usb_ctx,
                                           1,
                                           sensors_poll_task_stack,
                                           &sensors_poll_task_buffer);

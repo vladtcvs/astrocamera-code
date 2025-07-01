@@ -53,5 +53,8 @@ struct usb_context_s* MX_USB_DEVICE_Init(void)
 
 void send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
 {
-//    HID_Set_Report();
+    uint8_t report_buf[2];
+    report_buf[0] = LOBYTE(current_temperature);
+    report_buf[1] = HIBYTE(current_temperature);
+    USBD_CUSTOM_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf), ctx->hidClassId);
 }
