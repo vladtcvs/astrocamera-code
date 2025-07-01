@@ -49,7 +49,7 @@ int main(void)
     MX_SPI4_Init();
     MX_UART5_Init();
     MX_USART1_UART_Init();
-    void *usb_ctx = MX_USB_DEVICE_Init();
+    struct usb_context_s *usb_ctx = MX_USB_DEVICE_Init();
     if (usb_ctx == NULL)
         Error_Handler();
 

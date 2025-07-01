@@ -74,17 +74,14 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[USBD_CUSTOM_HID_REPORT_DESC_SIZE] __
         0x95, 0x01,       // Report Count = 1 (1 bit)
         0x91, 0x02,       // Output (Data, Variable, Absolute)
 
-        // ----- Padding to align to next byte -----
+        // ----- Padding of FEATURE to align to next byte -----
         0x75, 0x04,
         0x95, 0x01,
         0xB1, 0x03, //   Feature (Const, Var, Abs) — padding
 
-        // ----- Padding to align to next byte -----
-        0x75, 0x07,
-        0x95, 0x01,
-        0x81, 0x03, //   Input (Const, Var, Abs) — padding
-
-        // ----- Padding to align to next byte -----
+        // ----- Padding of INPUT to align to next byte -----
+        
+        // ----- Padding of OUTPUT to align to next byte -----
         0x75, 0x07,
         0x95, 0x01,
         0x91, 0x03, //   Output (Const, Var, Abs) — padding

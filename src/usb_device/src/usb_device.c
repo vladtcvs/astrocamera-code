@@ -50,3 +50,8 @@ struct usb_context_s* MX_USB_DEVICE_Init(void)
 
     return &usb_context;
 }
+
+void send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
+{
+//    HID_Set_Report();
+}
