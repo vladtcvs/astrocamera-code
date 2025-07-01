@@ -4,16 +4,6 @@
 extern "C"
 {
 #endif
-
-    /* Private includes ----------------------------------------------------------*/
-
-    /* Exported types ------------------------------------------------------------*/
-
-    /* Exported constants --------------------------------------------------------*/
-
-    /* Exported macro ------------------------------------------------------------*/
-
-    /* Exported functions prototypes ---------------------------------------------*/
     void NMI_Handler(void);
     void HardFault_Handler(void);
     void MemManage_Handler(void);
