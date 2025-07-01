@@ -49,7 +49,9 @@ int main(void)
     MX_SPI4_Init();
     MX_UART5_Init();
     MX_USART1_UART_Init();
-    MX_USB_DEVICE_Init();
+    void *usb_ctx = MX_USB_DEVICE_Init();
+    if (usb_ctx == NULL)
+        Error_Handler();
 
     sensors_poll_task = xTaskCreateStatic(sensors_poll_function,
                                           "sensors",

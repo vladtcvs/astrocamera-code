@@ -14,11 +14,16 @@ USBD_HandleTypeDef hUsbDeviceHS;
 uint8_t HID_EpAdd_Inst = 0x81;
 uint8_t VIDEO_EpAdd_Inst = 0x83;
 
+struct usb_context_s {
+    int hidClassId;
+    int videoClassId;
+} usb_context;
+
 /**
  * Init USB device Library, add supported class and start the library
  * @retval None
  */
-void MX_USB_DEVICE_Init(void)
+struct usb_context_s* MX_USB_DEVICE_Init(void)
 {
     /* Reset PHY */
     HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_SET);
@@ -28,26 +33,20 @@ void MX_USB_DEVICE_Init(void)
 
     /* Init Device Library, add supported class and start the library. */
     if (USBD_Init(&hUsbDeviceHS, &HS_Desc, DEVICE_HS) != USBD_OK)
-    {
-        Error_Handler();
-    }
+        return NULL;
 
-    int hidClassId = hUsbDeviceHS.classId;
+    usb_context.hidClassId = hUsbDeviceHS.classId;
     if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_CHID, &HID_EpAdd_Inst) != USBD_OK)
-    {
-	    Error_Handler();
-    }
-    hUsbDeviceHS.pUserData[hidClassId] = &USBD_CustomHID_fops;
+        return NULL;
+    hUsbDeviceHS.pUserData[usb_context.hidClassId] = &USBD_CustomHID_fops;
     
-    int videoClassId = hUsbDeviceHS.classId;
+    usb_context.videoClassId = hUsbDeviceHS.classId;
     if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_VIDEO, CLASS_TYPE_VIDEO, &VIDEO_EpAdd_Inst) != USBD_OK)
-    {
-        Error_Handler();
-    }
-    hUsbDeviceHS.pUserData[videoClassId] = &USBD_VIDEO_fops_FS;
+        return NULL;
+    hUsbDeviceHS.pUserData[usb_context.videoClassId] = &USBD_VIDEO_fops_FS;
 
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
-    {
-        Error_Handler();
-    }
+        return NULL;
+
+    return &usb_context;
 }
