@@ -1,4 +1,4 @@
-#include "qspi.h"
+#include "hw/qspi.h"
 #include "system.h"
 
 static QSPI_HandleTypeDef hqspi;

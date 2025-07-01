@@ -1,4 +1,4 @@
-#include "spi.h"
+#include "hw/spi.h"
 #include "system.h"
 
 static SPI_HandleTypeDef hspi4;

@@ -1,6 +1,6 @@
 #include "stm32f4xx.h"
 
-#include "gpio.h"
+#include "hw/gpio.h"
 #include "system.h"
 #include "system_config.h"
 

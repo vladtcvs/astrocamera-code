@@ -1,4 +1,4 @@
-#include "uart.h"
+#include "hw/uart.h"
 #include "system.h"
 
 static UART_HandleTypeDef huart1;

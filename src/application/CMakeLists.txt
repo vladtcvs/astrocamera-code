@@ -4,19 +4,22 @@ enable_language(C ASM)
 
 add_executable(${CMAKE_PROJECT_NAME} 
                 src/main.c
-                src/system_clock.c
-                src/i2c.c
-                src/qspi.c
-                src/spi.c
-                src/uart.c
-                src/gpio.c
-                src/usb.c
+                src/hw/system_clock.c
+                src/hw/i2c.c
+                src/hw/qspi.c
+                src/hw/spi.c
+                src/hw/uart.c
+                src/hw/gpio.c
+                src/hw/usb.c
                 src/stm32f4xx_it.c
                 src/system_stm32f4xx.c
+                src/system.c
+                src/sysmem.c
+                src/syscalls.c
                 startup_stm32f446xx.s
 )            
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC include)
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC system_config system usb_device stm32cubemx STM32_Drivers freertos_kernel)
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC system_config usb_device stm32cubemx STM32_Drivers freertos_kernel)
 
 
 add_custom_target(${CMAKE_PROJECT_NAME}.hex ALL ${CMAKE_OBJCOPY} ${CMAKE_PROJECT_NAME}.elf -O ihex ${CMAKE_PROJECT_NAME}.hex DEPENDS ${CMAKE_PROJECT_NAME})

@@ -7,6 +7,10 @@
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
+void xPortPendSVHandler( void ) __attribute__( ( naked ) );
+void xPortSysTickHandler( void );
+void vPortSVCHandler( void ) __attribute__( ( naked ) );
+
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
@@ -70,6 +74,7 @@ void UsageFault_Handler(void)
  */
 void SVC_Handler(void)
 {
+    vPortSVCHandler();
 }
 
 /**
@@ -84,6 +89,7 @@ void DebugMon_Handler(void)
  */
 void PendSV_Handler(void)
 {
+    xPortPendSVHandler();
 }
 
 /**
@@ -91,8 +97,8 @@ void PendSV_Handler(void)
  */
 void SysTick_Handler(void)
 {
-
     HAL_IncTick();
+    xPortSysTickHandler();
 }
 
 /******************************************************************************/

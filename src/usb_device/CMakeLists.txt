@@ -10,4 +10,4 @@ add_library(usb_device STATIC
                 src/usbd_desc.c)
             
 target_include_directories(usb_device PUBLIC include)
-target_link_libraries(usb_device PUBLIC system_config system USB_Device_Library STM32_Drivers stm32cubemx)
+target_link_libraries(usb_device PUBLIC system_config USB_Device_Library STM32_Drivers stm32cubemx)

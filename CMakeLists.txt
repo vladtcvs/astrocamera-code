@@ -21,7 +21,6 @@ message("Build type: " ${CMAKE_BUILD_TYPE})
 
 add_subdirectory(src/system_config)
 add_subdirectory(Middlewares/FreeRTOS-Kernel)
-add_subdirectory(src/system)
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(src/usb_device)
 add_subdirectory(src/application)

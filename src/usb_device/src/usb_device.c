@@ -1,8 +1,6 @@
-#include "system.h"
 #include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_desc.h"
-//#include "usbd_hid.h"
 #include "usbd_video.h"
 #include "usbd_customhid.h"
 #include "usbd_composite_builder.h"

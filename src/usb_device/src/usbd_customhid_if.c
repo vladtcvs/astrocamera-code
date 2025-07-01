@@ -10,7 +10,7 @@ static uint8_t *HID_GetReport(uint16_t *ReportLength);
 /* Private variables ---------------------------------------------------------*/
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
-__ALIGN_BEGIN static uint8_t HID_ReportDesc[USBD_CUSTOM_HID_REPORT_DESC_SIZE] __ALIGN_END =
+__ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
     {
         0x06, 0x00, 0xFF, // Usage Page (Vendor-defined 0xFF00)
         0x09, 0x01,       // Usage (Vendor-defined)
