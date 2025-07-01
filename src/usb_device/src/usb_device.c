@@ -7,6 +7,7 @@
 #include "usbd_customhid.h"
 #include "usbd_composite_builder.h"
 #include "usbd_customhid_if.h"
+#include "usbd_video_if.h"
 
 /* USB Device Core handle declaration. */
 USBD_HandleTypeDef hUsbDeviceHS;
@@ -38,13 +39,13 @@ void MX_USB_DEVICE_Init(void)
     }
     hUsbDeviceHS.pUserData[hidClassId] = &USBD_CustomHID_fops;
     
-    /*int videoClassId = hUsbDeviceHS.classId;
+    int videoClassId = hUsbDeviceHS.classId;
     if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_VIDEO, CLASS_TYPE_VIDEO, &VIDEO_EpAdd_Inst) != USBD_OK)
     {
         Error_Handler();
     }
-    hUsbDeviceHS.pUserData[videoClassId] = NULL;
-*/
+    hUsbDeviceHS.pUserData[videoClassId] = &USBD_VIDEO_fops_FS;
+
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
     {
         Error_Handler();

@@ -6,6 +6,7 @@ add_library(usb_device STATIC
                 src/usb_device.c
                 src/usbd_conf.c
                 src/usbd_customhid_if.c
+                src/usbd_video_if.c
                 src/usbd_desc.c)
             
 target_include_directories(usb_device PUBLIC include)

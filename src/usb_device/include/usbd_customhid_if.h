@@ -16,9 +16,7 @@
   ******************************************************************************
   */
 
-/* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __USBD_CUSTOMHID_IF_TEMPLATE_H
-#define __USBD_CUSTOMHID_IF_TEMPLATE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +34,3 @@ extern USBD_CUSTOM_HID_ItfTypeDef USBD_CustomHID_fops;
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* __USBD_CUSTOMHID_IF_TEMPLATE_H */
-
