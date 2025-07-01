@@ -1,6 +1,13 @@
-#include "pinout.h"
+#include "system_config.h"
 #include "usb_device.h"
 #include "system.h"
+
+#include <FreeRTOS.h>
+#include <task.h>
+#include <queue.h>
+#include <timers.h>
+#include <semphr.h>
+
 
 I2C_HandleTypeDef hi2c1;
 
@@ -44,9 +51,12 @@ int main(void)
     MX_USB_DEVICE_Init();
 
     /* Infinite loop */
+    vTaskStartScheduler();
+    
+    /* Should not reach here */
     while (1)
-    {
-    }
+    {}
+    return 0;
 }
 
 /**
@@ -72,7 +82,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLM = 8;
-    RCC_OscInitStruct.PLL.PLLN = 180;
+    RCC_OscInitStruct.PLL.PLLN = (FREQ_MHZ)*2;
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = 2;
     RCC_OscInitStruct.PLL.PLLR = 2;

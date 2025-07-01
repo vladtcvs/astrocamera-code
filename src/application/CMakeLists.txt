@@ -10,7 +10,7 @@ add_executable(${CMAKE_PROJECT_NAME}
                 startup_stm32f446xx.s
 )            
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC include)
-target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC system_config system usb_device stm32cubemx STM32_Drivers)
+target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC system_config system usb_device stm32cubemx STM32_Drivers freertos_kernel)
 
 
 add_custom_target(${CMAKE_PROJECT_NAME}.hex ALL ${CMAKE_OBJCOPY} ${CMAKE_PROJECT_NAME}.elf -O ihex ${CMAKE_PROJECT_NAME}.hex DEPENDS ${CMAKE_PROJECT_NAME})

@@ -9,3 +9,5 @@ target_compile_definitions(system_config
   INTERFACE
     projCOVERAGE_TEST=0
 )
+
+add_library(freertos_config ALIAS system_config)

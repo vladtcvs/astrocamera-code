@@ -5,6 +5,9 @@ extern "C"
 {
 #endif
 
+/* Frequency MHz */
+#define FREQ_MHZ 90U
+
 /* Private defines -----------------------------------------------------------*/
 #define USB_RST_Pin GPIO_PIN_1
 #define USB_RST_GPIO_Port GPIOC

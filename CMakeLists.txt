@@ -14,11 +14,13 @@ set(CMAKE_PROJECT_NAME camera-control-code)
 include("cmake/gcc-arm-none-eabi.cmake")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(FREERTOS_PORT GCC_ARM_CM4F CACHE STRING "")
 
 project(${CMAKE_PROJECT_NAME})
 message("Build type: " ${CMAKE_BUILD_TYPE})
 
 add_subdirectory(src/system_config)
+add_subdirectory(Middlewares/FreeRTOS-Kernel)
 add_subdirectory(src/system)
 add_subdirectory(cmake/stm32cubemx)
 add_subdirectory(src/usb_device)

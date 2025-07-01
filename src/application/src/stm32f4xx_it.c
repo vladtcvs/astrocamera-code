@@ -1,6 +1,9 @@
-#include "pinout.h"
+#include "system_config.h"
 #include "stm32f4xx_it.h"
 #include "stm32f4xx.h"
+
+#include <FreeRTOS.h>
+#include <task.h>
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
@@ -107,3 +110,12 @@ void OTG_HS_IRQHandler(void)
 
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
+
+#if ( configCHECK_FOR_STACK_OVERFLOW > 0 )
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName)
+{
+    while (1)
+    {}
+}
+#endif
+
