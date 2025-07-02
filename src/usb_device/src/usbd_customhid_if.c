@@ -1,9 +1,12 @@
 
+#include <stdbool.h>
 #include "usbd_customhid_if.h"
+
+void process_trigger(bool trigger);
 
 static int8_t HID_Init(void);
 static int8_t HID_DeInit(void);
-static int8_t HID_OutEvent(uint8_t event_idx, uint8_t state);
+static int8_t HID_OutEvent(uint8_t *report_buffer);
 static int8_t HID_CtrlReqComplete(uint8_t request, uint16_t wLength);
 static uint8_t *HID_GetReport(uint16_t *ReportLength);
 
@@ -26,13 +29,15 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x95, 0x01,       //   Report Count (1)
         0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
 
+        0x85, 0x01, //   Report ID (1)
+
         // ----- Target Temperature (RW, 16-bit) -----
         0x09, 0x11, //   Usage (Target Temperature)
         0x15, 0x00,       //   Logical Min (0)
         0x26, 0xFF, 0x7F, //   Logical Max (32767)
         0x75, 0x10,
         0x95, 0x01,
-        0xB1, 0x02, //   Feature (R/W)
+        0xB1, 0x02,       //   Feature (R/W)
 
         // ----- TEC Enabled (RW, 1-bit) -----
         0x09, 0x12,    // Usage (TEC Enabled)
@@ -48,7 +53,7 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x25, 0x01,    // Logical Maximum (1)
         0x75, 0x01,
         0x95, 0x01,
-        0xB1, 0x02,
+        0xB1, 0x02,    // Feature
 
         // ----- Heater Enabled (RW, 1-bit) -----
         0x09, 0x14, //   Usage (Heater Enabled)
@@ -56,7 +61,7 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x25, 0x01,    // Logical Maximum (1)
         0x75, 0x01,
         0x95, 0x01,
-        0xB1, 0x02,
+        0xB1, 0x02,    // Feature
 
         // ----- Mode (RW, 2-bit) -----
         0x09, 0x15, //   Usage (Mode)
@@ -64,7 +69,9 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x25, 0x02,    // Logical Maximum (2)
         0x75, 0x02,
         0x95, 0x01,
-        0xB1, 0x02,
+        0xB1, 0x02,    // Feature
+
+        0x85, 0x01, //   Report ID (1)
 
         // ----- Exposure trigger (WO, 1-bit) -----
         0x09, 0x20,       // Usage (Vendor-defined or your assigned usage for Trigger)
@@ -137,14 +144,18 @@ static int8_t HID_DeInit(void)
 /**
  * @brief  HID_Control
  *         Manage the CUSTOM HID class events
- * @param  event_idx: event index
- * @param  state: event state
+ * @param  report_buffer: report buffer
  * @retval Result of the operation: USBD_OK if all operations are OK else USBD_FAIL
  */
-static int8_t HID_OutEvent(uint8_t event_idx, uint8_t state)
+static int8_t HID_OutEvent(uint8_t *report_buffer)
 {
-    UNUSED(event_idx);
-    UNUSED(state);
+    uint8_t report_id = report_buffer[0];
+
+    if (report_id == 1) {
+        uint8_t data = report_buffer[1];
+        bool trigger = data & 0x01;
+        process_trigger(trigger);
+    }
 
     /* Start next USB packet transfer once data processing is completed */
     if (USBD_CUSTOM_HID_ReceivePacket(&hUsbDeviceHS) != (uint8_t)USBD_OK)
@@ -164,7 +175,6 @@ static int8_t HID_OutEvent(uint8_t event_idx, uint8_t state)
  */
 static uint8_t *HID_GetReport(uint16_t *ReportLength)
 {
-    UNUSED(ReportLength);
     uint8_t *pbuff = NULL;
 
     return (pbuff);

@@ -35,6 +35,11 @@ static void sensors_poll_function(void *ctx)
     }
 }
 
+void process_trigger(bool trigger)
+{
+    
+}
+
 /**
  * @brief  The application entry point.
  * @retval int
