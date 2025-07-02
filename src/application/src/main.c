@@ -1,6 +1,7 @@
 #include "system_config.h"
 #include "system.h"
 #include "stm32f4xx.h"
+#include "stm32f4xx_it.h"
 
 #include "hw/system_clock.h"
 
@@ -20,14 +21,16 @@
 #include <semphr.h>
 
 #define SENSORS_POLL_TASK_STACK_SIZE 200
-static BaseType_t sensors_poll_task;
+static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
+static TaskHandle_t sensors_poll_task;
+static StaticTask_t sensors_poll_task_buffer;
 
 static void sensors_poll_function(void *ctx)
 {
     int current_temperature = 2961; // 296.1 K = 23 C
     const TickType_t xDelay = 10 / portTICK_PERIOD_MS;
     while (1) {
-        //send_sensors((struct usb_context_s *)ctx, current_temperature);
+        send_sensors((struct usb_context_s *)ctx, current_temperature);
         vTaskDelay(xDelay);
     }
 }
@@ -40,6 +43,7 @@ int main(void)
 {
     /* MCU Configuration--------------------------------------------------------*/
     /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    freertos_tick = false;
     HAL_Init();
 
     HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
@@ -60,12 +64,15 @@ int main(void)
     if (usb_ctx == NULL)
         Error_Handler();
 
-    sensors_poll_task = xTaskCreate(sensors_poll_function,
+    freertos_tick = true;
+
+    sensors_poll_task = xTaskCreateStatic(sensors_poll_function,
                                           "sensors",
                                           SENSORS_POLL_TASK_STACK_SIZE,
                                           usb_ctx,
                                           1,
-                                          NULL);
+                                          sensors_poll_task_stack,
+                                          &sensors_poll_task_buffer);
 
     /* Infinite loop */
     vTaskStartScheduler();

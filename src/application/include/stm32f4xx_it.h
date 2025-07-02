@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,6 +16,8 @@ extern "C"
     void PendSV_Handler(void);
     void SysTick_Handler(void);
     void OTG_HS_IRQHandler(void);
+
+    extern bool freertos_tick;
 
 #ifdef __cplusplus
 }

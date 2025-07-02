@@ -16,7 +16,7 @@ add_executable(${CMAKE_PROJECT_NAME}
                 src/system.c
                 src/sysmem.c
                 src/syscalls.c
-                ${CMAKE_SOURCE_DIR}/Middlewares/FreeRTOS-Kernel/portable/MemMang/heap_4.c
+                #${CMAKE_SOURCE_DIR}/Middlewares/FreeRTOS-Kernel/portable/MemMang/heap_4.c
                 startup_stm32f446xx.s
 )            
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC include)

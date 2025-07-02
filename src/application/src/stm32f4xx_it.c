@@ -96,10 +96,12 @@ void PendSV_Handler(void)
  * @brief This function handles System tick timer.
  */
 void xPortSysTickHandler( void );
+bool freertos_tick = false;
 void SysTick_Handler(void)
 {
     HAL_IncTick();
-    xPortSysTickHandler();
+    if (freertos_tick)
+        xPortSysTickHandler();
 }
 
 /******************************************************************************/
