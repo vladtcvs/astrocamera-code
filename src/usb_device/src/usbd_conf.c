@@ -7,7 +7,6 @@
 #include "usbd_customhid.h"
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
-void Error_Handler(void);
 
 /* External functions --------------------------------------------------------*/
 void SystemClock_Config(void);
@@ -100,7 +99,7 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
     }
     else
     {
-        Error_Handler();
+        return;
     }
     /* Set Speed. */
     USBD_LL_SetSpeed((USBD_HandleTypeDef *)hpcd->pData, speed);
@@ -237,9 +236,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
         hpcd_USB_OTG_HS.Init.use_dedicated_ep1 = DISABLE;
         hpcd_USB_OTG_HS.Init.use_external_vbus = DISABLE;
         if (HAL_PCD_Init(&hpcd_USB_OTG_HS) != HAL_OK)
-        {
-            Error_Handler();
-        }
+            return USBD_FAIL;
 
 #if (USE_HAL_PCD_REGISTER_CALLBACKS == 1U)
         /* Register USB PCD CallBacks */

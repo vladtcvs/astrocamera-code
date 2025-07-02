@@ -44,7 +44,7 @@ void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
     }
 }
 
-void MX_I2C1_Init(void)
+int MX_I2C1_Init(void)
 {
 
     hi2c1.Instance = I2C1;
@@ -56,8 +56,5 @@ void MX_I2C1_Init(void)
     hi2c1.Init.OwnAddress2 = 0;
     hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
     hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    return HAL_I2C_Init(&hi2c1);
 }

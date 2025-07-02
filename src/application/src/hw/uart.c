@@ -73,7 +73,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
     }
 }
 
-void MX_UART5_Init(void)
+int MX_UART5_Init(void)
 {
 
     huart5.Instance = UART5;
@@ -84,13 +84,10 @@ void MX_UART5_Init(void)
     huart5.Init.Mode = UART_MODE_TX_RX;
     huart5.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     huart5.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart5) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    return HAL_UART_Init(&huart5);
 }
 
-void MX_USART1_UART_Init(void)
+int MX_USART1_UART_Init(void)
 {
 
     huart1.Instance = USART1;
@@ -101,8 +98,5 @@ void MX_USART1_UART_Init(void)
     huart1.Init.Mode = UART_MODE_TX_RX;
     huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart1) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    return HAL_UART_Init(&huart1);
 }

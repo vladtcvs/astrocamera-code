@@ -88,7 +88,7 @@ void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef *hqspi)
     }
 }
 
-void MX_QUADSPI_Init(void)
+int MX_QUADSPI_Init(void)
 {
 
     /* QUADSPI parameter configuration*/
@@ -101,8 +101,5 @@ void MX_QUADSPI_Init(void)
     hqspi.Init.ClockMode = QSPI_CLOCK_MODE_0;
     hqspi.Init.FlashID = QSPI_FLASH_ID_1;
     hqspi.Init.DualFlash = QSPI_DUALFLASH_DISABLE;
-    if (HAL_QSPI_Init(&hqspi) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    return HAL_QSPI_Init(&hqspi);
 }

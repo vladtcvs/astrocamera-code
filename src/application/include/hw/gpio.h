@@ -1,3 +1,3 @@
 #pragma once
 
-void MX_GPIO_Init(void);
+int MX_GPIO_Init(void);

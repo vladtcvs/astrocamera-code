@@ -2,6 +2,9 @@
 #include "system.h"
 #include "stm32f4xx.h"
 
+#include <FreeRTOS.h>
+#include <task.h>
+
 /**
  * @brief  This function is executed in case of error occurrence.
  * @retval None
@@ -30,3 +33,17 @@ ex:
     printf("Wrong parameters value: file %s on line %d\r\n", file, line) * /
 }
 #endif /* USE_FULL_ASSERT */
+
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName)
+{
+    while (1)
+    {}
+}
+
+void vApplicationTickHook(void)
+{
+}
+
+void vApplicationIdleHook(void)
+{
+}

@@ -4,7 +4,7 @@
 #include "system.h"
 #include "system_config.h"
 
-void MX_GPIO_Init(void)
+int MX_GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -48,4 +48,6 @@ void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    return HAL_OK;
 }

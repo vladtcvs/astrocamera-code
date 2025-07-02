@@ -2,4 +2,4 @@
 
 #include "stm32f4xx.h"
 
-void MX_I2C1_Init(void);
+int MX_I2C1_Init(void);

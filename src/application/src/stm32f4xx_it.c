@@ -7,10 +7,6 @@
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
-void xPortPendSVHandler( void ) __attribute__( ( naked ) );
-void xPortSysTickHandler( void );
-void vPortSVCHandler( void ) __attribute__( ( naked ) );
-
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
@@ -70,31 +66,36 @@ void UsageFault_Handler(void)
 }
 
 /**
- * @brief This function handles System service call via SWI instruction.
- */
-void SVC_Handler(void)
-{
-    vPortSVCHandler();
-}
-
-/**
  * @brief This function handles Debug monitor.
  */
 void DebugMon_Handler(void)
 {
 }
 
+#if 0
+/**
+ * @brief This function handles System service call via SWI instruction.
+ */
+void vPortSVCHandler( void );
+void SVC_Handler(void)
+{
+    vPortSVCHandler();
+}
+
 /**
  * @brief This function handles Pendable request for system service.
  */
+void xPortPendSVHandler( void );
 void PendSV_Handler(void)
 {
     xPortPendSVHandler();
 }
+#endif
 
 /**
  * @brief This function handles System tick timer.
  */
+void xPortSysTickHandler( void );
 void SysTick_Handler(void)
 {
     HAL_IncTick();
@@ -113,15 +114,7 @@ void SysTick_Handler(void)
  */
 void OTG_HS_IRQHandler(void)
 {
-
-    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    //HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
 
-#if ( configCHECK_FOR_STACK_OVERFLOW > 0 )
-void vApplicationStackOverflowHook(TaskHandle_t xTask, char * pcTaskName)
-{
-    while (1)
-    {}
-}
-#endif
 

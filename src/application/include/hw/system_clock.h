@@ -1,3 +1,3 @@
 #pragma once
 
-void SystemClock_Config(void);
+int SystemClock_Config(void);

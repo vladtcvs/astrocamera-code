@@ -46,7 +46,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     }
 }
 
-void MX_SPI4_Init(void)
+int MX_SPI4_Init(void)
 {
     /* SPI4 parameter configuration*/
     hspi4.Instance = SPI4;
@@ -61,8 +61,5 @@ void MX_SPI4_Init(void)
     hspi4.Init.TIMode = SPI_TIMODE_DISABLE;
     hspi4.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
     hspi4.Init.CRCPolynomial = 10;
-    if (HAL_SPI_Init(&hspi4) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    return HAL_SPI_Init(&hspi4);
 }
