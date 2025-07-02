@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "usbd_customhid_if.h"
 
-void process_trigger(bool trigger);
+void process_trigger_cb(bool trigger);
 
 static int8_t HID_Init(void);
 static int8_t HID_DeInit(void);
@@ -19,15 +19,34 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x09, 0x01,       // Usage (Vendor-defined)
         0xA1, 0x01,       // Collection (Application)
 
-        0x85, 0x01, //   Report ID (1)
+        // Input features
 
-        // ----- Current Temperature (RO, 16-bit) -----
+        0x85, 0x01, //   Report ID (1)
+        // ----- Current Temperature (16-bit) -----
         0x09, 0x10,       //   Usage (Current Temperature)
         0x15, 0x00,       //   Logical Min (0)
         0x26, 0xFF, 0x7F, //   Logical Max (32767)
         0x75, 0x10,       //   Report Size (16 bits)
         0x95, 0x01,       //   Report Count (1)
         0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
+
+        0x85, 0x02, //   Report ID (2)
+        // ----- TEC status (16 bit) -
+        0x09, 0x10,       //   Usage (Current Temperature)
+        0x15, 0x00,       //   Logical Min (0)
+        0x25, 0x01,       //   Logical Max (1)
+        0x75, 0x01,       //   Report Size (1 bits)
+        0x95, 0x01,       //   Report Count (1)
+        0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
+
+        // ----- FAN status (16 bit) -
+        0x09, 0x10,       //   Usage (Current Temperature)
+        0x15, 0x00,       //   Logical Min (0)
+        0x25, 0x01,       //   Logical Max (1)
+        0x75, 0x01,       //   Report Size (1 bits)
+        0x95, 0x01,       //   Report Count (1)
+        0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
+
 
         0x85, 0x01, //   Report ID (1)
 
@@ -154,7 +173,7 @@ static int8_t HID_OutEvent(uint8_t *report_buffer)
     if (report_id == 1) {
         uint8_t data = report_buffer[1];
         bool trigger = data & 0x01;
-        process_trigger(trigger);
+        process_trigger_cb(trigger);
     }
 
     /* Start next USB packet transfer once data processing is completed */

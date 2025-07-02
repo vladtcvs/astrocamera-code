@@ -13,6 +13,7 @@
 #include "hw/usb.h"
 #include "usb_device.h"
 
+#include "core.h"
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -25,20 +26,7 @@ static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static TaskHandle_t sensors_poll_task;
 static StaticTask_t sensors_poll_task_buffer;
 
-static void sensors_poll_function(void *ctx)
-{
-    int current_temperature = 2961; // 296.1 K = 23 C
-    const TickType_t xDelay = 10 / portTICK_PERIOD_MS;
-    while (1) {
-        send_sensors((struct usb_context_s *)ctx, current_temperature);
-        vTaskDelay(xDelay);
-    }
-}
 
-void process_trigger(bool trigger)
-{
-    
-}
 
 /**
  * @brief  The application entry point.

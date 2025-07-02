@@ -4,6 +4,7 @@ enable_language(C ASM)
 
 add_executable(${CMAKE_PROJECT_NAME} 
                 src/main.c
+                src/core.c
                 src/hw/system_clock.c
                 src/hw/i2c.c
                 src/hw/qspi.c
