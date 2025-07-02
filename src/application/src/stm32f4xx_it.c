@@ -114,7 +114,7 @@ void SysTick_Handler(void)
  */
 void OTG_HS_IRQHandler(void)
 {
-    //HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
 
 
