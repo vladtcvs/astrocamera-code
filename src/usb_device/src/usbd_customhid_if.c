@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "usbd_customhid_if.h"
 
-void process_exposure_cb(bool exposure);
+void process_exposure_cb(int exposure);
 void process_exposure_mode_cb(int mode);
 void process_target_temperature_cb(int target_temperature);
 void process_window_heater_cb(int window_heater);
@@ -124,18 +124,13 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
 
         0x85, 0x03, //   Report ID (3)
 
-        // ----- exposure (1 bit) -
-        0x09, 0x14,       //   Usage (exposure status)
+        // ----- exposure (16 bit) -
+        0x09, 0x14,       //   Usage (exposure)
         0x15, 0x00,       //   Logical Min (0)
-        0x25, 0x01,       //   Logical Max (1)
-        0x75, 0x01,       //   Report Size (1 bits)
+        0x26, 0xFF, 0x7F, //   Logical Max (32767)
+        0x75, 0x10,       //   Report Size (16 bits)
         0x95, 0x01,       //   Report Count (1)
-        0x91, 0x02,       //   Output (Data, Var, Abs)
-
-        // Padding to next byte
-        0x75, 0x07,       // Report Size = 7
-        0x95, 0x01,       // Report Count = 1
-        0x91, 0x03,       // Output (Constant)
+        0x91, 0x02,       //   Input (Data, Var, Abs)
 
         0x85, 0x04, //   Report ID (4)
 
@@ -228,9 +223,9 @@ static int8_t HID_OutEvent(uint8_t *report_buffer)
             break;
         }
         case 3: {
-            uint8_t data = report_buffer[1];
-            bool exposure = data & 0x01;
-            process_exposure_cb(exposure);
+            uint16_t data_l = report_buffer[1];
+            uint16_t data_h = report_buffer[2];
+            process_exposure_cb(data_h << 8 | data_l);
             break;
         }
         case 4: {
