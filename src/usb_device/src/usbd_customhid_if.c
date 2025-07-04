@@ -2,12 +2,12 @@
 #include <stdbool.h>
 #include "usbd_customhid_if.h"
 
-void process_exposure_cb(int exposure);
-void process_exposure_mode_cb(int mode);
-void process_target_temperature_cb(int target_temperature);
-void process_window_heater_cb(int window_heater);
-void process_fan_cb(bool fan);
-void process_tec_cb(bool tec);
+void core_process_exposure_cb(int exposure);
+void core_process_exposure_mode_cb(int mode);
+void core_process_target_temperature_cb(int target_temperature);
+void core_process_window_heater_cb(int window_heater);
+void core_process_fan_cb(bool fan);
+void core_process_tec_cb(bool tec);
 
 static int8_t HID_Init(void);
 static int8_t HID_DeInit(void);
@@ -209,7 +209,7 @@ static int8_t HID_OutEvent(uint8_t *report_buffer)
         case 1: {
             uint16_t data_l = report_buffer[1];
             uint16_t data_h = report_buffer[2];
-            process_target_temperature_cb(data_h << 8 | data_l);
+            core_process_target_temperature_cb(data_h << 8 | data_l);
             break;
         }
         case 2: {
@@ -217,21 +217,21 @@ static int8_t HID_OutEvent(uint8_t *report_buffer)
             bool tec = data & 0x01;
             bool fan = (data >> 1) & 0x01;
             int heater = (data >> 2) & 0x0F;
-            process_tec_cb(tec);
-            process_fan_cb(fan);
-            process_window_heater_cb(heater);
+            core_process_tec_cb(tec);
+            core_process_fan_cb(fan);
+            core_process_window_heater_cb(heater);
             break;
         }
         case 3: {
             uint16_t data_l = report_buffer[1];
             uint16_t data_h = report_buffer[2];
-            process_exposure_cb(data_h << 8 | data_l);
+            core_process_exposure_cb(data_h << 8 | data_l);
             break;
         }
         case 4: {
             uint8_t data = report_buffer[1];
             int exposure_mode = data & 0x03;
-            process_exposure_mode_cb(exposure_mode);
+            core_process_exposure_mode_cb(exposure_mode);
             break;
         }
     }

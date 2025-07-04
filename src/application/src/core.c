@@ -30,36 +30,32 @@ static struct core_state_s state;
 
 
 struct usb_context_s;
+struct usb_context_s *usb_ctx;
 
-void sensors_poll_function(void *ctx)
+void core_set_usbctx(struct usb_context_s *ctx)
+{
+    usb_ctx = ctx;
+}
+
+void core_sensors_poll_function(void *arg)
 {
     int current_temperature = 2961; // 296.1 K = 23 C
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
     while (1) {
-        send_sensors((struct usb_context_s *)ctx, current_temperature);
-        send_status((struct usb_context_s *)ctx, state.tec, state.fan, state.window_heater);
+        send_sensors(usb_ctx, current_temperature);
+        send_status(usb_ctx, state.tec, state.fan, state.window_heater);
         vTaskDelay(xDelay);
     }
 }
 
-void exposure_start(struct usb_context_s *ctx)
-{
-    send_shutter(ctx, true);
-}
-
-void exposure_finish(struct usb_context_s *ctx)
-{
-    send_shutter(ctx, false);
-}
-
 static void start_exposure(void)
 {
-
+    send_shutter(usb_ctx, true);
 }
 
 static void complete_exposure(void)
 {
-
+    send_shutter(usb_ctx, false);
 }
 
 static void start_exposure_timer(int exposure)
@@ -67,7 +63,7 @@ static void start_exposure_timer(int exposure)
 
 }
 
-void process_exposure_cb(int exposure)
+void core_process_exposure_cb(int exposure)
 {
     switch (state.exposure_mode) {
     case FREERUN:
@@ -114,7 +110,7 @@ void process_exposure_cb(int exposure)
     }
 }
 
-void process_exposure_mode_cb(int mode)
+void core_process_exposure_mode_cb(int mode)
 {
     switch (mode) {
     case 0:
@@ -132,22 +128,22 @@ void process_exposure_mode_cb(int mode)
     }
 }
 
-void process_target_temperature_cb(int target_temperature)
+void core_process_target_temperature_cb(int target_temperature)
 {
     state.target_temperature = target_temperature;
 }
 
-void process_window_heater_cb(int window_heater)
+void core_process_window_heater_cb(int window_heater)
 {
     state.window_heater = window_heater;
 }
 
-void process_fan_cb(bool fan)
+void core_process_fan_cb(bool fan)
 {
     state.fan = fan;
 }
 
-void process_tec_cb(bool tec)
+void core_process_tec_cb(bool tec)
 {
     state.tec = tec;
 }

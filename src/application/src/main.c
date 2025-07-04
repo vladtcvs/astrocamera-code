@@ -59,10 +59,11 @@ int main(void)
 
     freertos_tick = true;
 
-    sensors_poll_task = xTaskCreateStatic(sensors_poll_function,
+    core_set_usbctx(usb_ctx);
+    sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
                                           "sensors",
                                           SENSORS_POLL_TASK_STACK_SIZE,
-                                          usb_ctx,
+                                          NULL,
                                           1,
                                           sensors_poll_task_stack,
                                           &sensors_poll_task_buffer);
