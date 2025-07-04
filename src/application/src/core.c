@@ -1,7 +1,10 @@
 #include <stdbool.h>
 #include <FreeRTOS.h>
 #include <task.h>
+#include <timers.h>
 #include <usb_device.h>
+
+#include "core.h"
 
 enum exposure_mode_e {
     FREERUN = 0,
@@ -26,15 +29,29 @@ struct core_state_s
     int window_heater;
 };
 
-static struct core_state_s state;
 
+static struct core_state_s state;
+static struct usb_context_s *usb_ctx;
+static StaticTimer_t exposure_timer_buffer;
+static TimerHandle_t exposure_timer;
+
+static void exposure_timer_cb( TimerHandle_t xTimer );
+static void read_ccd(void);
 
 struct usb_context_s;
-struct usb_context_s *usb_ctx;
 
-void core_set_usbctx(struct usb_context_s *ctx)
+void core_init(struct usb_context_s *ctx)
 {
     usb_ctx = ctx;
+
+    exposure_timer = xTimerCreateStatic(
+        "ExposureTimer",              // Name
+        pdMS_TO_TICKS(1000),          // Period: 1 second
+        pdFALSE,                      // Auto reload = false
+        NULL,                         // Timer ID
+        exposure_timer_cb,            // Callback function
+        &exposure_timer_buffer        // Static buffer
+    );
 }
 
 void core_sensors_poll_function(void *arg)
@@ -51,16 +68,35 @@ void core_sensors_poll_function(void *arg)
 static void start_exposure(void)
 {
     send_shutter(usb_ctx, true);
+    state.state = EXPOSURING;
 }
 
 static void complete_exposure(void)
 {
     send_shutter(usb_ctx, false);
+    state.state = READING;
+    read_ccd();
+}
+
+static void read_ccd(void)
+{
+    core_read_ccd_completed_cb();
+}
+
+static void exposure_timer_cb(TimerHandle_t xTimer)
+{
+    complete_exposure();
 }
 
 static void start_exposure_timer(int exposure)
 {
+    xTimerChangePeriod(exposure_timer, pdMS_TO_TICKS(exposure), 0);
+    xTimerStart(exposure_timer, 0);
+}
 
+void core_read_ccd_completed_cb(void)
+{
+    state.state = IDLE;
 }
 
 void core_process_exposure_cb(int exposure)
