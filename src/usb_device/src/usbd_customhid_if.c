@@ -2,7 +2,12 @@
 #include <stdbool.h>
 #include "usbd_customhid_if.h"
 
-void process_trigger_cb(bool trigger);
+void process_exposure_cb(bool exposure);
+void process_exposure_mode_cb(int mode);
+void process_target_temperature_cb(int target_temperature);
+void process_window_heater_cb(int window_heater);
+void process_fan_cb(bool fan);
+void process_tec_cb(bool tec);
 
 static int8_t HID_Init(void);
 static int8_t HID_DeInit(void);
@@ -19,7 +24,7 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x09, 0x01,       // Usage (Vendor-defined)
         0xA1, 0x01,       // Collection (Application)
 
-        // Input features
+        // Input 
 
         0x85, 0x01, //   Report ID (1)
         // ----- Current Temperature (16-bit) -----
@@ -28,89 +33,124 @@ __ALIGN_BEGIN static uint8_t HID_ReportDesc[] __ALIGN_END =
         0x26, 0xFF, 0x7F, //   Logical Max (32767)
         0x75, 0x10,       //   Report Size (16 bits)
         0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
+        0x81, 0x02,       //   Input (Data, Var, Abs)
 
         0x85, 0x02, //   Report ID (2)
-        // ----- TEC status (16 bit) -
-        0x09, 0x10,       //   Usage (Current Temperature)
+        // ----- TEC status (1 bit) -
+        0x09, 0x11,       //   Usage (TEC status)
         0x15, 0x00,       //   Logical Min (0)
         0x25, 0x01,       //   Logical Max (1)
         0x75, 0x01,       //   Report Size (1 bits)
         0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
+        0x81, 0x02,       //   Input (Data, Var, Abs)
 
-        // ----- FAN status (16 bit) -
-        0x09, 0x10,       //   Usage (Current Temperature)
+        // ----- FAN status (1 bit) -
+        0x09, 0x12,       //   Usage (FAN status)
         0x15, 0x00,       //   Logical Min (0)
         0x25, 0x01,       //   Logical Max (1)
         0x75, 0x01,       //   Report Size (1 bits)
         0x95, 0x01,       //   Report Count (1)
+        0x81, 0x02,       //   Input (Data, Var, Abs)
+
+        // ----- HEATER status (4 bit) -
+        0x09, 0x13,       //   Usage (FAN status)
+        0x15, 0x00,       //   Logical Min (0)
+        0x25, 0x10,       //   Logical Max (16)
+        0x75, 0x04,       //   Report Size (4 bits)
+        0x95, 0x01,       //   Report Count (1)
         0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
 
+        // Padding to next byte
+        0x75, 0x02,       // Report Size = 2
+        0x95, 0x01,       // Report Count = 1
+        0x81, 0x03,       // Input (Constant)
+
+        0x85, 0x03, //   Report ID (3)
+        // ----- exposure status (1 bit) -
+        0x09, 0x14,       //   Usage (exposure status)
+        0x15, 0x00,       //   Logical Min (0)
+        0x25, 0x01,       //   Logical Max (1)
+        0x75, 0x01,       //   Report Size (1 bits)
+        0x95, 0x01,       //   Report Count (1)
+        0x81, 0x02,       //   Input (Data, Var, Abs)
+
+        // Padding to next byte
+        0x75, 0x07,       // Report Size = 7
+        0x95, 0x01,       // Report Count = 1
+        0x81, 0x03,       // Input (Constant)
+
+        // Output 
 
         0x85, 0x01, //   Report ID (1)
 
         // ----- Target Temperature (RW, 16-bit) -----
-        0x09, 0x11, //   Usage (Target Temperature)
+        0x09, 0x10,       //   Usage (Target Temperature)
         0x15, 0x00,       //   Logical Min (0)
         0x26, 0xFF, 0x7F, //   Logical Max (32767)
-        0x75, 0x10,
+        0x75, 0x10,       //   Report size (16 bits)
         0x95, 0x01,
-        0xB1, 0x02,       //   Feature (R/W)
+        0x91, 0x02,       //   Output
 
-        // ----- TEC Enabled (RW, 1-bit) -----
-        0x09, 0x12,    // Usage (TEC Enabled)
+        0x85, 0x02, //   Report ID (2)
+
+        // ----- TEC Enabled (1-bit) -----
+        0x09, 0x11,    // Usage (TEC Enabled)
         0x15, 0x00,    // Logical Minimum (0)
         0x25, 0x01,    // Logical Maximum (1)
         0x75, 0x01,    // Report Size (1 bit)
         0x95, 0x01,    // Report Count (1)
-        0xB1, 0x02,    // Feature (Data, Variable, Absolute) — R/W
+        0x91, 0x02,    // Output
 
-        // ----- Fan Enabled (RW, 1-bit) -----
-        0x09, 0x13, //   Usage (Fan Enabled)
+        // ----- Fan Enabled (1-bit) -----
+        0x09, 0x12,    //   Usage (Fan Enabled)
         0x15, 0x00,    // Logical Minimum (0)
         0x25, 0x01,    // Logical Maximum (1)
-        0x75, 0x01,
-        0x95, 0x01,
-        0xB1, 0x02,    // Feature
+        0x75, 0x01,    // Report Size (1 bit)
+        0x95, 0x01,    // Report Count (1)
+        0x91, 0x02,    // Output
 
-        // ----- Heater Enabled (RW, 1-bit) -----
-        0x09, 0x14, //   Usage (Heater Enabled)
+        // ----- Heater Power (4-bit) -----
+        0x09, 0x13,    //   Usage (Heater Enabled)
         0x15, 0x00,    // Logical Minimum (0)
-        0x25, 0x01,    // Logical Maximum (1)
-        0x75, 0x01,
-        0x95, 0x01,
-        0xB1, 0x02,    // Feature
+        0x25, 0x10,    // Logical Maximum (16)
+        0x75, 0x04,    // Report Size (4 bit)
+        0x95, 0x01,    // Report Count (1)
+        0x91, 0x02,    // Output
 
-        // ----- Mode (RW, 2-bit) -----
-        0x09, 0x15, //   Usage (Mode)
-        0x15, 0x00,    // Logical Minimum (0)
-        0x25, 0x02,    // Logical Maximum (2)
-        0x75, 0x02,
-        0x95, 0x01,
-        0xB1, 0x02,    // Feature
+        // Padding to next byte
+        0x75, 0x07,       // Report Size = 2
+        0x95, 0x01,       // Report Count = 1
+        0x91, 0x03,       // Input (Constant)
 
-        0x85, 0x01, //   Report ID (1)
+        0x85, 0x03, //   Report ID (3)
 
-        // ----- Exposure trigger (WO, 1-bit) -----
-        0x09, 0x20,       // Usage (Vendor-defined or your assigned usage for Trigger)
-        0x15, 0x00,       // Logical Minimum (0)
-        0x25, 0x01,       // Logical Maximum (1)
-        0x75, 0x01,       // Report Size = 1 bit
-        0x95, 0x01,       // Report Count = 1 (1 bit)
-        0x91, 0x02,       // Output (Data, Variable, Absolute)
+        // ----- exposure (1 bit) -
+        0x09, 0x14,       //   Usage (exposure status)
+        0x15, 0x00,       //   Logical Min (0)
+        0x25, 0x01,       //   Logical Max (1)
+        0x75, 0x01,       //   Report Size (1 bits)
+        0x95, 0x01,       //   Report Count (1)
+        0x91, 0x02,       //   Output (Data, Var, Abs)
 
-        // ----- Padding of FEATURE to align to next byte -----
-        0x75, 0x04,
-        0x95, 0x01,
-        0xB1, 0x03, //   Feature (Const, Var, Abs) — padding
+        // Padding to next byte
+        0x75, 0x07,       // Report Size = 7
+        0x95, 0x01,       // Report Count = 1
+        0x91, 0x03,       // Output (Constant)
 
-        // ----- Padding of INPUT to align to next byte -----
-        
-        // ----- Padding of OUTPUT to align to next byte -----
-        0x75, 0x07,
-        0x95, 0x01,
-        0x91, 0x03, //   Output (Const, Var, Abs) — padding
+        0x85, 0x04, //   Report ID (4)
+
+        // ----- exposure mode (2 bit)
+        0x09, 0x15,       //   Usage (exposure status)
+        0x15, 0x00,       //   Logical Min (0)
+        0x25, 0x02,       //   Logical Max (2)
+        0x75, 0x02,       //   Report Size (2 bits)
+        0x95, 0x01,       //   Report Count (1)
+        0x91, 0x02,       //   Output (Data, Var, Abs)
+
+        // Padding to next byte
+        0x75, 0x06,       // Report Size = 6
+        0x95, 0x01,       // Report Count = 1
+        0x91, 0x03,       // Output (Constant)
 
         0xC0 // End Collection
 };
@@ -170,10 +210,35 @@ static int8_t HID_OutEvent(uint8_t *report_buffer)
 {
     uint8_t report_id = report_buffer[0];
 
-    if (report_id == 1) {
-        uint8_t data = report_buffer[1];
-        bool trigger = data & 0x01;
-        process_trigger_cb(trigger);
+    switch (report_id) {
+        case 1: {
+            uint16_t data_l = report_buffer[1];
+            uint16_t data_h = report_buffer[2];
+            process_target_temperature_cb(data_h << 8 | data_l);
+            break;
+        }
+        case 2: {
+            uint8_t data = report_buffer[1];
+            bool tec = data & 0x01;
+            bool fan = (data >> 1) & 0x01;
+            int heater = (data >> 2) & 0x0F;
+            process_tec_cb(tec);
+            process_fan_cb(fan);
+            process_window_heater_cb(heater);
+            break;
+        }
+        case 3: {
+            uint8_t data = report_buffer[1];
+            bool exposure = data & 0x01;
+            process_exposure_cb(exposure);
+            break;
+        }
+        case 4: {
+            uint8_t data = report_buffer[1];
+            int exposure_mode = data & 0x03;
+            process_exposure_mode_cb(exposure_mode);
+            break;
+        }
     }
 
     /* Start next USB packet transfer once data processing is completed */
