@@ -2,7 +2,6 @@
 #include "usbd_core.h"
 #include "usbd_desc.h"
 #include "usbd_video.h"
-#include "usbd_hid.h"
 #include "usbd_customhid.h"
 #include "usbd_composite_builder.h"
 #include "usbd_customhid_if.h"
@@ -36,7 +35,8 @@ struct usb_context_s* MX_USB_DEVICE_Init(void)
     /* Init Device Library, add supported class and start the library. */
     if (USBD_Init(&hUsbDeviceHS, &HS_Desc, DEVICE_HS) != USBD_OK)
         return NULL;
-/*
+
+#ifdef USBD_COMPOSITE
     usb_context.hidClassId = hUsbDeviceHS.classId;
     if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_CUSTOM_HID, CLASS_TYPE_CHID, CUSTOM_HID_EpAdd_Inst) != USBD_OK)
         return NULL;
@@ -46,12 +46,12 @@ struct usb_context_s* MX_USB_DEVICE_Init(void)
     if (USBD_RegisterClassComposite(&hUsbDeviceHS, &USBD_VIDEO, CLASS_TYPE_VIDEO, VIDEO_EpAdd_Inst) != USBD_OK)
         return NULL;
     USBD_VIDEO_RegisterInterface(&hUsbDeviceHS, &USBD_VIDEO_fops_FS);
-*/
-
+#else
     usb_context.videoClassId = hUsbDeviceHS.classId;
     if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_VIDEO) != USBD_OK)
         return NULL;
     USBD_VIDEO_RegisterInterface(&hUsbDeviceHS, &USBD_VIDEO_fops_FS);
+#endif
 
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
         return NULL;

@@ -26,8 +26,6 @@ static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static TaskHandle_t sensors_poll_task;
 static StaticTask_t sensors_poll_task_buffer;
 
-
-
 /**
  * @brief  The application entry point.
  * @retval int
