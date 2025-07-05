@@ -27,7 +27,7 @@ extern "C"
 #define HID_EPIN_ADDR            0x83U
 
 // Composite options
-//#define USE_USBD_COMPOSITE
+#define USE_USBD_COMPOSITE
 
 #define USBD_CMPSIT_ACTIVATE_VIDEO 1U
 #define USBD_CMPSIT_ACTIVATE_CUSTOMHID 1U

@@ -27,20 +27,6 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include  "usbd_ioreq.h"
 
-/** @addtogroup STM32_USB_DEVICE_LIBRARY
-  * @{
-  */
-
-/** @defgroup USBD_VIDEO
-  * @brief This file is the Header file for usbd_video.c
-  * @{
-  */
-
-
-/** @defgroup usbd_VIDEO_Exported_Defines
-  * @{
-  */
-
 /* USB Video device class specification version 1.10 */
 #ifdef UVC_1_0
 #define UVC_VERSION                                   0x0100U      /* UVC 1.0 */
@@ -168,7 +154,6 @@ extern "C" {
 #define VS_FRAME_DESC_SIZE                            0x26U
 #define VS_COLOR_MATCHING_DESC_SIZE                   0x06U
 
-#ifdef USBD_UVC_FORMAT_UNCOMPRESSED
 #define VS_FORMAT_DESC_SIZE                           VS_FORMAT_UNCOMPRESSED_DESC_SIZE
 #define VS_FORMAT_SUBTYPE                             VS_FORMAT_UNCOMPRESSED
 #define VS_FRAME_SUBTYPE                              VS_FRAME_UNCOMPRESSED
@@ -177,15 +162,6 @@ extern "C" {
                         VS_FORMAT_UNCOMPRESSED_DESC_SIZE + \
                         VS_FRAME_DESC_SIZE + \
                         VS_COLOR_MATCHING_DESC_SIZE)
-#else
-#define VS_FORMAT_DESC_SIZE                           VS_FORMAT_MJPEG_DESC_SIZE
-#define VS_FORMAT_SUBTYPE                             VS_FORMAT_MJPEG
-#define VS_FRAME_SUBTYPE                              VS_FRAME_MJPEG
-
-#define VC_HEADER_SIZE (VIDEO_VS_IF_IN_HEADER_DESC_SIZE + \
-                        VS_FORMAT_DESC_SIZE + \
-                        VS_FRAME_DESC_SIZE)
-#endif /* USBD_UVC_FORMAT_UNCOMPRESSED */
 
 /*
  * Video Class specification release 1.1
@@ -539,19 +515,9 @@ typedef struct
 
 extern USBD_ClassTypeDef    USBD_VIDEO;
 #define USBD_VIDEO_CLASS    &USBD_VIDEO
-/**
-  * @}
-  */
-
-/** @defgroup USB_CORE_Exported_Functions
-  * @{
-  */
 
 uint8_t USBD_VIDEO_RegisterInterface(USBD_HandleTypeDef *pdev, USBD_VIDEO_ItfTypeDef *fops);
 
-/**
-  * @}
-  */
 
 #ifdef __cplusplus
 }
