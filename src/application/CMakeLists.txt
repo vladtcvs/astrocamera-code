@@ -6,11 +6,6 @@ add_executable(${CMAKE_PROJECT_NAME}
                 src/main.c
                 src/core.c
                 src/hw/pll.c
-                src/hw/i2c.c
-                src/hw/qspi.c
-                src/hw/spi.c
-                src/hw/uart.c
-                src/hw/gpio.c
                 src/hw/usb.c
                 src/stm32f4xx_it.c
                 src/system_stm32f4xx.c

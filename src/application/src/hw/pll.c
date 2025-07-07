@@ -1,10 +1,9 @@
 #define STM32F446xx
 
 #include "hw/pll.h"
-
 #include "system_config.h"
+
 #include "stm32f4xx.h"
-#include "stm32f446xx.h"
 #include "stm32f4xx_hal.h"
 
 int PLL_Config(void)
@@ -16,42 +15,48 @@ int PLL_Config(void)
             .PLLState = RCC_PLL_ON,
             .PLLSource = RCC_PLLSOURCE_HSE,
             .PLLM = 8U,
-            .PLLN = FREQ_MHZ*2,
+            .PLLN = FREQ_MHZ * 2U,
             .PLLP = RCC_PLLP_DIV2,
-            .PLLQ = FREQ_MHZ*2 / 48U,   // To get 48 MHz
-            .PLLR = 2,                  // For I2S, SAI, SYSTEM, SPDIFRX. SYSTEM uses PLLP, and other I don't use
-        },
-    };
-    int res;
-    if ((res = HAL_RCC_OscConfig(&RCC_OscInitStruct)) != HAL_OK)
-        return res;
+            .PLLQ = (FREQ_MHZ * 2U) / 48U, // USB/SDIO/RNG @ 48 MHz
+            .PLLR = 2U                     // Not used, safe to leave at 2
+        }};
+
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+        return HAL_ERROR;
+
     return HAL_OK;
 }
 
 int SYSCLK_Config(void)
 {
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {
-        .ClockType = RCC_CLOCKTYPE_SYSCLK |     // System Clock
-                     RCC_CLOCKTYPE_HCLK   |     // AHB clock
-                     RCC_CLOCKTYPE_PCLK1  |     // APB1
-                     RCC_CLOCKTYPE_PCLK2,       // APB2
+        .ClockType = RCC_CLOCKTYPE_SYSCLK |
+                     RCC_CLOCKTYPE_HCLK |
+                     RCC_CLOCKTYPE_PCLK1 |
+                     RCC_CLOCKTYPE_PCLK2,
         .SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK,
-        .AHBCLKDivider = RCC_SYSCLK_DIV1,       // FREQ_MHZ
-        .APB1CLKDivider = RCC_HCLK_DIV4,        // FREQ_MHZ/4
-        .APB2CLKDivider = RCC_HCLK_DIV2,        // FREQ_MHZ/2
-    };
+        .AHBCLKDivider = RCC_SYSCLK_DIV1,
+        .APB1CLKDivider = RCC_HCLK_DIV4,
+        .APB2CLKDivider = RCC_HCLK_DIV2};
 
-    PWR->CR &= ~(PWR_CR_VOS);   // Reset VOS bits
-    PWR->CR |= POWER_VOS;       // Select VOS
+    // Set voltage scaling (VOS)
+    PWR->CR &= ~PWR_CR_VOS;
+    PWR->CR |= POWER_VOS;
 
-    volatile int i;
-    for (i = 0; i < 10000; i++) // wait
-        asm("nop");
-    int res = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY);
+    // Wait for voltage regulator to stabilize
+    for (volatile int i = 0; i < 10000; i++)
+    {
+        __NOP();
+    }
 
-    if (res != HAL_OK)
-        return res;
-    for (i = 0; i < 10000; i++) // wait
-        asm("nop");
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY) != HAL_OK)
+        return HAL_ERROR;
+
+    // Wait again after clock switch
+    for (volatile int i = 0; i < 10000; i++)
+    {
+        __NOP();
+    }
+
     return HAL_OK;
 }

@@ -14,13 +14,9 @@
 
 #include "system_config.h"
 #include "stm32f4xx.h"
+#include "stm32f446xx.h"
 
 #include "hw/pll.h"
-#include "hw/i2c.h"
-#include "hw/qspi.h"
-#include "hw/spi.h"
-#include "hw/uart.h"
-#include "hw/gpio.h"
 #include "hw/usb.h"
 #include "usb_device.h"
 
@@ -64,13 +60,6 @@ int main(void)
 
     PLL_Config();
     SYSCLK_Config();
-
-    GPIO_Init();
-    I2C1_Init();
-    QUADSPI_Init();
-    SPI4_Init();
-    UART5_Init();
-    USART1_UART_Init();
 
     struct usb_context_s* usb_ctx = USB_DEVICE_Init();
     if (usb_ctx == NULL)

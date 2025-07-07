@@ -7,7 +7,12 @@
 
 #include "stm32f4xx_hal_pcd.h"
 
-#define LOOP() {__disable_irq(); while(1);}
+#define LOOP()           \
+    {                    \
+        __disable_irq(); \
+        while (1)        \
+            ;            \
+    }
 
 void NMI_Handler(void)
 {
@@ -34,7 +39,6 @@ void UsageFault_Handler(void)
     LOOP();
 }
 
-
 void DebugMon_Handler(void)
 {
     // do nothing
@@ -44,7 +48,7 @@ void DebugMon_Handler(void)
   Handlers SVC_Handler and PendSV_Handler are implemented by FreeRTOS
 */
 
-void xPortSysTickHandler( void );
+void xPortSysTickHandler(void);
 bool freertos_tick = false;
 void SysTick_Handler(void)
 {
@@ -58,5 +62,3 @@ void OTG_HS_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
-
-
