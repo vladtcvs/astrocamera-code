@@ -2,9 +2,12 @@
 
 #include "camera.h"
 
+#include <stdbool.h>
+
 struct USBD_CAMERA_handle_t
 {
     uint8_t VS_alt;
+    bool hidBusy;
 };
 
 #define UVC_INTERVAL(n)                               (10000000U/(n))

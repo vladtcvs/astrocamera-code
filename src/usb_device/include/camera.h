@@ -12,5 +12,6 @@ typedef struct
 
 
 uint8_t USBD_CAMERA_Configure(unsigned fps, unsigned width, unsigned height, const char *FourCC);
+uint8_t USBD_CAMERA_SendHIDReport(uint8_t epAddr, uint8_t *data, size_t len);
 
 extern USBD_ClassTypeDef    USBD_CAMERA;

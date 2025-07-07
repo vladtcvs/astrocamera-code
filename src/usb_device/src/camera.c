@@ -4,6 +4,7 @@
 #include <usbd_def.h>
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <camera_descriptor.h>
 
 #define UVC_CS_DEVICE                                  0x21U
@@ -23,6 +24,8 @@ static uint8_t *USBD_CAMERA_GetDeviceQualifierDesc(uint16_t *length);
 
 size_t USBD_CAMERA_CfgDesc_len;
 size_t USBD_CAMERA_HID_Report_len;
+
+extern USBD_HandleTypeDef hUsbDeviceHS;
 
 __ALIGN_BEGIN uint8_t USBD_CAMERA_CfgDesc[1024] __ALIGN_END;
 __ALIGN_BEGIN uint8_t USBD_CAMERA_HID_Report[512] __ALIGN_END;
@@ -115,6 +118,7 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
     }
 
     USBD_CAMERA_handle.VS_alt = 0x00U;
+    USBD_CAMERA_handle.hidBusy = false;
     return (uint8_t)USBD_OK;
 }
 
@@ -178,6 +182,7 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
 static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+    USBD_CAMERA_handle.hidBusy = false;
     return (uint8_t)USBD_OK;
 }
 
@@ -218,4 +223,15 @@ static uint8_t *USBD_CAMERA_GetDeviceQualifierDesc(uint16_t *length)
 {
     *length = sizeof(USBD_CAMERA_DeviceQualifierDesc);
     return USBD_CAMERA_DeviceQualifierDesc;
+}
+
+uint8_t USBD_CAMERA_SendHIDReport(uint8_t epAddr, uint8_t *data, size_t len)
+{
+    if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED)
+        return USBD_FAIL;
+    if (USBD_CAMERA_handle.hidBusy == true)
+        return USBD_BUSY;
+    USBD_LL_Transmit(&hUsbDeviceHS, CAMERA_HID_EPIN, data, len);
+    USBD_CAMERA_handle.hidBusy = true;
+    return USBD_OK;
 }

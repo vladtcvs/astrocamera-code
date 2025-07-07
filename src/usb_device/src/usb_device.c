@@ -10,8 +10,7 @@ USBD_HandleTypeDef hUsbDeviceHS;
 extern USBD_DescriptorsTypeDef USB_Descriptors;
 
 struct usb_context_s {
-    int hidClassId;
-    int videoClassId;
+    
 } usb_context;
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
@@ -50,7 +49,7 @@ void send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
     report_buf[0] = 1; // report id
     report_buf[1] = LOBYTE(current_temperature);
     report_buf[2] = HIBYTE(current_temperature);
-    
+    USBD_CAMERA_SendHIDReport(CAMERA_HID_EPIN, report_buf, sizeof(report_buf));
 }
 
 void send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heater)
@@ -58,7 +57,7 @@ void send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heate
     uint8_t report_buf[2];
     report_buf[0] = 2; // report id
     report_buf[1] = (TEC << 0) | (fan << 1) | ((window_heater & 0x0F) << 2);
-    
+    USBD_CAMERA_SendHIDReport(CAMERA_HID_EPIN, report_buf, sizeof(report_buf));
 }
 
 void send_shutter(struct usb_context_s *ctx, bool exposure)
@@ -66,5 +65,5 @@ void send_shutter(struct usb_context_s *ctx, bool exposure)
     uint8_t report_buf[2];
     report_buf[0] = 3; // report id
     report_buf[1] = (exposure << 0);
-    
+    USBD_CAMERA_SendHIDReport(CAMERA_HID_EPIN, report_buf, sizeof(report_buf));
 }
