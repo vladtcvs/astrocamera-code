@@ -61,7 +61,7 @@ int main(void)
     PLL_Config();
     SYSCLK_Config();
 
-    struct usb_context_s* usb_ctx = USB_DEVICE_Init();
+    struct usb_context_s* usb_ctx = USB_DEVICE_Init(2, 640, 480, "YUY2");
     if (usb_ctx == NULL)
         goto error;
 

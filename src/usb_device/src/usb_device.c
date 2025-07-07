@@ -5,7 +5,6 @@
 #include "stm32f4xx_hal_pcd.h"
 #include "camera.h"
 
-/* USB Device Core handle declaration. */
 USBD_HandleTypeDef hUsbDeviceHS;
 
 extern USBD_DescriptorsTypeDef USB_Descriptors;
@@ -21,11 +20,7 @@ void OTG_HS_IRQHandler(void)
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
 
-/**
- * Init USB device Library, add supported class and start the library
- * @retval None
- */
-struct usb_context_s* USB_DEVICE_Init(void)
+struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned height, const char *FourCC)
 {
     /* Reset PHY */
     HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_SET);
@@ -33,9 +28,10 @@ struct usb_context_s* USB_DEVICE_Init(void)
     HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_RESET);
     HAL_Delay(1);
 
-    USBD_CAMERA_Configure(2, 640, 480, "YUY2");
+    /* Config camera parameters */
+    USBD_CAMERA_Configure(fps, width, height, FourCC);
 
-    /* Init Device Library, add supported class and start the library. */
+    /* Init USB */
     if (USBD_Init(&hUsbDeviceHS, &USB_Descriptors, DEVICE_HS) != USBD_OK)
         return NULL;
 
