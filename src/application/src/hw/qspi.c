@@ -1,5 +1,5 @@
 #include "hw/qspi.h"
-#include "system.h"
+#include "stm32f4xx_hal.h"
 
 static QSPI_HandleTypeDef hqspi;
 
@@ -88,7 +88,7 @@ void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef *hqspi)
     }
 }
 
-int MX_QUADSPI_Init(void)
+int QUADSPI_Init(void)
 {
 
     /* QUADSPI parameter configuration*/

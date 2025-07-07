@@ -2,4 +2,4 @@
 
 #include "stm32f4xx.h"
 
-int MX_SPI4_Init(void);
+int SPI4_Init(void);

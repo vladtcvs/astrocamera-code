@@ -1,5 +1,5 @@
 #include "hw/i2c.h"
-#include "system.h"
+#include "stm32f4xx_hal.h"
 
 static I2C_HandleTypeDef hi2c1;
 
@@ -28,25 +28,11 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 
 void HAL_I2C_MspDeInit(I2C_HandleTypeDef *hi2c)
 {
-    if (hi2c->Instance == I2C1)
-    {
-
-        /* Peripheral clock disable */
-        __HAL_RCC_I2C1_CLK_DISABLE();
-
-        /**I2C1 GPIO Configuration
-        PB8     ------> I2C1_SCL
-        PB9     ------> I2C1_SDA
-        */
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_8);
-
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9);
-    }
+    // We don't use it
 }
 
-int MX_I2C1_Init(void)
+int I2C1_Init(void)
 {
-
     hi2c1.Instance = I2C1;
     hi2c1.Init.ClockSpeed = 100000;
     hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;

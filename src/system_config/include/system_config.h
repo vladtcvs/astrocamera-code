@@ -6,7 +6,9 @@ extern "C"
 #endif
 
 /* Frequency MHz */
-#define FREQ_MHZ 90U
+#define FREQ_MHZ      96U
+#define FLASH_LATENCY FLASH_LATENCY_3                 // See table from "3.4Read interface"
+#define POWER_VOS     (PWR_CR_VOS_0 | PWR_CR_VOS_0);  // See notes from "3.4 Read interface"
 
 /* Private defines -----------------------------------------------------------*/
 #define USB_RST_Pin GPIO_PIN_1

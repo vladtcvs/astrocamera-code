@@ -1,5 +1,5 @@
 #include "hw/uart.h"
-#include "system.h"
+#include "stm32f4xx_hal_def.h"
 
 static UART_HandleTypeDef huart1;
 static UART_HandleTypeDef huart5;
@@ -73,7 +73,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
     }
 }
 
-int MX_UART5_Init(void)
+int UART5_Init(void)
 {
 
     huart5.Instance = UART5;
@@ -87,7 +87,7 @@ int MX_UART5_Init(void)
     return HAL_UART_Init(&huart5);
 }
 
-int MX_USART1_UART_Init(void)
+int USART1_UART_Init(void)
 {
 
     huart1.Instance = USART1;

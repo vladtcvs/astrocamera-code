@@ -2,5 +2,5 @@
 
 #include "stm32f4xx.h"
 
-int MX_UART5_Init(void);
-int MX_USART1_UART_Init(void);
+int UART5_Init(void);
+int USART1_UART_Init(void);

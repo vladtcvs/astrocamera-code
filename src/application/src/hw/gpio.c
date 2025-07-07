@@ -1,10 +1,10 @@
 #include "stm32f4xx.h"
 
 #include "hw/gpio.h"
-#include "system.h"
 #include "system_config.h"
+#include "stm32f4xx_hal_def.h"
 
-int MX_GPIO_Init(void)
+int GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 

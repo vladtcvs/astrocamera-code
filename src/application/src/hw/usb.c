@@ -1,7 +1,7 @@
 #include "hw/usb.h"
 #include "system_config.h"
 #include "stm32f4xx.h"
-
+#include "stm32f4xx_hal_def.h"
 
 void HAL_PCD_MspInit(PCD_HandleTypeDef *pcdHandle)
 {

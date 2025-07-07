@@ -13,6 +13,7 @@
         "usbd_customhid.h": "c",
         "unistd.h": "c",
         "stdbool.h": "c",
-        "stm32f446xx.h": "c"
+        "stm32f446xx.h": "c",
+        "stm32f4xx_hal_rcc.h": "c"
     }
 }

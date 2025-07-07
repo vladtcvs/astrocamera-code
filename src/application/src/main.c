@@ -1,10 +1,21 @@
+/*
+ * Copyright (c) 2025 Vladislav Tsendrovskii
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "system_config.h"
-#include "system.h"
 #include "stm32f4xx.h"
-#include "stm32f4xx_it.h"
 
-#include "hw/system_clock.h"
-
+#include "hw/pll.h"
 #include "hw/i2c.h"
 #include "hw/qspi.h"
 #include "hw/spi.h"
@@ -26,35 +37,46 @@ static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static TaskHandle_t sensors_poll_task;
 static StaticTask_t sensors_poll_task_buffer;
 
-/**
- * @brief  The application entry point.
- * @retval int
- */
+extern bool freertos_tick;
+
+void HAL_MspInit(void)
+{
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
+
+    // Set system IRQ priorities
+    HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
+
+    // Important for FreeRTOS
+    HAL_NVIC_SetPriority(SVCall_IRQn, 15, 0);
+    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
+    HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
+}
+
 int main(void)
 {
-    /* MCU Configuration--------------------------------------------------------*/
-    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+    // Disable sending SysTick to FreeRTOS kernel
     freertos_tick = false;
     HAL_Init();
 
-    HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
-    HAL_NVIC_SetPriority(PendSV_IRQn, 15, 0);
-    HAL_NVIC_SetPriority(SVCall_IRQn, 15, 0);
+    PLL_Config();
+    SYSCLK_Config();
 
-    /* Configure the system clock */
-    SystemClock_Config();
+    GPIO_Init();
+    I2C1_Init();
+    QUADSPI_Init();
+    SPI4_Init();
+    UART5_Init();
+    USART1_UART_Init();
 
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_I2C1_Init();
-    MX_QUADSPI_Init();
-    MX_SPI4_Init();
-    MX_UART5_Init();
-    MX_USART1_UART_Init();
-    struct usb_context_s* usb_ctx = MX_USB_DEVICE_Init();
+    struct usb_context_s* usb_ctx = USB_DEVICE_Init();
     if (usb_ctx == NULL)
-        Error_Handler();
+        goto error;
 
+    // Enable sending SysTick to FreeRTOS kernel
     freertos_tick = true;
 
     core_init(usb_ctx);
@@ -66,11 +88,9 @@ int main(void)
                                           sensors_poll_task_stack,
                                           &sensors_poll_task_buffer);
 
-    /* Infinite loop */
     vTaskStartScheduler();
-    
-    /* Should not reach here */
+error:
     while (1)
-    {}
+        ;
     return 0;
 }

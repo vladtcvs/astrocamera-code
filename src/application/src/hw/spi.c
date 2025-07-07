@@ -1,5 +1,5 @@
 #include "hw/spi.h"
-#include "system.h"
+#include "stm32f4xx_hal_def.h"
 
 static SPI_HandleTypeDef hspi4;
 
@@ -46,7 +46,7 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef *hspi)
     }
 }
 
-int MX_SPI4_Init(void)
+int SPI4_Init(void)
 {
     /* SPI4 parameter configuration*/
     hspi4.Instance = SPI4;

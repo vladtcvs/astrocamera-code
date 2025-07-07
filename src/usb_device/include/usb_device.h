@@ -12,8 +12,7 @@ extern "C"
 
 struct usb_context_s;
 
-/** USB Device initialization function. */
-struct usb_context_s* MX_USB_DEVICE_Init(void);
+struct usb_context_s* USB_DEVICE_Init(void);
 
 void send_sensors(struct usb_context_s *ctx, int16_t current_temperature);
 void send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heater);
