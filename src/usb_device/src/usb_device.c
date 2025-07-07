@@ -15,6 +15,12 @@ struct usb_context_s {
     int videoClassId;
 } usb_context;
 
+extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+void OTG_HS_IRQHandler(void)
+{
+    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
+}
+
 /**
  * Init USB device Library, add supported class and start the library
  * @retval None
@@ -40,12 +46,6 @@ struct usb_context_s* USB_DEVICE_Init(void)
         return NULL;
 
     return &usb_context;
-}
-
-extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
-void OTG_HS_IRQHandler(void)
-{
-    HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
 
 void send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
