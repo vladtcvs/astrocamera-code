@@ -15,7 +15,7 @@ extern "C"
 // Common USB options
 #define USE_USB_HS 1U
 
-#define USBD_MAX_NUM_INTERFACES 1U
+#define USBD_MAX_NUM_INTERFACES 3U
 #define USBD_MAX_NUM_CONFIGURATION 1U
 #define USBD_MAX_STR_DESC_SIZ 512U
 #define USBD_DEBUG_LEVEL 0U
@@ -23,42 +23,38 @@ extern "C"
 #define USBD_SELF_POWERED 0U
 #define USBD_MAX_POWER 250U
 
-// Test options
-#define HID_EPIN_ADDR            0x83U
+// Camera options
 
-// Composite options
-#define USE_USBD_COMPOSITE
-#define USBD_CMPST_MAX_CONFDESC_SZ 2048U
+#define CAMERA_HID_INTERFACE_ID                         0x00U
+#define CAMERA_VC_INTERFACE_ID                          0x01U
+#define CAMERA_VS_INTERFACE_ID                          0x02U
+#define CAMERA_TOTAL_INTERFACES                         0x03U
 
-#define USBD_CMPSIT_ACTIVATE_VIDEO 1U
-#define USBD_CMPSIT_ACTIVATE_CUSTOMHID 1U
-#define USBD_CMPSIT_ACTIVATE_HID 0U
+#define CAMERA_UVC_MATRIX_COEFFICIENTS                  0x04U
+#define CAMERA_UVC_TFR_CHARACTERISTICS                  0x01U
+#define CAMERA_UVC_COLOR_PRIMARIE                       0x01U
+#define CAMERA_UVC_ISO_FS_MPS                           3072
+#define CAMERA_UVC_ISO_HS_MPS                           3072U
 
-#define USBD_MAX_CLASS_INTERFACES 3U
-#define USBD_MAX_SUPPORTED_CLASS 4U
+#define CAMERA_HID_EPIN                                 0x81U
+#define CAMERA_HID_EPIN_SIZE                            0x02U
 
+#define CAMERA_HID_EPOUT                                0x01U
+#define CAMERA_HID_EPOUT_SIZE                           0x02U
 
-// Custom HID options
-#define CUSTOM_HID_EPIN_ADDR  0x83
-#define CUSTOM_HID_EPOUT_ADDR 0x03
+#define CAMERA_UVC_IN_EP                                0x82U
 
-#define CUSTOM_HID_HS_BINTERVAL 0x07U
-#define CUSTOM_HID_FS_BINTERVAL 0x0AU
-
-#define USBD_CUSTOM_HID_REPORT_DESC_SIZE            181U
+#define USBD_CUSTOM_HID_REPORT_DESC_SIZE                181U
 
 #define USBD_CUSTOMHID_CTRL_REQ_GET_REPORT_ENABLED
 #define USBD_CUSTOMHID_CTRL_REQ_COMPLETE_CALLBACK_ENABLED
 #define USBD_CUSTOMHID_REPORT_BUFFER_EVENT_ENABLED
 
-#define CUSTOM_HID_EPIN_SIZE    0x02U
-#define CUSTOM_HID_EPOUT_SIZE   0x02U
 #define USBD_CUSTOMHID_OUTREPORT_BUF_SIZE 3U
-//#define USBD_CUSTOMHID_REPORT_DESC_SIZE_ENABLED
 
 // UVC options
 #define USBD_UVC_FORMAT_UNCOMPRESSED
-#define UVC_IN_EP 0x81
+
 //#define UVC_UNCOMPRESSED_GUID 0x32315752 // RW12
 #define UVC_UNCOMPRESSED_GUID UVC_GUID_YUY2
 #define UVC_CAM_FPS_HS 2U

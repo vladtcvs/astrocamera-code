@@ -10,16 +10,14 @@ set(USB_Device_Library_Src
 
 add_library(usb_device STATIC
                 ${USB_Device_Library_Src}
+                src/camera_descriptor.c
+                src/camera.c
+                src/camera_setup_req_standard.c
+                src/camera_setup_req_class_uvc.c
                 src/usb_device.c
-                src/usbd_conf.c
                 src/usbd_desc.c
-
-                src/usbd_composite_builder.c
-                src/usbd_customhid_if.c
-                src/usbd_customhid.c
-
-                src/usbd_video_if.c
-                src/usbd_video.c)
+                src/usbd_conf.c
+                )
 
 target_include_directories(usb_device PUBLIC include)
 target_include_directories(usb_device PUBLIC

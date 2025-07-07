@@ -3,9 +3,6 @@
 #include "usbd_def.h"
 #include "usbd_core.h"
 
-#include "usbd_video.h"
-#include "usbd_customhid.h"
-
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
 /* External functions --------------------------------------------------------*/
@@ -551,9 +548,7 @@ USBD_StatusTypeDef USBD_LL_SetTestMode(USBD_HandleTypeDef *pdev, uint8_t testmod
  */
 void *USBD_static_malloc(uint32_t size)
 {
-    static uint32_t mem[(sizeof(USBD_CUSTOM_HID_HandleTypeDef) / 4) +
-                        (sizeof(USBD_VIDEO_HandleTypeDef) / 4) + 
-                        1]; /* On 32-bit boundary */
+    static uint32_t mem[16]; /* On 32-bit boundary */
     return mem;
 }
 
