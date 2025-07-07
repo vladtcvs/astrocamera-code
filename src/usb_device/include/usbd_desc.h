@@ -15,7 +15,7 @@ extern "C"
 #define USB_SIZ_STRING_SERIAL 0x1A
 
 /** Descriptor for the Usb device. */
-extern USBD_DescriptorsTypeDef HS_Desc;
+extern USBD_DescriptorsTypeDef USB_Descriptors;
 
 #ifdef __cplusplus
 }

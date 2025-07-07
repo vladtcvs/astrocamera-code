@@ -31,6 +31,11 @@ extern "C"
 #define COMMAND_TRG_Pin GPIO_PIN_5
 #define COMMAND_TRG_GPIO_Port GPIOD
 
+/* USB */
+#define DEVICE_USB_VID 1155
+#define DEVICE_USB_PID 22315
+#define DEVICE_VERSION 0x0001U
+
 #ifdef __cplusplus
 }
 #endif

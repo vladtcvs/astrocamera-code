@@ -15,8 +15,8 @@ add_library(usb_device STATIC
                 src/camera_setup_req_standard.c
                 src/camera_setup_req_class_uvc.c
                 src/usb_device.c
-                src/usbd_desc.c
                 src/usbd_conf.c
+                src/device_descriptor.c
                 )
 
 target_include_directories(usb_device PUBLIC include)

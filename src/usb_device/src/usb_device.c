@@ -1,6 +1,5 @@
 #include "usb_device.h"
 #include "usbd_core.h"
-#include "usbd_desc.h"
 #include <stdint.h>
 
 #include "stm32f4xx_hal_pcd.h"
@@ -8,6 +7,8 @@
 
 /* USB Device Core handle declaration. */
 USBD_HandleTypeDef hUsbDeviceHS;
+
+extern USBD_DescriptorsTypeDef USB_Descriptors;
 
 struct usb_context_s {
     int hidClassId;
@@ -29,7 +30,7 @@ struct usb_context_s* USB_DEVICE_Init(void)
     USBD_CAMERA_Configure(2, 640, 480, "YUY2");
 
     /* Init Device Library, add supported class and start the library. */
-    if (USBD_Init(&hUsbDeviceHS, &HS_Desc, DEVICE_HS) != USBD_OK)
+    if (USBD_Init(&hUsbDeviceHS, &USB_Descriptors, DEVICE_HS) != USBD_OK)
         return NULL;
 
     if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CAMERA) != USBD_OK)
