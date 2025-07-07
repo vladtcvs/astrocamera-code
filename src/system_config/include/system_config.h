@@ -6,6 +6,7 @@ extern "C"
 #endif
 
 /* Frequency MHz */
+#define HSE_VALUE 8000000UL                      // External oscillator
 #define FREQ_MHZ 96U
 #define FLASH_LATENCY FLASH_LATENCY_3            // See table from "3.4Read interface"
 #define POWER_VOS (PWR_CR_VOS_0 | PWR_CR_VOS_0); // See notes from "3.4 Read interface"

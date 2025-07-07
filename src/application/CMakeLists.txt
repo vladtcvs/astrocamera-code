@@ -7,12 +7,10 @@ add_executable(${CMAKE_PROJECT_NAME}
                 src/core.c
                 src/hw/pll.c
                 src/hw/usb.c
-                src/stm32f4xx_it.c
-                src/system_stm32f4xx.c
                 src/system.c
                 src/sysmem.c
-                src/syscalls.c
-                startup_stm32f446xx.s
+                ${CMAKE_SOURCE_DIR}/Drivers/CMSIS-STM32F4/Source/Templates/system_stm32f4xx.c
+                ${CMAKE_SOURCE_DIR}/Drivers/CMSIS-STM32F4/Source/Templates/gcc/startup_stm32f446xx.s
 )
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC include)
 target_link_libraries(${CMAKE_PROJECT_NAME} PUBLIC system_config
