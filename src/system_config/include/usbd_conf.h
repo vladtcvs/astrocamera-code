@@ -44,7 +44,8 @@ extern "C"
 
 #define CAMERA_UVC_IN_EP                                0x82U
 
-#define USBD_HID_OUTREPORT_BUF_SIZE 3U
+#define CAMERA_HID_OUTREPORT_BUF_SIZE 3U
+#define CAMERA_HID_INREPORT_BUF_SIZE 3U
 
 // UVC options
 #define USBD_UVC_FORMAT_UNCOMPRESSED

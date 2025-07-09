@@ -178,6 +178,11 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
 static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+    switch (epnum) {
+    case CAMERA_HID_EPIN:
+        HID_DataIn(pdev, epnum);
+        break;
+    }
     return (uint8_t)USBD_OK;
 }
 
@@ -223,14 +228,6 @@ static uint8_t *USBD_CAMERA_GetDeviceQualifierDesc(uint16_t *length)
 {
     *length = sizeof(USBD_CAMERA_DeviceQualifierDesc);
     return USBD_CAMERA_DeviceQualifierDesc;
-}
-
-uint8_t USBD_CAMERA_SendHIDReport(uint8_t epAddr, uint8_t *data, size_t len)
-{
-    if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED)
-        return USBD_FAIL;
-    USBD_LL_Transmit(&hUsbDeviceHS, CAMERA_HID_EPIN, data, len);
-    return USBD_OK;
 }
 
 void USBD_CAMERA_ExpectRx(uint8_t interface)

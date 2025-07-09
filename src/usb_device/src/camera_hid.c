@@ -21,7 +21,9 @@ static struct {
     uint8_t idle_rate;
     size_t expect_outreport;
     uint8_t expect_report_id;
-    uint8_t outreport_buf[USBD_HID_OUTREPORT_BUF_SIZE];
+    uint8_t outreport_buf[CAMERA_HID_OUTREPORT_BUF_SIZE];
+    uint8_t inreport_buf[CAMERA_HID_INREPORT_BUF_SIZE];
+    size_t inreport_len;
     uint8_t epout_buf[CAMERA_HID_EPOUT_SIZE];
 } hid_state;
 
@@ -97,6 +99,24 @@ uint8_t HID_EP0_RxReady(USBD_HandleTypeDef *pdev)
     return USBD_OK;
 }
 
+uint8_t USBD_CAMERA_HID_SendReport(USBD_HandleTypeDef *pdev, const uint8_t *data, size_t len)
+{
+    if (pdev->dev_state != USBD_STATE_CONFIGURED)
+        return USBD_FAIL;
+    if (len > CAMERA_HID_INREPORT_BUF_SIZE)
+        return USBD_FAIL;
+    memcpy(hid_state.inreport_buf, data, len);
+    hid_state.inreport_len = len;
+    return USBD_LL_Transmit(pdev, CAMERA_HID_EPIN, hid_state.inreport_buf, hid_state.inreport_len);
+}
+
+uint8_t HID_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+    if (hid_state.inreport_len == 0)
+        return USBD_OK;
+    return USBD_LL_Transmit(pdev, CAMERA_HID_EPIN, hid_state.inreport_buf, hid_state.inreport_len);
+}
+
 uint8_t HID_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
     if (pdev->pUserData != NULL) {
@@ -120,7 +140,7 @@ static uint8_t HID_SetReport(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
     if (report_type != 0x02U)   // output
         return USBD_FAIL;
 
-    if (req->wLength > USBD_HID_OUTREPORT_BUF_SIZE)
+    if (req->wLength > CAMERA_HID_OUTREPORT_BUF_SIZE)
     {
         return USBD_FAIL;
     }

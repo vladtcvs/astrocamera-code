@@ -21,7 +21,7 @@ USBD_DescriptorsTypeDef USB_Descriptors =
     .GetInterfaceStrDescriptor = GetInterfaceStrDescriptor,
 };
 
-__ALIGN_BEGIN static const uint8_t device_desc[] __ALIGN_END = {
+__ALIGN_BEGIN static uint8_t device_desc[] __ALIGN_END = {
     0x12U,                      // bLength
     USB_DESC_TYPE_DEVICE,       // bDescriptorType
     WBVAL(0x0200U),             // bcdUSB
@@ -40,6 +40,7 @@ __ALIGN_BEGIN static const uint8_t device_desc[] __ALIGN_END = {
 
 static uint8_t *GetDeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
 {
+    UNUSED(speed);
     *length = sizeof(device_desc);
     return device_desc;
 }
@@ -51,6 +52,7 @@ static uint8_t *GetLangIDStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
         USB_DESC_TYPE_STRING,
         WBVAL(0x0409),
     };
+    UNUSED(speed);
     *length = sizeof(desc);
     return desc;
 }
@@ -67,6 +69,7 @@ static uint8_t *GetManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *
         'o', 0, 'v', 0, 's', 0, 'k', 0,
         'i', 0, 'i', 0
     };
+    UNUSED(speed);
     *length = sizeof(desc);
     return desc;
 }
@@ -81,6 +84,7 @@ static uint8_t *GetProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *lengt
         ' ', 0, 'C', 0, 'a', 0, 'm', 0,
         'e', 0, 'r', 0, 'a', 0
     };
+    UNUSED(speed);
     *length = sizeof(desc);
     return desc;
 }
@@ -92,6 +96,7 @@ static uint8_t *GetSerialStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
         USB_DESC_TYPE_STRING,
         '0', 0, '0', 0, '0', 0, '1', 0
     };
+    UNUSED(speed);
     *length = sizeof(desc);
     return desc;
 }
@@ -106,6 +111,7 @@ static uint8_t *GetConfigurationStrDescriptor(USBD_SpeedTypeDef speed, uint16_t 
         'a', 0, 'm', 0, 'e', 0, 'r', 0,
         'a', 0
     };
+    UNUSED(speed);
     *length = sizeof(desc);
     return desc;
 }
@@ -119,6 +125,7 @@ static uint8_t *GetInterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *len
         ' ', 0, 'V', 0, 'C', 0, ',', 0,
         ' ', 0, 'V', 0, 'S', 0
     };
+    UNUSED(speed);
     *length = sizeof(desc);
     return desc;
 }
