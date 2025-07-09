@@ -3,11 +3,17 @@
 #include "camera.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 
 struct USBD_CAMERA_handle_t
 {
     uint8_t VS_alt;
     bool hidBusy;
+    int ep0rx_iface;
+};
+
+struct USBD_CAMERA_callbacks_t {
+    uint8_t (*HID_OutputReport)(uint8_t report_id, const uint8_t *data, size_t len, bool from_interrupt);
 };
 
 #define UVC_CS_DEVICE                                  0x21U
@@ -24,6 +30,7 @@ struct USBD_CAMERA_handle_t
 void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev);
 
 extern struct USBD_CAMERA_handle_t USBD_CAMERA_handle;
 extern size_t USBD_CAMERA_CfgDesc_len;

@@ -117,6 +117,7 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
 
     USBD_CAMERA_handle.VS_alt = 0x00U;
     USBD_CAMERA_handle.hidBusy = false;
+    USBD_CAMERA_handle.ep0rx_iface = -1;
     return (uint8_t)USBD_OK;
 }
 
@@ -154,7 +155,20 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
 
 static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 {
-    return (uint8_t)USBD_OK;
+    uint8_t res = USBD_OK;
+    switch (USBD_CAMERA_handle.ep0rx_iface) {
+    case CAMERA_HID_INTERFACE_ID:
+        res = HID_EP0_RxReady(pdev);
+        break;
+    case CAMERA_VS_INTERFACE_ID:
+        break;
+    case CAMERA_VC_INTERFACE_ID:
+        break;
+    default:
+        return USBD_FAIL;
+    }
+    USBD_CAMERA_handle.ep0rx_iface = -1;
+    return res;
 }
 
 static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
@@ -211,4 +225,9 @@ uint8_t USBD_CAMERA_SendHIDReport(uint8_t epAddr, uint8_t *data, size_t len)
     USBD_LL_Transmit(&hUsbDeviceHS, CAMERA_HID_EPIN, data, len);
     USBD_CAMERA_handle.hidBusy = true;
     return USBD_OK;
+}
+
+void USBD_CAMERA_ExpectRx(uint8_t interface)
+{
+    USBD_CAMERA_handle.ep0rx_iface = interface;
 }
