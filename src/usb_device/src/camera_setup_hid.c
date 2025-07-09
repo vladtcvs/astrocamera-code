@@ -48,36 +48,32 @@ static void HID_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef
     }
 }
 
-void HID_SetupStandard(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
-{
-    switch (req->bRequest)
-    {
-    case USB_REQ_GET_STATUS:
-        HID_GetStatus(pdev, req);
-        break;
-    case USB_REQ_GET_DESCRIPTOR:
-        HID_GetDescriptor(pdev, req);
-        break;
-    case USB_REQ_GET_INTERFACE:
-        HID_GetInterface(pdev, req);
-        break;
-    case USB_REQ_SET_INTERFACE:
-        HID_SetInterface(pdev, req);
-        break;
-    default:
-        break;
-    }
-}
-
 void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
     uint8_t requestType = req->bmRequest & USB_REQ_TYPE_MASK;
     switch (requestType)
     {
     case USB_REQ_TYPE_CLASS:
+        HID_SetupClass(pdev, req);
         break;
     case USB_REQ_TYPE_STANDARD:
-        HID_SetupStandard(pdev, req);
+        switch (req->bRequest)
+        {
+        case USB_REQ_GET_STATUS:
+            HID_GetStatus(pdev, req);
+            break;
+        case USB_REQ_GET_DESCRIPTOR:
+            HID_GetDescriptor(pdev, req);
+            break;
+        case USB_REQ_GET_INTERFACE:
+            HID_GetInterface(pdev, req);
+            break;
+        case USB_REQ_SET_INTERFACE:
+            HID_SetInterface(pdev, req);
+            break;
+        default:
+            break;
+        }
         break;
     default:
         break;

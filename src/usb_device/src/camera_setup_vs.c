@@ -102,27 +102,6 @@ static void VS_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
     }
 }
 
-void VS_SetupStandard(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
-{
-    switch (req->bRequest)
-    {
-    case USB_REQ_GET_STATUS:
-        VS_GetStatus(pdev, req);
-        break;
-    case USB_REQ_GET_DESCRIPTOR:
-        VS_GetDescriptor(pdev, req);
-        break;
-    case USB_REQ_GET_INTERFACE:
-        VS_GetInterface(pdev, req);
-        break;
-    case USB_REQ_SET_INTERFACE:
-        VS_SetInterface(pdev, req);
-        break;
-    default:
-        break;
-    }
-}
-
 void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
     uint8_t requestType = req->bmRequest & USB_REQ_TYPE_MASK;
@@ -132,7 +111,23 @@ void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
         VS_SetupClass(pdev, req);
         break;
     case USB_REQ_TYPE_STANDARD:
-        VS_SetupStandard(pdev, req);
+        switch (req->bRequest)
+        {
+        case USB_REQ_GET_STATUS:
+            VS_GetStatus(pdev, req);
+            break;
+        case USB_REQ_GET_DESCRIPTOR:
+            VS_GetDescriptor(pdev, req);
+            break;
+        case USB_REQ_GET_INTERFACE:
+            VS_GetInterface(pdev, req);
+            break;
+        case USB_REQ_SET_INTERFACE:
+            VS_SetInterface(pdev, req);
+            break;
+        default:
+            break;
+        }
         break;
     default:
         break;
