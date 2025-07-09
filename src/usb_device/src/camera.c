@@ -115,9 +115,13 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
         pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_FS_MPS;
     }
 
+    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 1U;
+    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
+
     USBD_CAMERA_handle.VS_alt = 0x00U;
-    USBD_CAMERA_handle.hidBusy = false;
     USBD_CAMERA_handle.ep0rx_iface = -1;
+
+    HID_Init(pdev, cfgidx);
     return (uint8_t)USBD_OK;
 }
 
@@ -125,6 +129,7 @@ static uint8_t USBD_CAMERA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgi
 {
     USBD_LL_CloseEP(pdev, CAMERA_UVC_IN_EP);
     pdev->ep_in[CAMERA_UVC_IN_EP & 0xFU].is_used = 0U;
+
     return (uint8_t)USBD_OK;
 }
 
@@ -173,12 +178,16 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
 static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-    USBD_CAMERA_handle.hidBusy = false;
     return (uint8_t)USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+    switch (epnum) {
+    case CAMERA_HID_EPOUT:
+        HID_DataOut(pdev, epnum);
+        break;
+    }
     return (uint8_t)USBD_OK;
 }
 
@@ -220,10 +229,7 @@ uint8_t USBD_CAMERA_SendHIDReport(uint8_t epAddr, uint8_t *data, size_t len)
 {
     if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED)
         return USBD_FAIL;
-    if (USBD_CAMERA_handle.hidBusy == true)
-        return USBD_BUSY;
     USBD_LL_Transmit(&hUsbDeviceHS, CAMERA_HID_EPIN, data, len);
-    USBD_CAMERA_handle.hidBusy = true;
     return USBD_OK;
 }
 

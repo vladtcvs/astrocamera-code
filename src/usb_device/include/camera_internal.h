@@ -12,10 +12,6 @@ struct USBD_CAMERA_handle_t
     int ep0rx_iface;
 };
 
-struct USBD_CAMERA_callbacks_t {
-    uint8_t (*HID_OutputReport)(uint8_t report_id, const uint8_t *data, size_t len, bool from_interrupt);
-};
-
 #define UVC_CS_DEVICE                                  0x21U
 
 #define UVC_INTERVAL(n)                               (10000000U/(n))
@@ -30,7 +26,14 @@ struct USBD_CAMERA_callbacks_t {
 void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev);
+
+uint8_t HID_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+void HID_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+
+uint8_t HID_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+
+uint8_t HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
+void USBD_CAMERA_ExpectRx(uint8_t interface);
 
 extern struct USBD_CAMERA_handle_t USBD_CAMERA_handle;
 extern size_t USBD_CAMERA_CfgDesc_len;

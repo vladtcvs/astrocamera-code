@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "usbd_def.h"
 
 typedef struct
@@ -21,6 +22,12 @@ enum HID_OutputReportId_e {
     EXPOSURE_CTL        = 0x03U,
     EXPOSURE_MODE_CTL   = 0x04U,
 };
+
+struct USBD_CAMERA_callbacks_t {
+    uint8_t (*HID_OutputReport)(uint8_t report_id, const uint8_t *data, size_t len, bool from_interrupt);
+    uint8_t *(*HID_GetInReport)(uint8_t report_id, size_t* len);
+};
+
 
 uint8_t USBD_CAMERA_Configure(unsigned fps, unsigned width, unsigned height, const char *FourCC);
 uint8_t USBD_CAMERA_SendHIDReport(uint8_t epAddr, uint8_t *data, size_t len);
