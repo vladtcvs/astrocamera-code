@@ -84,11 +84,42 @@ void VS_GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
         USBD_CtlSendData(pdev, &USBD_CAMERA_handle.VS_alt, len);
 }
 
+static void open_bulk_ep(struct _USBD_HandleTypeDef *pdev)
+{
+    if (pdev->dev_speed == USBD_SPEED_HIGH)
+    {
+        USBD_LL_OpenEP(pdev, CAMERA_UVC_IN_EP, USBD_EP_TYPE_ISOC, CAMERA_UVC_ISO_HS_MPS);
+        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
+    }
+    else
+    {
+        USBD_LL_OpenEP(pdev, CAMERA_UVC_IN_EP, USBD_EP_TYPE_ISOC, CAMERA_UVC_ISO_FS_MPS);
+        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_FS_MPS;
+    }
+
+    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 1U;
+    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
+}
+
+static void close_bulk_ep(struct _USBD_HandleTypeDef *pdev)
+{
+    USBD_LL_CloseEP(pdev, CAMERA_UVC_IN_EP);
+    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 0U;
+}
+
 static void VS_SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-    if (pdev->dev_state == USBD_STATE_CONFIGURED)
-    {
+    if (pdev->dev_state == USBD_STATE_CONFIGURED) {
+        uint8_t old_alt = USBD_CAMERA_handle.VS_alt;
         USBD_CAMERA_handle.VS_alt = LOBYTE(req->wValue);
+
+        if (old_alt != USBD_CAMERA_handle.VS_alt) {
+            if (USBD_CAMERA_handle.VS_alt) {
+                open_bulk_ep(pdev);
+            } else {
+                close_bulk_ep(pdev);
+            }
+        }
     }
 }
 

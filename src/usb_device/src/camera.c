@@ -100,24 +100,6 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
     pdev->pClassDataCmsit[pdev->classId] = (void *)&USBD_CAMERA_handle;
     pdev->pClassData = pdev->pClassDataCmsit[pdev->classId];
 
-    if (pdev->dev_speed == USBD_SPEED_HIGH)
-    {
-        USBD_LL_OpenEP(pdev, CAMERA_UVC_IN_EP, USBD_EP_TYPE_ISOC, CAMERA_UVC_ISO_HS_MPS);
-
-        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 1U;
-        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
-    }
-    else
-    {
-        USBD_LL_OpenEP(pdev, CAMERA_UVC_IN_EP, USBD_EP_TYPE_ISOC, CAMERA_UVC_ISO_FS_MPS);
-
-        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 1U;
-        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_FS_MPS;
-    }
-
-    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 1U;
-    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
-
     USBD_CAMERA_handle.VS_alt = 0x00U;
     USBD_CAMERA_handle.ep0rx_iface = -1;
 
