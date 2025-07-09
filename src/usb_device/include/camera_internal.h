@@ -7,6 +7,7 @@
 
 struct USBD_CAMERA_handle_t
 {
+    int classId;
     uint8_t VS_alt;
     bool hidBusy;
     int ep0rx_iface;

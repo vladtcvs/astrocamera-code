@@ -20,6 +20,8 @@ enum HID_OutputReportId_e {
 struct USBD_CAMERA_callbacks_t {
     uint8_t (*HID_OutputReport)(uint8_t report_id, const uint8_t *data, size_t len, bool from_interrupt);
     uint8_t *(*HID_GetInReport)(uint8_t report_id, size_t* len);
+    uint8_t (*VS_StartStream)(void);
+    uint8_t (*VS_StopStream)(void);
 };
 
 

@@ -102,6 +102,7 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
 
     USBD_CAMERA_handle.VS_alt = 0x00U;
     USBD_CAMERA_handle.ep0rx_iface = -1;
+    USBD_CAMERA_handle.classId = pdev->classId;
 
     HID_Init(pdev, cfgidx);
     return (uint8_t)USBD_OK;

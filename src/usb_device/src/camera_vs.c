@@ -107,20 +107,35 @@ static void close_bulk_ep(struct _USBD_HandleTypeDef *pdev)
     pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 0U;
 }
 
-static void VS_SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+static uint8_t VS_SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-    if (pdev->dev_state == USBD_STATE_CONFIGURED) {
-        uint8_t old_alt = USBD_CAMERA_handle.VS_alt;
-        USBD_CAMERA_handle.VS_alt = LOBYTE(req->wValue);
+    if (pdev->dev_state != USBD_STATE_CONFIGURED)
+        return USBD_OK;
 
-        if (old_alt != USBD_CAMERA_handle.VS_alt) {
-            if (USBD_CAMERA_handle.VS_alt) {
-                open_bulk_ep(pdev);
-            } else {
-                close_bulk_ep(pdev);
-            }
+    uint8_t old_alt = USBD_CAMERA_handle.VS_alt;
+    int newAlt = LOBYTE(req->wValue);
+    if (newAlt != 0 && newAlt != 1)
+        return USBD_FAIL;
+    USBD_CAMERA_handle.VS_alt = newAlt;
+
+    if (old_alt != USBD_CAMERA_handle.VS_alt)
+    {
+        struct USBD_CAMERA_callbacks_t *cbs = (struct USBD_CAMERA_callbacks_t *)(pdev->pUserData[USBD_CAMERA_handle.classId]);
+        if (USBD_CAMERA_handle.VS_alt == 1)
+        {
+            open_bulk_ep(pdev);
+            if (cbs->VS_StartStream != NULL)
+                return cbs->VS_StartStream();
+        }
+        else
+        {
+            close_bulk_ep(pdev);
+            if (cbs->VS_StopStream != NULL)
+                return cbs->VS_StopStream();
         }
     }
+
+    return USBD_OK;
 }
 
 static void VS_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
