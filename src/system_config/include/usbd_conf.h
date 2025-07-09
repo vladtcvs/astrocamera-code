@@ -37,10 +37,10 @@ extern "C"
 #define CAMERA_UVC_ISO_HS_MPS                           3072U
 
 #define CAMERA_HID_EPIN                                 0x81U
-#define CAMERA_HID_EPIN_SIZE                            64U
+#define CAMERA_HID_EPIN_SIZE                            16U
 
 #define CAMERA_HID_EPOUT                                0x01U
-#define CAMERA_HID_EPOUT_SIZE                           64U
+#define CAMERA_HID_EPOUT_SIZE                           16U
 
 #define CAMERA_UVC_IN_EP                                0x82U
 

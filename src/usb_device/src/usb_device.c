@@ -7,17 +7,72 @@
 
 USBD_HandleTypeDef hUsbDeviceHS;
 
-extern USBD_DescriptorsTypeDef USB_Descriptors;
+static struct usb_context_s usb_context;
 
-struct usb_context_s {
-    
-} usb_context;
+extern USBD_DescriptorsTypeDef USB_Descriptors;
 
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 void OTG_HS_IRQHandler(void)
 {
     HAL_PCD_IRQHandler(&hpcd_USB_OTG_HS);
 }
+
+#define UNSIGNED16(low, high) ((((unsigned)(high)) << 8) | (low))
+#define BOOL(x) ((x) != 0)
+
+static uint8_t HID_OutputReport(uint8_t report_id, const uint8_t *data, size_t len, bool from_interrupt)
+{
+    switch (report_id) {
+    case TARGET_TEMPERATURE:
+        if (len != 3)
+            return USBD_FAIL;
+        if (usb_context.set_target_temperature != NULL)
+            return usb_context.set_target_temperature(UNSIGNED16(data[1], data[2]));
+        return USBD_OK;
+    case POWER_CTL:
+        if (len != 2)
+            return USBD_FAIL;
+        if (usb_context.set_power_settings != NULL)
+            return usb_context.set_power_settings(BOOL(data[1] & 0x01U), BOOL(data[1] & 0x02U), (data[1] >> 2) & 0x0FU);
+        return USBD_OK;
+    case EXPOSURE_CTL:
+        if (len != 3)
+            return USBD_FAIL;
+        if (usb_context.exposure != NULL)
+            return usb_context.exposure(UNSIGNED16(data[1], data[2]));
+        return USBD_OK;
+    case EXPOSURE_MODE_CTL:
+        if (len != 2)
+            return USBD_FAIL;
+        if (usb_context.exposure_mode != NULL)
+            return usb_context.exposure_mode(data[1] & 0x03U);
+        return USBD_OK;
+    }
+    return USBD_FAIL;
+}
+
+static uint8_t *HID_GetInReport(uint8_t report_id, size_t* len)
+{
+    switch (report_id) {
+    case CURRENT_TEMPERATURE:
+        *len = sizeof(usb_context.current_temperature_buf);
+        return usb_context.current_temperature_buf;
+    case POWER_STATUS:
+        *len = sizeof(usb_context.power_status_buf);
+        return usb_context.power_status_buf;
+    case EXPOSURE_STATUS:
+        *len = sizeof(usb_context.exposure_status_buf);
+        return usb_context.exposure_status_buf;
+    default:
+        *len = 0;
+        return NULL;
+    }
+}
+
+static struct USBD_CAMERA_callbacks_t callbacks = {
+    .HID_OutputReport = HID_OutputReport,
+    .HID_GetInReport  = HID_GetInReport,
+};
 
 struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned height, const char *FourCC)
 {
@@ -37,30 +92,32 @@ struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned hei
     if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CAMERA) != USBD_OK)
         return NULL;
 
+    USBD_CAMERA_RegisterInterface(&hUsbDeviceHS, &callbacks);
+
     if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
         return NULL;
 
     return &usb_context;
 }
 
-uint8_t send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
+uint8_t send_sensors(int16_t current_temperature)
 {
     uint8_t report_buf[3];
     report_buf[0] = 1; // report id
     report_buf[1] = LOBYTE(current_temperature);
     report_buf[2] = HIBYTE(current_temperature);
-    USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
+    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
 }
 
-uint8_t send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heater)
+uint8_t send_power_settings(bool TEC, bool fan, int window_heater)
 {
     uint8_t report_buf[2];
     report_buf[0] = 2; // report id
     report_buf[1] = (TEC << 0) | (fan << 1) | ((window_heater & 0x0F) << 2);
-    USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
+    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
 }
 
-uint8_t send_shutter(struct usb_context_s *ctx, bool exposure)
+uint8_t send_shutter(bool exposure)
 {
     uint8_t report_buf[2];
     report_buf[0] = 3; // report id

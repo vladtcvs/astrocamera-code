@@ -81,7 +81,10 @@ static uint8_t HID_GetReport(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
         if (cbs->HID_GetInReport != NULL) {
             size_t len;
             uint8_t *in_report = cbs->HID_GetInReport(report_id, &len);
-            USBD_CtlSendData(pdev, in_report, len);
+            if (in_report == NULL)
+                return USBD_FAIL;
+            else
+                USBD_CtlSendData(pdev, in_report, len);
         }
     }
     return USBD_OK;

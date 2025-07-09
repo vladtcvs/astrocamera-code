@@ -234,3 +234,9 @@ void USBD_CAMERA_ExpectRx(uint8_t interface)
 {
     USBD_CAMERA_handle.ep0rx_iface = interface;
 }
+
+uint8_t USBD_CAMERA_RegisterInterface(USBD_HandleTypeDef *pdev, struct USBD_CAMERA_callbacks_t *cbs)
+{
+    pdev->pUserData[pdev->classId] = cbs;
+    return USBD_OK;
+}

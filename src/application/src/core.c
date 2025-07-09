@@ -40,10 +40,33 @@ static void read_ccd(void);
 
 struct usb_context_s;
 
+static uint8_t set_target_temperature_cb(unsigned temperature)
+{
+    return USBD_OK;
+}
+
+static uint8_t set_power_settings_cb(bool TEC, bool fan, int window_heater)
+{
+    return USBD_OK;
+}
+
+static uint8_t exposure_cb(unsigned exposure)
+{
+    return USBD_OK;
+}
+
+static uint8_t exposure_mode_cb(unsigned exposure_mode)
+{
+    return USBD_OK;
+}
+
 void core_init(struct usb_context_s *ctx)
 {
     usb_ctx = ctx;
-
+    usb_ctx->exposure = exposure_cb;
+    usb_ctx->exposure_mode = exposure_mode_cb;
+    usb_ctx->set_power_settings = set_power_settings_cb;
+    usb_ctx->set_target_temperature = set_target_temperature_cb;
     exposure_timer = xTimerCreateStatic(
         "ExposureTimer",              // Name
         pdMS_TO_TICKS(1000),          // Period: 1 second
@@ -59,9 +82,9 @@ void core_sensors_poll_function(void *arg)
     int current_temperature = 2961; // 296.1 K = 23 C
     const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
     while (1) {
-        while (send_sensors(usb_ctx, current_temperature) == USBD_BUSY)
+        while (send_sensors(current_temperature) == USBD_BUSY)
             vTaskDelay(1);
-        while (send_status(usb_ctx, state.tec, state.fan, state.window_heater))
+        while (send_power_settings(state.tec, state.fan, state.window_heater))
             vTaskDelay(1);
         vTaskDelay(xDelay);
     }
@@ -69,14 +92,14 @@ void core_sensors_poll_function(void *arg)
 
 static void start_exposure(void)
 {
-    while (send_shutter(usb_ctx, true) == USBD_BUSY)
+    while (send_shutter(true) == USBD_BUSY)
         vTaskDelay(1);
     state.state = EXPOSURING;
 }
 
 static void complete_exposure(void)
 {
-    while (send_shutter(usb_ctx, false) == USBD_BUSY)
+    while (send_shutter(false) == USBD_BUSY)
         vTaskDelay(1);
     state.state = READING;
     read_ccd();
@@ -103,7 +126,7 @@ void core_read_ccd_completed_cb(void)
     state.state = IDLE;
 }
 
-void core_process_exposure_cb(int exposure)
+void core_process_exposure_cb(unsigned exposure)
 {
     switch (state.exposure_mode) {
     case FREERUN:
@@ -150,7 +173,7 @@ void core_process_exposure_cb(int exposure)
     }
 }
 
-void core_process_exposure_mode_cb(int mode)
+void core_process_exposure_mode_cb(unsigned mode)
 {
     switch (mode) {
     case 0:
@@ -168,12 +191,12 @@ void core_process_exposure_mode_cb(int mode)
     }
 }
 
-void core_process_target_temperature_cb(int target_temperature)
+void core_process_target_temperature_cb(unsigned target_temperature)
 {
     state.target_temperature = target_temperature;
 }
 
-void core_process_window_heater_cb(int window_heater)
+void core_process_window_heater_cb(unsigned window_heater)
 {
     state.window_heater = window_heater;
 }
