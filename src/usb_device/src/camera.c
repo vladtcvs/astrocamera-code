@@ -7,8 +7,6 @@
 #include <stdbool.h>
 #include <camera_descriptor.h>
 
-#define UVC_CS_DEVICE                                  0x21U
-
 static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 static uint8_t USBD_CAMERA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
@@ -130,44 +128,23 @@ static uint8_t USBD_CAMERA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgi
 }
 
 
+
 static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
     uint8_t requestDirection = req->bmRequest & 0x80;
     uint8_t requestType = req->bmRequest & USB_REQ_TYPE_MASK;
     uint8_t requestRecipicient = req->bmRequest & USB_REQ_RECIPIENT_MASK;
 
-    switch (requestType) {
-    case USB_REQ_TYPE_CLASS:
-        switch (req->wIndex)
-        {
-        case CAMERA_VS_INTERFACE_ID:
-            VS_SetupClass(pdev, req);
-            break;
-        case CAMERA_VC_INTERFACE_ID:
-            break;
-        case CAMERA_HID_INTERFACE_ID:
-            break;
-        default:
-            break;
-        }
+    switch (req->wIndex)
+    {
+    case CAMERA_VS_INTERFACE_ID:
+        VS_Setup(pdev, req);
         break;
-    case USB_REQ_TYPE_STANDARD:
-        switch (req->bRequest) {
-        case USB_REQ_GET_STATUS:
-            GetStatus(pdev, req);
-            break;
-        case USB_REQ_GET_DESCRIPTOR:
-            GetDescriptor(pdev, req);
-            break;
-        case USB_REQ_GET_INTERFACE:
-            GetInterface(pdev, req);
-            break;
-        case USB_REQ_SET_INTERFACE:
-            SetInterface(pdev, req);
-            break;
-        default:
-            break;
-        }
+    case CAMERA_VC_INTERFACE_ID:
+        VC_Setup(pdev, req);
+        break;
+    case CAMERA_HID_INTERFACE_ID:
+        HID_Setup(pdev, req);
         break;
     default:
         break;

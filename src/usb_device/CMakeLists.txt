@@ -12,8 +12,9 @@ add_library(usb_device STATIC
                 ${USB_Device_Library_Src}
                 src/camera_descriptor.c
                 src/camera.c
-                src/camera_setup_req_standard.c
-                src/camera_setup_req_class_uvc.c
+                src/camera_setup_hid.c
+                src/camera_setup_vc.c
+                src/camera_setup_vs.c
                 src/usb_device.c
                 src/usbd_conf.c
                 src/device_descriptor.c

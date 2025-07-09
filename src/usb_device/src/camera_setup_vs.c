@@ -71,3 +71,70 @@ void VS_SetupClass(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
         break;
     }
 }
+
+static void VS_GetDescriptor(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+    // do nothing
+}
+
+void VS_GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+    size_t len = MIN(1U, req->wLength);
+    if (pdev->dev_state == USBD_STATE_CONFIGURED)
+        USBD_CtlSendData(pdev, &USBD_CAMERA_handle.VS_alt, len);
+}
+
+static void VS_SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+    if (pdev->dev_state == USBD_STATE_CONFIGURED)
+    {
+        USBD_CAMERA_handle.VS_alt = LOBYTE(req->wValue);
+    }
+}
+
+static void VS_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+    if (pdev->dev_state == USBD_STATE_CONFIGURED)
+    {
+        uint8_t status_info[2] = {0, 0};
+        size_t len = MIN(2U, req->wLength);
+        USBD_CtlSendData(pdev, status_info, len);
+    }
+}
+
+void VS_SetupStandard(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+    switch (req->bRequest)
+    {
+    case USB_REQ_GET_STATUS:
+        VS_GetStatus(pdev, req);
+        break;
+    case USB_REQ_GET_DESCRIPTOR:
+        VS_GetDescriptor(pdev, req);
+        break;
+    case USB_REQ_GET_INTERFACE:
+        VS_GetInterface(pdev, req);
+        break;
+    case USB_REQ_SET_INTERFACE:
+        VS_SetInterface(pdev, req);
+        break;
+    default:
+        break;
+    }
+}
+
+void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+    uint8_t requestType = req->bmRequest & USB_REQ_TYPE_MASK;
+    switch (requestType)
+    {
+    case USB_REQ_TYPE_CLASS:
+        VS_SetupClass(pdev, req);
+        break;
+    case USB_REQ_TYPE_STANDARD:
+        VS_SetupStandard(pdev, req);
+        break;
+    default:
+        break;
+    }
+}

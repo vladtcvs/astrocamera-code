@@ -10,6 +10,8 @@ struct USBD_CAMERA_handle_t
     bool hidBusy;
 };
 
+#define UVC_CS_DEVICE                                  0x21U
+
 #define UVC_INTERVAL(n)                               (10000000U/(n))
 
 #define UVC_MIN_BIT_RATE(w,h,n)                           (w * h * 16U * (n)) /* 16 bit */
@@ -19,12 +21,9 @@ struct USBD_CAMERA_handle_t
 #define DBVAL(x) ((x) & 0xFFU),(((x) >> 8) & 0xFFU), (((x) >> 16) & 0xFFU), (((x) >> 24) & 0xFFU)
 
 
-void GetDescriptor(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-void GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-void SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-void GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-
-void VS_SetupClass(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 
 extern struct USBD_CAMERA_handle_t USBD_CAMERA_handle;
 extern size_t USBD_CAMERA_CfgDesc_len;
