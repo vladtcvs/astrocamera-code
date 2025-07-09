@@ -14,7 +14,7 @@ struct usb_context_s;
 
 struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned height, const char *FourCC);
 
-uint8_t send_sensors(int16_t current_temperature);
+uint8_t send_current_temperature(int16_t current_temperature);
 uint8_t send_power_settings(bool TEC, bool fan, int window_heater);
 uint8_t send_shutter(bool exposure);
 

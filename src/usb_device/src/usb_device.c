@@ -100,27 +100,25 @@ struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned hei
     return &usb_context;
 }
 
-uint8_t send_sensors(int16_t current_temperature)
+uint8_t send_current_temperature(int16_t current_temperature)
 {
-    uint8_t report_buf[3];
-    report_buf[0] = 1; // report id
-    report_buf[1] = LOBYTE(current_temperature);
-    report_buf[2] = HIBYTE(current_temperature);
-    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
+    usb_context.current_temperature_buf[0] = 1; // report id
+    usb_context.current_temperature_buf[1] = LOBYTE(current_temperature);
+    usb_context.current_temperature_buf[2] = HIBYTE(current_temperature);
+    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.current_temperature_buf, sizeof(usb_context.current_temperature_buf));
 }
 
 uint8_t send_power_settings(bool TEC, bool fan, int window_heater)
 {
-    uint8_t report_buf[2];
-    report_buf[0] = 2; // report id
-    report_buf[1] = (TEC << 0) | (fan << 1) | ((window_heater & 0x0F) << 2);
-    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
+    usb_context.power_status_buf[0] = 2; // report id
+    usb_context.power_status_buf[1] = (TEC << 0) | (fan << 1) | ((window_heater & 0x0F) << 2);
+    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.power_status_buf, sizeof(usb_context.power_status_buf));
 }
 
 uint8_t send_shutter(bool exposure)
 {
-    uint8_t report_buf[2];
-    report_buf[0] = 3; // report id
-    report_buf[1] = (exposure << 0);
-    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
+    usb_context.exposure_status_buf[0] = 3; // report id
+    usb_context.exposure_status_buf[1] = (exposure << 0);
+    
+    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.exposure_status_buf, sizeof(usb_context.exposure_status_buf));
 }
