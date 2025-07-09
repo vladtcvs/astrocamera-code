@@ -178,8 +178,8 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
 static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-    switch (epnum) {
-    case CAMERA_HID_EPIN:
+    switch (EPNUM(epnum)) {
+    case EPNUM(CAMERA_HID_EPIN):
         HID_DataIn(pdev, epnum);
         break;
     }
@@ -188,8 +188,8 @@ static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnu
 
 static uint8_t USBD_CAMERA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-    switch (epnum) {
-    case CAMERA_HID_EPOUT:
+    switch (EPNUM(epnum)) {
+    case EPNUM(CAMERA_HID_EPOUT):
         HID_DataOut(pdev, epnum);
         break;
     }

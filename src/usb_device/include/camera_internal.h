@@ -22,6 +22,7 @@ struct USBD_CAMERA_handle_t
 #define WBVAL(x) ((x) & 0xFFU),(((x) >> 8) & 0xFFU)
 #define DBVAL(x) ((x) & 0xFFU),(((x) >> 8) & 0xFFU), (((x) >> 16) & 0xFFU), (((x) >> 24) & 0xFFU)
 
+#define EPNUM(x) ((x) & 0x0FU)
 
 void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
