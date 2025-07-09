@@ -43,7 +43,7 @@ struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned hei
     return &usb_context;
 }
 
-void send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
+uint8_t send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
 {
     uint8_t report_buf[3];
     report_buf[0] = 1; // report id
@@ -52,7 +52,7 @@ void send_sensors(struct usb_context_s *ctx, int16_t current_temperature)
     USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
 }
 
-void send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heater)
+uint8_t send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heater)
 {
     uint8_t report_buf[2];
     report_buf[0] = 2; // report id
@@ -60,10 +60,10 @@ void send_status(struct usb_context_s *ctx, bool TEC, bool fan, int window_heate
     USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
 }
 
-void send_shutter(struct usb_context_s *ctx, bool exposure)
+uint8_t send_shutter(struct usb_context_s *ctx, bool exposure)
 {
     uint8_t report_buf[2];
     report_buf[0] = 3; // report id
     report_buf[1] = (exposure << 0);
-    USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
+    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, report_buf, sizeof(report_buf));
 }

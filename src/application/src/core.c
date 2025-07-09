@@ -59,21 +59,25 @@ void core_sensors_poll_function(void *arg)
     int current_temperature = 2961; // 296.1 K = 23 C
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
     while (1) {
-        send_sensors(usb_ctx, current_temperature);
-        send_status(usb_ctx, state.tec, state.fan, state.window_heater);
+        while (send_sensors(usb_ctx, current_temperature) == USBD_BUSY)
+            vTaskDelay(1);
+        while (send_status(usb_ctx, state.tec, state.fan, state.window_heater))
+            vTaskDelay(1);
         vTaskDelay(xDelay);
     }
 }
 
 static void start_exposure(void)
 {
-    send_shutter(usb_ctx, true);
+    while (send_shutter(usb_ctx, true) == USBD_BUSY)
+        vTaskDelay(1);
     state.state = EXPOSURING;
 }
 
 static void complete_exposure(void)
 {
-    send_shutter(usb_ctx, false);
+    while (send_shutter(usb_ctx, false) == USBD_BUSY)
+        vTaskDelay(1);
     state.state = READING;
     read_ccd();
 }
