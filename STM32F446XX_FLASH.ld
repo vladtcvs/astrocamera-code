@@ -131,6 +131,14 @@ SECTIONS
     __bss_end__ = _ebss;
   } >RAM
 
+  /* For var which should survive during soft reset */
+  .noinit (NOLOAD):
+  {
+    . = ALIGN(4);
+    *(.noinit)
+    . = ALIGN(4);
+  } >RAM
+
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack :
   {
@@ -141,8 +149,6 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM
-
-
 
   /* Remove information from the standard libraries */
   /DISCARD/ :

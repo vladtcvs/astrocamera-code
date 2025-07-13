@@ -76,6 +76,7 @@ struct USBD_CAMERA_handle_t USBD_CAMERA_handle;
 
 uint8_t USBD_CAMERA_Configure(unsigned fps, unsigned width, unsigned height, const char *FourCC)
 {
+    USBD_CAMERA_handle.dfu_mode = false;
     USBD_CAMERA_Config.fps = fps;
     USBD_CAMERA_Config.width = width;
     USBD_CAMERA_Config.height = height;
@@ -97,24 +98,40 @@ uint8_t USBD_CAMERA_Configure(unsigned fps, unsigned width, unsigned height, con
     return (uint8_t)USBD_OK;
 }
 
+uint8_t USBD_CAMERA_Configure_DFU(void)
+{
+    USBD_CAMERA_handle.dfu_mode = true;
+    USBD_CAMERA_CfgDesc_len = camera_generate_descriptor_dfu(USBD_CAMERA_CfgDesc,
+                                                             sizeof(USBD_CAMERA_CfgDesc));
+    return (uint8_t)USBD_OK;
+}
+
 static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
     pdev->pClassDataCmsit[pdev->classId] = (void *)&USBD_CAMERA_handle;
     pdev->pClassData = pdev->pClassDataCmsit[pdev->classId];
 
-    USBD_CAMERA_handle.VS_alt = 0x00U;
+    DFU_Init(USBD_CAMERA_handle.dfu_mode);
+    if (USBD_CAMERA_handle.dfu_mode) {
+        // nothing
+    } else {
+        HID_Init(pdev, cfgidx);
+        USBD_CAMERA_handle.VS_alt = 0x00U;
+    }
+
     USBD_CAMERA_handle.ep0rx_iface = -1;
     USBD_CAMERA_handle.classId = pdev->classId;
-
-    HID_Init(pdev, cfgidx);
     return (uint8_t)USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-    if (pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used) {
-        USBD_LL_CloseEP(pdev, CAMERA_UVC_EPIN);
-        pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used = 0U;
+    if (!USBD_CAMERA_handle.dfu_mode) {
+        if (pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used)
+        {
+            USBD_LL_CloseEP(pdev, CAMERA_UVC_EPIN);
+            pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used = 0U;
+        }
     }
     return (uint8_t)USBD_OK;
 }
@@ -125,48 +142,76 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
     uint8_t requestType = req->bmRequest & USB_REQ_TYPE_MASK;
     uint8_t requestRecipicient = req->bmRequest & USB_REQ_RECIPIENT_MASK;
 
-    switch (req->wIndex)
-    {
-    case CAMERA_VS_INTERFACE_ID:
-        VS_Setup(pdev, req);
-        break;
-    case CAMERA_VC_INTERFACE_ID:
-        VC_Setup(pdev, req);
-        break;
-    case CAMERA_HID_INTERFACE_ID:
-        HID_Setup(pdev, req);
-        break;
-    case CAMERA_DFU_INTERFACE_ID:
-        DFU_Setup(pdev, req);
-        break;
-    default:
-        break;
+    if (USBD_CAMERA_handle.dfu_mode) {
+        switch (req->wIndex)
+        {
+        case CAMERA_DFU_DFU_INTERFACE_ID:
+            DFU_Setup(pdev, req);
+            break;
+        default:
+            break;
+        }
+    } else {
+        switch (req->wIndex)
+        {
+        case CAMERA_VS_INTERFACE_ID:
+            VS_Setup(pdev, req);
+            break;
+        case CAMERA_VC_INTERFACE_ID:
+            VC_Setup(pdev, req);
+            break;
+        case CAMERA_HID_INTERFACE_ID:
+            HID_Setup(pdev, req);
+            break;
+        case CAMERA_DFU_RUNTIME_INTERFACE_ID:
+            DFU_Setup(pdev, req);
+            break;
+        default:
+            break;
+        }
     }
     return (uint8_t)USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_SOF(struct _USBD_HandleTypeDef *pdev)
 {
-    VS_SOF(pdev);
+    if (!USBD_CAMERA_handle.dfu_mode) {
+        VS_SOF(pdev);
+    }
+    DFU_SOF(pdev);
     return USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 {
     uint8_t res = USBD_OK;
-    switch (USBD_CAMERA_handle.ep0rx_iface) {
-    case CAMERA_HID_INTERFACE_ID:
-        res = HID_EP0_RxReady(pdev);
-        break;
-    case CAMERA_VS_INTERFACE_ID:
-        break;
-    case CAMERA_VC_INTERFACE_ID:
-        break;
-    case CAMERA_DFU_INTERFACE_ID:
-        res = DFU_EP0_RxReady(pdev);
-        break;
-    default:
-        return USBD_FAIL;
+    if (USBD_CAMERA_handle.dfu_mode) {
+        switch (USBD_CAMERA_handle.ep0rx_iface)
+        {
+        case CAMERA_DFU_DFU_INTERFACE_ID:
+            res = DFU_EP0_RxReady(pdev);
+            break;
+        default:
+            res = USBD_FAIL;
+            break;
+        }
+    } else {
+        switch (USBD_CAMERA_handle.ep0rx_iface)
+        {
+        case CAMERA_HID_INTERFACE_ID:
+            res = HID_EP0_RxReady(pdev);
+            break;
+        case CAMERA_VS_INTERFACE_ID:
+            break;
+        case CAMERA_VC_INTERFACE_ID:
+            break;
+        case CAMERA_DFU_RUNTIME_INTERFACE_ID:
+            res = DFU_EP0_RxReady(pdev);
+            break;
+        default:
+            res = USBD_FAIL;
+            break;
+        }
     }
     USBD_CAMERA_handle.ep0rx_iface = -1;
     return res;
@@ -174,36 +219,47 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
 
 static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-    switch (EPNUM(epnum)) {
-    case EPNUM(CAMERA_HID_EPIN):
-        HID_DataIn(pdev, epnum);
-        break;
-    case EPNUM(CAMERA_UVC_EPIN):
-        VS_DataIn(pdev, epnum);
-        break;
+    if (!USBD_CAMERA_handle.dfu_mode)
+    {
+        switch (EPNUM(epnum))
+        {
+        case EPNUM(CAMERA_HID_EPIN):
+            HID_DataIn(pdev, epnum);
+            break;
+        case EPNUM(CAMERA_UVC_EPIN):
+            VS_DataIn(pdev, epnum);
+            break;
+        }
     }
     return (uint8_t)USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-    switch (EPNUM(epnum)) {
-    case EPNUM(CAMERA_HID_EPOUT):
-        HID_DataOut(pdev, epnum);
-        break;
+    if (!USBD_CAMERA_handle.dfu_mode)
+    {
+        switch (EPNUM(epnum))
+        {
+        case EPNUM(CAMERA_HID_EPOUT):
+            HID_DataOut(pdev, epnum);
+            break;
+        }
     }
     return (uint8_t)USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
-    switch (EPNUM(epnum))
+    if (!USBD_CAMERA_handle.dfu_mode)
     {
-    case EPNUM(CAMERA_UVC_EPIN):
-        VS_IsoINIncomplete(pdev, epnum);
-        break;
-    default:
-        break;
+        switch (EPNUM(epnum))
+        {
+        case EPNUM(CAMERA_UVC_EPIN):
+            VS_IsoINIncomplete(pdev, epnum);
+            break;
+        default:
+            break;
+        }
     }
     return (uint8_t)USBD_OK;
 }

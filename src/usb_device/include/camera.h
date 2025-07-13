@@ -26,6 +26,8 @@ struct USBD_CAMERA_callbacks_t {
 
 
 uint8_t USBD_CAMERA_Configure(unsigned fps, unsigned width, unsigned height, const char *FourCC);
+uint8_t USBD_CAMERA_Configure_DFU(void);
+
 uint8_t USBD_CAMERA_HID_SendReport(USBD_HandleTypeDef *pdev, const uint8_t *data, size_t len);
 uint8_t USBD_CAMERA_RegisterInterface(USBD_HandleTypeDef *pdev, struct USBD_CAMERA_callbacks_t* cbs);
 

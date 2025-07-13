@@ -22,9 +22,11 @@ static void VS_Req_GET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     switch (req->wValue)
     {
     case VS_PROBE_CONTROL:
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_VS_INTERFACE_ID;
         USBD_CtlSendData(pdev, video_Probe_Control, sizeof(video_Probe_Control));
         break;
     case VS_COMMIT_CONTROL:
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_VS_INTERFACE_ID;
         USBD_CtlSendData(pdev, video_Probe_Control, sizeof(video_Probe_Control));
         break;
     default:
@@ -80,8 +82,10 @@ static void VS_GetDescriptor(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqType
 void VS_GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
     size_t len = MIN(1U, req->wLength);
-    if (pdev->dev_state == USBD_STATE_CONFIGURED)
+    if (pdev->dev_state == USBD_STATE_CONFIGURED) {
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_VS_INTERFACE_ID;
         USBD_CtlSendData(pdev, &USBD_CAMERA_handle.VS_alt, len);
+    }
 }
 
 static void open_isoc_ep(struct _USBD_HandleTypeDef *pdev)
@@ -213,6 +217,7 @@ static void VS_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
     {
         uint8_t status_info[2] = {0, 0};
         size_t len = MIN(2U, req->wLength);
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_VS_INTERFACE_ID;
         USBD_CtlSendData(pdev, status_info, len);
     }
 }

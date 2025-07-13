@@ -11,6 +11,8 @@ struct USBD_CAMERA_handle_t
     uint8_t VS_alt;
     bool hidBusy;
     int ep0rx_iface;
+    int ep0tx_iface;
+    bool dfu_mode;
 };
 
 #define UVC_CS_DEVICE                                  0x21U
@@ -31,6 +33,8 @@ void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void DFU_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 
+void DFU_Init(bool dfu_mode);
+
 uint8_t HID_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 void HID_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 
@@ -38,10 +42,13 @@ uint8_t HID_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t HID_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t VS_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t VS_SOF(struct _USBD_HandleTypeDef *pdev);
+
 uint8_t VS_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 
+uint8_t DFU_SOF(USBD_HandleTypeDef *pdev);
 uint8_t HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
 uint8_t DFU_EP0_RxReady(USBD_HandleTypeDef *pdev);
+
 void USBD_CAMERA_ExpectRx(uint8_t interface);
 
 extern struct USBD_CAMERA_handle_t USBD_CAMERA_handle;

@@ -37,6 +37,7 @@ static void HID_GetDescriptor(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTyp
     {
         size_t len = MIN(USBD_CAMERA_HID_Report_len, req->wLength);
         uint8_t *pbuf = USBD_CAMERA_HID_Report;
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_HID_INTERFACE_ID;
         USBD_CtlSendData(pdev, pbuf, len);
         break;
     }
@@ -49,6 +50,7 @@ static void HID_GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqType
 {
     uint8_t zero[1] = {0};
     size_t len = MIN(1U, req->wLength);
+    USBD_CAMERA_handle.ep0tx_iface = CAMERA_HID_INTERFACE_ID;
     USBD_CtlSendData(pdev, zero, len);
 }
 
@@ -63,6 +65,7 @@ static void HID_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef
     {
         uint8_t status_info[2] = {0, 0};
         size_t len = MIN(2U, req->wLength);
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_HID_INTERFACE_ID;
         USBD_CtlSendData(pdev, status_info, len);
     }
 }
@@ -82,8 +85,10 @@ static uint8_t HID_GetReport(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
             uint8_t *in_report = cbs->HID_GetInReport(report_id, &len);
             if (in_report == NULL)
                 return USBD_FAIL;
-            else
+            else {
+                USBD_CAMERA_handle.ep0tx_iface = CAMERA_HID_INTERFACE_ID;
                 USBD_CtlSendData(pdev, in_report, len);
+            }
         }
     }
     return USBD_OK;
@@ -174,10 +179,12 @@ static uint8_t HID_SetupClass(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *re
         return HID_SetReport(pdev, req);
 
     case GET_IDLE:
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_HID_INTERFACE_ID;
         USBD_CtlSendData(pdev, &hid_state.idle_rate, 1);
         break;
 
     case GET_PROTOCOL:
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_HID_INTERFACE_ID;
         USBD_CtlSendData(pdev, &hid_state.protocol, 1);
         break;
 

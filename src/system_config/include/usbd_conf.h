@@ -54,7 +54,8 @@ extern "C"
 #define CAMERA_HID_INREPORT_BUF_SIZE 3U
 
 // DFU options
-#define CAMERA_DFU_INTERFACE_ID                         0x03U
+#define CAMERA_DFU_RUNTIME_INTERFACE_ID                 0x03U
+#define CAMERA_DFU_DFU_INTERFACE_ID                     0x00U
 #define DFU_TRANSFER_SIZE                               256U
 
 #define UVC_CAM_FPS_HS 2U

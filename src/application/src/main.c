@@ -35,6 +35,20 @@ static StaticTask_t sensors_poll_task_buffer;
 
 extern bool freertos_tick;
 
+__attribute__((section(".noinit"))) uint32_t dfu_flag;
+
+void reboot_in_dfu(void)
+{
+    dfu_flag = 0xDEADBEEFU;
+    NVIC_SystemReset();
+}
+
+void reboot_in_app(void)
+{
+    dfu_flag = 0;
+    NVIC_SystemReset();
+}
+
 void HAL_MspInit(void)
 {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -52,6 +66,20 @@ void HAL_MspInit(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
+static bool is_dfu(void)
+{
+    /*
+    uint32_t reset_flags = RCC->CSR;
+    if (reset_flags & (RCC_CSR_PORRSTF)) {
+        // Hard reset: init dfu_flag
+        dfu_flag = 0;
+        return false;
+    }
+
+    RCC->CSR |= RCC_CSR_RMVF;  // Always clear flags after checking*/
+    return (dfu_flag == 0xDEADBEEFU);
+}
+
 int main(void)
 {
     // Disable sending SysTick to FreeRTOS kernel
@@ -61,23 +89,37 @@ int main(void)
     PLL_Config();
     SYSCLK_Config();
 
-    struct usb_context_s* usb_ctx = USB_DEVICE_Init(2, 640, 480, "Y16 ");
-    if (usb_ctx == NULL)
-        goto error;
+    bool boot_dfu = is_dfu();
 
-    // Enable sending SysTick to FreeRTOS kernel
-    freertos_tick = true;
+    if (boot_dfu)
+    {
+        struct usb_context_s *usb_ctx = USB_DEVICE_Init_DFU();
+        if (usb_ctx == NULL)
+            goto error;
 
-    core_init(usb_ctx);
-    sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
-                                          "sensors",
-                                          SENSORS_POLL_TASK_STACK_SIZE,
-                                          NULL,
-                                          1,
-                                          sensors_poll_task_stack,
-                                          &sensors_poll_task_buffer);
+        // Enable sending SysTick to FreeRTOS kernel
+        freertos_tick = true;
+    }
+    else
+    {
+        struct usb_context_s *usb_ctx = USB_DEVICE_Init(2, 640, 480, "Y16 ");
+        if (usb_ctx == NULL)
+            goto error;
 
+        // Enable sending SysTick to FreeRTOS kernel
+        freertos_tick = true;
+
+        core_init(usb_ctx);
+        sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
+                                              "sensors",
+                                              SENSORS_POLL_TASK_STACK_SIZE,
+                                              NULL,
+                                              1,
+                                              sensors_poll_task_stack,
+                                              &sensors_poll_task_buffer);
+    }
     vTaskStartScheduler();
+
 error:
     while (1)
         ;

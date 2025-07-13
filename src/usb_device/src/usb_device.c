@@ -112,6 +112,32 @@ struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned hei
     return &usb_context;
 }
 
+struct usb_context_s* USB_DEVICE_Init_DFU(void)
+{
+    /* Reset PHY */
+    HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_SET);
+    HAL_Delay(1);
+    HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_RESET);
+    HAL_Delay(1);
+
+    /* Config camera parameters */
+    USBD_CAMERA_Configure_DFU();
+
+    /* Init USB */
+    if (USBD_Init(&hUsbDeviceHS, &USB_Descriptors, DEVICE_HS) != USBD_OK)
+        return NULL;
+
+    if (USBD_RegisterClass(&hUsbDeviceHS, &USBD_CAMERA) != USBD_OK)
+        return NULL;
+
+    USBD_CAMERA_RegisterInterface(&hUsbDeviceHS, &callbacks);
+
+    if (USBD_Start(&hUsbDeviceHS) != USBD_OK)
+        return NULL;
+
+    return &usb_context;
+}
+
 uint8_t send_current_temperature(int16_t current_temperature)
 {
     usb_context.current_temperature_buf[0] = 1; // report id

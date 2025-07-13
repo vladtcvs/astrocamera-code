@@ -28,6 +28,7 @@ static void VC_GetDescriptor(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqType
         size_t len = 0;
         const void *pbuf = camera_get_video_descriptor(&len);
         len = MIN(len, req->wLength);
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
         USBD_CtlSendData(pdev, pbuf, len);
         break;
     }
@@ -40,6 +41,7 @@ static void VC_GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
 {
     uint8_t zero[1] = {0};
     size_t len = MIN(1U, req->wLength);
+    USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
     USBD_CtlSendData(pdev, zero, len);
 }
 
@@ -55,6 +57,7 @@ static void VC_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
     {
         uint8_t status_info[2] = {0, 0};
         size_t len = MIN(2U, req->wLength);
+        USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
         USBD_CtlSendData(pdev, status_info, len);
     }
 }
