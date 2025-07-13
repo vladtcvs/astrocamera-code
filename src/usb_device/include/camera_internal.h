@@ -45,7 +45,7 @@ extern struct USBD_CAMERA_handle_t USBD_CAMERA_handle;
 extern size_t USBD_CAMERA_CfgDesc_len;
 extern size_t USBD_CAMERA_HID_Report_len;
 
-extern uint8_t USBD_CAMERA_HID_Report[512];
-extern uint8_t USBD_CAMERA_CfgDesc[1024];
+extern uint8_t USBD_CAMERA_HID_Report[256];
+extern uint8_t USBD_CAMERA_CfgDesc[256];
 extern uint8_t video_Probe_Control[48];
 extern uint8_t video_Commit_Control[48];

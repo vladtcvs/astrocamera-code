@@ -521,6 +521,78 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
     }
 
+    {
+        {
+            const uint8_t interfaceDescriptorDFU_alt0[] = {
+                0x09,                    // bLength
+                0x04,                    // bDescriptorType = Interface
+                CAMERA_DFU_INTERFACE_ID, // bInterfaceNumber = 3
+                0x00,                    // bAlternateSetting = 0
+                0x00,                    // bNumEndpoints = 0 (DFU uses only EP0)
+                0xFE,                    // bInterfaceClass = Application Specific (DFU)
+                0x01,                    // bInterfaceSubClass = Device Firmware Upgrade
+                0x02,                    // bInterfaceProtocol = DFU mode
+                0x30,                    // iInterface = 0 (no string)
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceDescriptorDFU_alt0, sizeof(interfaceDescriptorDFU_alt0));
+            size += sizeof(interfaceDescriptorDFU_alt0);
+        }
+
+        {
+            const uint8_t classInterfaceDescriptorDFU[] = {
+                // DFU Functional Descriptor
+                0x09,       // bLength
+                0x21,       // bDescriptorType = DFU Functional
+                0x0B,       // bmAttributes:
+                            //  bitCanDnload (1)
+                            //  bitCanUpload (0)
+                            //  bitManifestationTolerant (1)
+                            //  bitWillDetach (1) — unused but set for compatibility
+                0xFF, 0x00, // wDetachTimeOut = 255 ms
+                0x00, 0x10, // wTransferSize = 4096 bytes
+                0x1A, 0x01, // bcdDFUVersion = 1.1a
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, classInterfaceDescriptorDFU, sizeof(classInterfaceDescriptorDFU));
+            size += sizeof(classInterfaceDescriptorDFU);
+        }
+
+        {
+            const uint8_t interfaceDescriptorDFU_alt1[] = {
+                0x09,                    // bLength
+                0x04,                    // bDescriptorType = Interface
+                CAMERA_DFU_INTERFACE_ID, // bInterfaceNumber = 3
+                0x01,                    // bAlternateSetting = 1
+                0x00,                    // bNumEndpoints = 0 (DFU uses only EP0)
+                0xFE,                    // bInterfaceClass = Application Specific (DFU)
+                0x01,                    // bInterfaceSubClass = Device Firmware Upgrade
+                0x02,                    // bInterfaceProtocol = DFU mode
+                0x31,                    // iInterface = 0 (no string)
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceDescriptorDFU_alt1, sizeof(interfaceDescriptorDFU_alt1));
+            size += sizeof(interfaceDescriptorDFU_alt1);
+        }
+
+        {
+            const uint8_t interfaceDescriptorDFU_alt2[] = {
+                0x09,                    // bLength
+                0x04,                    // bDescriptorType = Interface
+                CAMERA_DFU_INTERFACE_ID, // bInterfaceNumber = 3
+                0x02,                    // bAlternateSetting = 2
+                0x00,                    // bNumEndpoints = 0 (DFU uses only EP0)
+                0xFE,                    // bInterfaceClass = Application Specific (DFU)
+                0x01,                    // bInterfaceSubClass = Device Firmware Upgrade
+                0x02,                    // bInterfaceProtocol = DFU mode
+                0x32,                    // iInterface = 0 (no string)
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceDescriptorDFU_alt2, sizeof(interfaceDescriptorDFU_alt2));
+            size += sizeof(interfaceDescriptorDFU_alt2);
+        }
+    }
+
     if (pConf != NULL) {
         *wTotalLength_L = LOBYTE(size);
         *wTotalLength_H = HIBYTE(size);

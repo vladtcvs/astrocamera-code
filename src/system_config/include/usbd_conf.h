@@ -15,7 +15,7 @@ extern "C"
 // Common USB options
 #define USE_USB_HS 1U
 
-#define USBD_MAX_NUM_INTERFACES 3U
+#define USBD_MAX_NUM_INTERFACES 4U
 #define USBD_MAX_NUM_CONFIGURATION 1U
 #define USBD_MAX_STR_DESC_SIZ 512U
 #define USBD_DEBUG_LEVEL 0U
@@ -23,7 +23,9 @@ extern "C"
 #define USBD_SELF_POWERED 0U
 #define USBD_MAX_POWER 250U
 
-#define CAMERA_TOTAL_INTERFACES                         0x03U
+#define USBD_SUPPORT_USER_STRING_DESC                   1U
+
+#define CAMERA_TOTAL_INTERFACES                         0x04U
 
 // Camera options
 #define USBD_UVC_FORMAT_UNCOMPRESSED
@@ -50,6 +52,9 @@ extern "C"
 
 #define CAMERA_HID_OUTREPORT_BUF_SIZE 3U
 #define CAMERA_HID_INREPORT_BUF_SIZE 3U
+
+// DFU options
+#define CAMERA_DFU_INTERFACE_ID                         0x03U
 
 #define UVC_CAM_FPS_HS 2U
 #define UVC_CAM_FPS_FS 1U

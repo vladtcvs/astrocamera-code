@@ -1,5 +1,6 @@
 #include <usbd_def.h>
 #include <stdint.h>
+#include "usbd_conf.h"
 #include "camera_internal.h"
 
 static uint8_t *GetDeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length);

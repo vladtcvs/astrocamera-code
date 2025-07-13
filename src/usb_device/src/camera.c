@@ -19,14 +19,15 @@ static uint8_t *USBD_CAMERA_GetHSCfgDesc(uint16_t *length);
 static uint8_t *USBD_CAMERA_GetFSCfgDesc(uint16_t *length);
 static uint8_t *USBD_CAMERA_GetOtherSpeedCfgDesc(uint16_t *length);
 static uint8_t *USBD_CAMERA_GetDeviceQualifierDesc(uint16_t *length);
+static uint8_t *GetUsrStrDescriptor(struct _USBD_HandleTypeDef *pdev, uint8_t index,  uint16_t *length);
 
 size_t USBD_CAMERA_CfgDesc_len;
 size_t USBD_CAMERA_HID_Report_len;
 
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
-__ALIGN_BEGIN uint8_t USBD_CAMERA_CfgDesc[1024] __ALIGN_END;
-__ALIGN_BEGIN uint8_t USBD_CAMERA_HID_Report[512] __ALIGN_END;
+__ALIGN_BEGIN uint8_t USBD_CAMERA_CfgDesc[256] __ALIGN_END;
+__ALIGN_BEGIN uint8_t USBD_CAMERA_HID_Report[256] __ALIGN_END;
 __ALIGN_BEGIN uint8_t video_Probe_Control[48] __ALIGN_END;
 __ALIGN_BEGIN uint8_t video_Commit_Control[48] __ALIGN_END;
 
@@ -60,6 +61,7 @@ USBD_ClassTypeDef USBD_CAMERA =
         .GetHSConfigDescriptor = USBD_CAMERA_GetFSCfgDesc,
         .GetOtherSpeedConfigDescriptor = USBD_CAMERA_GetOtherSpeedCfgDesc,
         .GetDeviceQualifierDescriptor = USBD_CAMERA_GetDeviceQualifierDesc,
+        .GetUsrStrDescriptor = GetUsrStrDescriptor,
 };
 
 static struct
@@ -233,4 +235,48 @@ uint8_t USBD_CAMERA_RegisterInterface(USBD_HandleTypeDef *pdev, struct USBD_CAME
 {
     pdev->pUserData[pdev->classId] = cbs;
     return USBD_OK;
+}
+
+
+static uint8_t *GetUsrStrDescriptor(struct _USBD_HandleTypeDef *pdev, uint8_t index,  uint16_t *length)
+{
+    if (index == 0x30U) {
+        __ALIGN_BEGIN static uint8_t desc[] __ALIGN_END = {
+            2 + 14 * 2,
+            USB_DESC_TYPE_STRING,
+            'I', 0, 'n', 0, 't', 0, 'e', 0,
+            'r', 0, 'n', 0, 'a', 0, 'l', 0,
+            ' ', 0, 'F', 0, 'l', 0, 'a', 0,
+            's', 0, 'h', 0
+        };
+        *length = sizeof(desc);
+        return desc;
+    }
+
+    if (index == 0x31U) {
+        __ALIGN_BEGIN static uint8_t desc[] __ALIGN_END = {
+            2 + 17 * 2,
+            USB_DESC_TYPE_STRING,
+            'P', 0, 'a', 0, 'r', 0, 'a', 0,
+            'm', 0, 'e', 0, 't', 0, 'e', 0,
+            'r', 0, 's', 0, ' ', 0, 'E', 0,
+            'E', 0, 'P', 0, 'R', 0, 'O', 0,
+            'm', 0
+        };
+        *length = sizeof(desc);
+        return desc;
+    }
+
+    if (index == 0x32U) {
+        __ALIGN_BEGIN static uint8_t desc[] __ALIGN_END = {
+            2 + 10 * 2,
+            USB_DESC_TYPE_STRING,
+            'F', 0, 'P', 0, 'G', 0, 'A', 0,
+            ' ', 0, 'F', 0, 'l', 0, 'a', 0,
+            's', 0, 'h', 0
+        };
+        *length = sizeof(desc);
+        return desc;
+    }
+    return NULL;
 }
