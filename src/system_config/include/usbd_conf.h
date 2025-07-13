@@ -38,6 +38,7 @@ extern "C"
 #define CAMERA_UVC_EPIN                                 0x81U
 #define CAMERA_UVC_EPIN_SIZE                            1024U
 #define CAMERA_UVC_TXFIFO                               ((unsigned)(CAMERA_UVC_EPIN_SIZE/4+1))
+#define UVC_CHUNK                                       512U
 
 // HID options
 #define CAMERA_HID_INTERFACE_ID                         0x02U

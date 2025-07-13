@@ -97,8 +97,6 @@ static void close_isoc_ep(struct _USBD_HandleTypeDef *pdev)
     pdev->ep_in[CAMERA_UVC_EPIN & 0x0FU].is_used = 0U;
 }
 
-
-#define UVC_CHUNK 128U
 static uint8_t frame[UVC_CHUNK+12U] = {12U, 0x00U};
 static size_t offset = 0;
 static uint8_t UVC_FID = 0x00U;
