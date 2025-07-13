@@ -84,27 +84,87 @@ void VS_GetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req
         USBD_CtlSendData(pdev, &USBD_CAMERA_handle.VS_alt, len);
 }
 
-static void open_bulk_ep(struct _USBD_HandleTypeDef *pdev)
+static void open_isoc_ep(struct _USBD_HandleTypeDef *pdev)
 {
-    if (pdev->dev_speed == USBD_SPEED_HIGH)
-    {
-        USBD_LL_OpenEP(pdev, CAMERA_UVC_IN_EP, USBD_EP_TYPE_ISOC, CAMERA_UVC_ISO_HS_MPS);
-        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
-    }
-    else
-    {
-        USBD_LL_OpenEP(pdev, CAMERA_UVC_IN_EP, USBD_EP_TYPE_ISOC, CAMERA_UVC_ISO_FS_MPS);
-        pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_FS_MPS;
-    }
-
-    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 1U;
-    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].maxpacket = CAMERA_UVC_ISO_HS_MPS;
+    uint8_t res = USBD_LL_OpenEP(pdev, CAMERA_UVC_EPIN, USBD_EP_TYPE_ISOC, CAMERA_UVC_EPIN_SIZE);
+    pdev->ep_in[CAMERA_UVC_EPIN & 0x0FU].maxpacket = CAMERA_UVC_EPIN_SIZE;
+    pdev->ep_in[CAMERA_UVC_EPIN & 0x0FU].is_used = 1U;
 }
 
-static void close_bulk_ep(struct _USBD_HandleTypeDef *pdev)
+static void close_isoc_ep(struct _USBD_HandleTypeDef *pdev)
 {
-    USBD_LL_CloseEP(pdev, CAMERA_UVC_IN_EP);
-    pdev->ep_in[CAMERA_UVC_IN_EP & 0x0FU].is_used = 0U;
+    USBD_LL_CloseEP(pdev, CAMERA_UVC_EPIN);
+    pdev->ep_in[CAMERA_UVC_EPIN & 0x0FU].is_used = 0U;
+}
+
+
+#define UVC_CHUNK 128U
+static uint8_t frame[UVC_CHUNK+12U] = {12U, 0x00U};
+static size_t offset = 0;
+static uint8_t UVC_FID = 0x00U;
+static enum {
+    UVC_FRAME_IDLE = 0,
+    UVC_FRAME_READY,
+    UVC_FRAME_RUN,
+} status = UVC_FRAME_IDLE;
+
+static unsigned chunk_id;
+static size_t payload_size;
+static size_t frame_size = 640*480*2;
+
+static void start_uvc_frame(struct _USBD_HandleTypeDef *pdev)
+{
+    if (status != UVC_FRAME_READY)
+        return;
+
+    offset = 0;
+    status = UVC_FRAME_RUN;
+
+    chunk_id = 0;
+    UVC_FID ^= 0x01U;
+    frame[1] = UVC_FID;
+    uint8_t result = USBD_LL_Transmit(pdev, CAMERA_UVC_EPIN, frame, 12U);
+    status = UVC_FRAME_RUN;
+    chunk_id += 1;
+}
+
+static void continue_uvc_frame(struct _USBD_HandleTypeDef *pdev)
+{
+    if (status != UVC_FRAME_RUN)
+        return;
+
+    if (frame_size - offset > UVC_CHUNK) {
+        frame[1] = UVC_FID;
+        payload_size = UVC_CHUNK;
+    } else {
+        frame[1] = UVC_FID | 0x02;
+        payload_size = frame_size - offset;
+        status = UVC_FRAME_IDLE;
+    }
+    frame[12] = (chunk_id >> 24) & 0xFFU;
+    frame[13] = (chunk_id >> 16) & 0xFFU;
+    frame[14] = (chunk_id >> 8) & 0xFFU;
+    frame[15] = (chunk_id) & 0xFFU;
+    uint8_t result = USBD_LL_Transmit(pdev, CAMERA_UVC_EPIN, frame, payload_size + 12U);
+    offset += payload_size;
+    chunk_id += 1;
+}
+
+uint8_t VS_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+    if (USBD_CAMERA_handle.VS_alt == 0)
+        return USBD_OK;
+    continue_uvc_frame(pdev);
+    return USBD_OK;
+}
+
+uint8_t VS_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
+{
+    if (USBD_CAMERA_handle.VS_alt == 0)
+        return USBD_OK;
+
+    uint8_t result = USBD_LL_Transmit(pdev, CAMERA_UVC_EPIN, frame, payload_size + 12U);
+    return USBD_OK;
 }
 
 static uint8_t VS_SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
@@ -123,13 +183,15 @@ static uint8_t VS_SetInterface(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTy
         struct USBD_CAMERA_callbacks_t *cbs = (struct USBD_CAMERA_callbacks_t *)(pdev->pUserData[USBD_CAMERA_handle.classId]);
         if (USBD_CAMERA_handle.VS_alt == 1)
         {
-            open_bulk_ep(pdev);
+            open_isoc_ep(pdev);
+            status = UVC_FRAME_READY;
+            USBD_LL_FlushEP(pdev, CAMERA_UVC_EPIN);
             if (cbs->VS_StartStream != NULL)
                 return cbs->VS_StartStream();
         }
         else
         {
-            close_bulk_ep(pdev);
+            close_isoc_ep(pdev);
             if (cbs->VS_StopStream != NULL)
                 return cbs->VS_StopStream();
         }
@@ -146,6 +208,14 @@ static void VS_GetStatus(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef 
         size_t len = MIN(2U, req->wLength);
         USBD_CtlSendData(pdev, status_info, len);
     }
+}
+
+uint8_t VS_SOF(struct _USBD_HandleTypeDef *pdev)
+{
+    if (status == UVC_FRAME_READY) {
+        start_uvc_frame(pdev);
+    }
+    return USBD_OK;
 }
 
 void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)

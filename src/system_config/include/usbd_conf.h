@@ -23,41 +23,38 @@ extern "C"
 #define USBD_SELF_POWERED 0U
 #define USBD_MAX_POWER 250U
 
-// Camera options
-
-#define CAMERA_HID_INTERFACE_ID                         0x00U
-#define CAMERA_VC_INTERFACE_ID                          0x01U
-#define CAMERA_VS_INTERFACE_ID                          0x02U
 #define CAMERA_TOTAL_INTERFACES                         0x03U
+
+// Camera options
+#define USBD_UVC_FORMAT_UNCOMPRESSED
+
+#define CAMERA_VC_INTERFACE_ID                          0x00U
+#define CAMERA_VS_INTERFACE_ID                          0x01U
 
 #define CAMERA_UVC_MATRIX_COEFFICIENTS                  0x04U
 #define CAMERA_UVC_TFR_CHARACTERISTICS                  0x01U
 #define CAMERA_UVC_COLOR_PRIMARIE                       0x01U
-#define CAMERA_UVC_ISO_FS_MPS                           3072
-#define CAMERA_UVC_ISO_HS_MPS                           3072U
 
-#define CAMERA_HID_EPIN                                 0x81U
+#define CAMERA_UVC_EPIN                                 0x81U
+#define CAMERA_UVC_EPIN_SIZE                            1024U
+#define CAMERA_UVC_TXFIFO                               ((unsigned)(CAMERA_UVC_EPIN_SIZE/4+1))
+
+// HID options
+#define CAMERA_HID_INTERFACE_ID                         0x02U
+#define CAMERA_HID_EPIN                                 0x82U
 #define CAMERA_HID_EPIN_SIZE                            16U
 
 #define CAMERA_HID_EPOUT                                0x01U
 #define CAMERA_HID_EPOUT_SIZE                           16U
 
-#define CAMERA_UVC_IN_EP                                0x82U
-
 #define CAMERA_HID_OUTREPORT_BUF_SIZE 3U
 #define CAMERA_HID_INREPORT_BUF_SIZE 3U
 
-// UVC options
-#define USBD_UVC_FORMAT_UNCOMPRESSED
-
-//#define UVC_UNCOMPRESSED_GUID 0x32315752 // RW12
-#define UVC_UNCOMPRESSED_GUID UVC_GUID_YUY2
 #define UVC_CAM_FPS_HS 2U
 #define UVC_CAM_FPS_FS 1U
 #define UVC_WIDTH 640U
 #define UVC_HEIGHT 480U
 #define UVC_BITS_PER_PIXEL 16U
-
 
 
 

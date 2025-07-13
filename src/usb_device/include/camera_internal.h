@@ -34,6 +34,9 @@ void HID_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 
 uint8_t HID_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t HID_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+uint8_t VS_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+uint8_t VS_SOF(struct _USBD_HandleTypeDef *pdev);
+uint8_t VS_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 
 uint8_t HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
 void USBD_CAMERA_ExpectRx(uint8_t interface);

@@ -20,6 +20,7 @@
 #include "stm32f4xx_hal.h"
 #include "usbd_def.h"
 #include "usbd_core.h"
+#include "camera_internal.h"
 
 PCD_HandleTypeDef hpcd_USB_OTG_HS;
 
@@ -241,11 +242,11 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
         pdev->pData = &hpcd_USB_OTG_HS;
 
         hpcd_USB_OTG_HS.Instance = USB_OTG_HS;
-        hpcd_USB_OTG_HS.Init.dev_endpoints = 8;
+        hpcd_USB_OTG_HS.Init.dev_endpoints = 3;
         hpcd_USB_OTG_HS.Init.speed = PCD_SPEED_HIGH;
         hpcd_USB_OTG_HS.Init.dma_enable = DISABLE;
         hpcd_USB_OTG_HS.Init.phy_itface = USB_OTG_ULPI_PHY;
-        hpcd_USB_OTG_HS.Init.Sof_enable = DISABLE;
+        hpcd_USB_OTG_HS.Init.Sof_enable = ENABLE;
         hpcd_USB_OTG_HS.Init.low_power_enable = DISABLE;
         hpcd_USB_OTG_HS.Init.lpm_enable = DISABLE;
         hpcd_USB_OTG_HS.Init.vbus_sensing_enable = DISABLE;
@@ -269,9 +270,10 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
         HAL_PCD_RegisterIsoOutIncpltCallback(&hpcd_USB_OTG_HS, PCD_ISOOUTIncompleteCallback);
         HAL_PCD_RegisterIsoInIncpltCallback(&hpcd_USB_OTG_HS, PCD_ISOINIncompleteCallback);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-        HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 0x200);
-        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 0x80);
-        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 0x174);
+        HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 128U);
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 64U);     // EP0
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, CAMERA_UVC_TXFIFO);
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 2, 32U);
     }
     return USBD_OK;
 }

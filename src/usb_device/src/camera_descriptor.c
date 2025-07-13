@@ -25,6 +25,11 @@
 #define UVC_CC_VIDEO                                    0x0EU
 #define UVC_VERSION                                     0x0150U      /* UVC 1.1 */
 
+#define USBD_EP_SYNCH_NONE      0x00U
+#define USBD_EP_SYNCH_SYNC      0x0CU
+#define USBD_EP_SYNCH_ADAPTIVE  0x08U
+#define USBD_EP_SYNCH_ASYNC     0x04U
+
 #define HID_DESCRIPTOR_TYPE                             0x21U
 #define PC_PROTOCOL_UNDEFINED                           0x00U
 
@@ -172,8 +177,7 @@ size_t camera_generate_descriptor(uint8_t *pConf,
     uint8_t *wTotalLength_H = NULL;
     uint8_t *wTotalLength_L = NULL;
 
-    uint8_t *bNumInterfaces = NULL;
-
+    /* Configuration */
     {
         const uint8_t configurationDescriptor[] = {
             0x09U,                                      // bLength
@@ -191,67 +195,6 @@ size_t camera_generate_descriptor(uint8_t *pConf,
             wTotalLength_H = pConf + size + 3;
         }
         size += sizeof(configurationDescriptor);
-    }
-
-    /* HID interface */
-    {
-            const uint8_t interfaceDescriptorHID[] = {
-                0x09U,                                  // bLength
-                USB_DESC_TYPE_INTERFACE,                // bDescriptorType
-                CAMERA_HID_INTERFACE_ID,                // bInterfaceNumber
-                0x00U,                                  // bAlternateSetting
-                0x02U,                                  // bNumEndpoints
-                0x03U,                                  // bInterfaceClass
-                0x00U,                                  // bInterfaceSubClass
-                PC_PROTOCOL_UNDEFINED,                  // bInterfaceProtocol
-                0x00U,                                  // iInterface
-            };
-            if (pConf != NULL)
-                memcpy(pConf + size, interfaceDescriptorHID, sizeof(interfaceDescriptorHID));
-            size += sizeof(interfaceDescriptorHID);
-    }
-
-    {
-        uint8_t classInterfaceDescriptorHID[] = {
-            0x09U,                                  // bLength
-            HID_DESCRIPTOR_TYPE,                    // bDescriptorType
-            WBVAL(0x0111U),                         // bcdHID
-            0x00U,                                  // bCountryCode
-            0x01U,                                  // bNumDescriptors
-            0x22U,                                  // bDescriptorType
-            WBVAL(sizeof(HID_ReportDesc)),          // Report length
-        };
-        if (pConf != NULL)
-            memcpy(pConf + size, classInterfaceDescriptorHID, sizeof(classInterfaceDescriptorHID));
-        size += sizeof(classInterfaceDescriptorHID);
-    }
-
-    {
-        const uint8_t epInDesc[] = {
-            0x07U,                                      // bLength
-            USB_DESC_TYPE_ENDPOINT,                     // bDescriptorType
-            CAMERA_HID_EPIN,                            // bEndpointAddress
-            USBD_EP_TYPE_INTR,                          // bmAttributes
-            WBVAL(CAMERA_HID_EPIN_SIZE),                // wMaxPacketSize
-            0x01,                                       // bInterval
-        };
-        if (pConf != NULL)
-            memcpy(pConf + size, epInDesc, sizeof(epInDesc));
-        size += sizeof(epInDesc);
-    }
-
-    {
-        const uint8_t epOutDesc[] = {
-            0x07U,                                      // bLength
-            USB_DESC_TYPE_ENDPOINT,                     // bDescriptorType
-            CAMERA_HID_EPOUT,                           // bEndpointAddress
-            USBD_EP_TYPE_INTR,                          // bmAttributes
-            WBVAL(CAMERA_HID_EPOUT_SIZE),               // wMaxPacketSize
-            0x01,                                       // bInterval
-        };
-        if (pConf != NULL)
-            memcpy(pConf + size, epOutDesc, sizeof(epOutDesc));
-        size += sizeof(epOutDesc);
     }
 
     /* UVC IAD interface */
@@ -361,6 +304,7 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
     }
 
+    /* UVC VS interface alt 0 */
     {
         uint16_t wTotalLengthVS = 0;
         uint8_t *wTotalLengthVS_H = NULL;
@@ -390,7 +334,7 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 VS_INPUT_HEADER, // bDescriptorSubtype
                 0x01U,           // bNumFormats
                 WBVAL(0),        // wTotalLength --- UPDATE LATER!
-                CAMERA_UVC_IN_EP,// bEndpointAddress
+                CAMERA_UVC_EPIN, // bEndpointAddress
                 0x00U,           // bmInfo
                 0x02U,           // bTerminalLink
                 0x01U,           // bStillCaptureMethod
@@ -480,6 +424,7 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
     }
 
+    /* UVC VS interface alt 1 */
     {
         {
             const uint8_t interfaceDescriptorVS[] = {
@@ -500,16 +445,79 @@ size_t camera_generate_descriptor(uint8_t *pConf,
 
         {
             const uint8_t isochronousVideoDataEndpointDescriptor[] = {
-                0x07U,                                  // bLength
-                USB_DESC_TYPE_ENDPOINT,                 // bDescriptorType
-                CAMERA_UVC_IN_EP,                       // bEndpointAddress
-                0x05,                                   // bmAttributes
-                WBVAL(CAMERA_UVC_ISO_HS_MPS),           // wMaxPacketSize
-                0x01,                                   // bInterval
+                0x07U,                                      // bLength
+                USB_DESC_TYPE_ENDPOINT,                     // bDescriptorType
+                CAMERA_UVC_EPIN,                            // bEndpointAddress
+                USBD_EP_TYPE_ISOC | USBD_EP_SYNCH_ASYNC,    // bmAttributes
+                WBVAL(CAMERA_UVC_EPIN_SIZE),                // wMaxPacketSize
+                0x01U,                                      // bInterval
             };
             if (pConf != NULL)
                 memcpy(pConf + size, isochronousVideoDataEndpointDescriptor, sizeof(isochronousVideoDataEndpointDescriptor));
             size += sizeof(isochronousVideoDataEndpointDescriptor);
+        }
+    }
+
+    /* HID interface */
+    {
+        {
+            const uint8_t interfaceDescriptorHID[] = {
+                0x09U,                   // bLength
+                USB_DESC_TYPE_INTERFACE, // bDescriptorType
+                CAMERA_HID_INTERFACE_ID, // bInterfaceNumber
+                0x00U,                   // bAlternateSetting
+                0x02U,                   // bNumEndpoints
+                0x03U,                   // bInterfaceClass
+                0x00U,                   // bInterfaceSubClass
+                PC_PROTOCOL_UNDEFINED,   // bInterfaceProtocol
+                0x00U,                   // iInterface
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceDescriptorHID, sizeof(interfaceDescriptorHID));
+            size += sizeof(interfaceDescriptorHID);
+        }
+
+        {
+            uint8_t classInterfaceDescriptorHID[] = {
+                0x09U,                         // bLength
+                HID_DESCRIPTOR_TYPE,           // bDescriptorType
+                WBVAL(0x0111U),                // bcdHID
+                0x00U,                         // bCountryCode
+                0x01U,                         // bNumDescriptors
+                0x22U,                         // bDescriptorType
+                WBVAL(sizeof(HID_ReportDesc)), // Report length
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, classInterfaceDescriptorHID, sizeof(classInterfaceDescriptorHID));
+            size += sizeof(classInterfaceDescriptorHID);
+        }
+
+        {
+            const uint8_t epInDesc[] = {
+                0x07U,                       // bLength
+                USB_DESC_TYPE_ENDPOINT,      // bDescriptorType
+                CAMERA_HID_EPIN,             // bEndpointAddress
+                USBD_EP_TYPE_INTR,           // bmAttributes
+                WBVAL(CAMERA_HID_EPIN_SIZE), // wMaxPacketSize
+                0x01U,                       // bInterval
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, epInDesc, sizeof(epInDesc));
+            size += sizeof(epInDesc);
+        }
+
+        {
+            const uint8_t epOutDesc[] = {
+                0x07U,                        // bLength
+                USB_DESC_TYPE_ENDPOINT,       // bDescriptorType
+                CAMERA_HID_EPOUT,             // bEndpointAddress
+                USBD_EP_TYPE_INTR,            // bmAttributes
+                WBVAL(CAMERA_HID_EPOUT_SIZE), // wMaxPacketSize
+                0x01U,                        // bInterval
+            };
+            if (pConf != NULL)
+                memcpy(pConf + size, epOutDesc, sizeof(epOutDesc));
+            size += sizeof(epOutDesc);
         }
     }
 
@@ -555,7 +563,7 @@ void camera_fill_probe_control(uint8_t *probe, uint16_t width, uint16_t height)
         WBVAL(0x0000U),                     // wCompWindowSize
         WBVAL(0x0000U),                     // wDelay
         DBVAL(width * height * 2),          // dwMaxVideoFrameSize
-        DBVAL(CAMERA_UVC_ISO_HS_MPS),       // dwMaxPayloadTransferSize
+        DBVAL(CAMERA_UVC_EPIN_SIZE),        // dwMaxPayloadTransferSize
         DBVAL(24000000UL),                  // dwClockFrequency
         0x00U,                              // bmFramingInfo
         0x00U,                              // bPreferedVersion

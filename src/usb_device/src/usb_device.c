@@ -69,9 +69,21 @@ static uint8_t *HID_GetInReport(uint8_t report_id, size_t* len)
     }
 }
 
+static uint8_t VS_StartStream(void)
+{
+    return USBD_OK;
+}
+
+static uint8_t VS_StopStream(void)
+{
+    return USBD_OK;
+}
+
 static struct USBD_CAMERA_callbacks_t callbacks = {
     .HID_OutputReport = HID_OutputReport,
     .HID_GetInReport  = HID_GetInReport,
+    .VS_StartStream = VS_StartStream,
+    .VS_StopStream = VS_StopStream,
 };
 
 struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned height, const char *FourCC)

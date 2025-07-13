@@ -110,13 +110,12 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
 
 static uint8_t USBD_CAMERA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-    USBD_LL_CloseEP(pdev, CAMERA_UVC_IN_EP);
-    pdev->ep_in[CAMERA_UVC_IN_EP & 0xFU].is_used = 0U;
-
+    if (pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used) {
+        USBD_LL_CloseEP(pdev, CAMERA_UVC_EPIN);
+        pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used = 0U;
+    }
     return (uint8_t)USBD_OK;
 }
-
-
 
 static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
@@ -139,6 +138,12 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
         break;
     }
     return (uint8_t)USBD_OK;
+}
+
+static uint8_t USBD_CAMERA_SOF(struct _USBD_HandleTypeDef *pdev)
+{
+    VS_SOF(pdev);
+    return USBD_OK;
 }
 
 static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
@@ -165,6 +170,9 @@ static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnu
     case EPNUM(CAMERA_HID_EPIN):
         HID_DataIn(pdev, epnum);
         break;
+    case EPNUM(CAMERA_UVC_EPIN):
+        VS_DataIn(pdev, epnum);
+        break;
     }
     return (uint8_t)USBD_OK;
 }
@@ -179,13 +187,16 @@ static uint8_t USBD_CAMERA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epn
     return (uint8_t)USBD_OK;
 }
 
-static uint8_t USBD_CAMERA_SOF(struct _USBD_HandleTypeDef *pdev)
-{
-    return (uint8_t)USBD_OK;
-}
-
 static uint8_t USBD_CAMERA_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+    switch (EPNUM(epnum))
+    {
+    case EPNUM(CAMERA_UVC_EPIN):
+        VS_IsoINIncomplete(pdev, epnum);
+        break;
+    default:
+        break;
+    }
     return (uint8_t)USBD_OK;
 }
 
