@@ -106,6 +106,7 @@ static enum {
     UVC_FRAME_IDLE = 0,
     UVC_FRAME_READY,
     UVC_FRAME_RUN,
+    UVC_FRAME_NEXT,
 } status = UVC_FRAME_IDLE;
 
 static unsigned chunk_id;
@@ -121,8 +122,14 @@ static void start_uvc_frame(struct _USBD_HandleTypeDef *pdev)
     status = UVC_FRAME_RUN;
 
     chunk_id = 0;
-    UVC_FID ^= 0x01U;
+    UVC_FID = 0x01U;
     frame[1] = UVC_FID;
+
+    frame[12] = 0xFFU;
+    frame[13] = 0xFFU;
+    frame[14] = 0xFFU;
+    frame[15] = 0xFFU;
+
     uint8_t result = USBD_LL_Transmit(pdev, CAMERA_UVC_EPIN, frame, 12U);
     status = UVC_FRAME_RUN;
     chunk_id += 1;
@@ -130,8 +137,14 @@ static void start_uvc_frame(struct _USBD_HandleTypeDef *pdev)
 
 static void continue_uvc_frame(struct _USBD_HandleTypeDef *pdev)
 {
-    if (status != UVC_FRAME_RUN)
+    if (status != UVC_FRAME_RUN && status != UVC_FRAME_NEXT)
         return;
+
+    if (status == UVC_FRAME_NEXT) {
+        status = UVC_FRAME_RUN;
+        UVC_FID ^= 0x01U;
+        offset = 0;
+    }
 
     if (frame_size - offset > UVC_CHUNK) {
         frame[1] = UVC_FID;
@@ -139,12 +152,8 @@ static void continue_uvc_frame(struct _USBD_HandleTypeDef *pdev)
     } else {
         frame[1] = UVC_FID | 0x02;
         payload_size = frame_size - offset;
-        status = UVC_FRAME_IDLE;
+        status = UVC_FRAME_NEXT;
     }
-    frame[12] = (chunk_id >> 24) & 0xFFU;
-    frame[13] = (chunk_id >> 16) & 0xFFU;
-    frame[14] = (chunk_id >> 8) & 0xFFU;
-    frame[15] = (chunk_id) & 0xFFU;
     uint8_t result = USBD_LL_Transmit(pdev, CAMERA_UVC_EPIN, frame, payload_size + 12U);
     offset += payload_size;
     chunk_id += 1;
