@@ -136,6 +136,9 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
     case CAMERA_HID_INTERFACE_ID:
         HID_Setup(pdev, req);
         break;
+    case CAMERA_DFU_INTERFACE_ID:
+        DFU_Setup(pdev, req);
+        break;
     default:
         break;
     }
@@ -158,6 +161,9 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
     case CAMERA_VS_INTERFACE_ID:
         break;
     case CAMERA_VC_INTERFACE_ID:
+        break;
+    case CAMERA_DFU_INTERFACE_ID:
+        res = DFU_EP0_RxReady(pdev);
         break;
     default:
         return USBD_FAIL;
@@ -242,12 +248,10 @@ static uint8_t *GetUsrStrDescriptor(struct _USBD_HandleTypeDef *pdev, uint8_t in
 {
     if (index == 0x30U) {
         __ALIGN_BEGIN static uint8_t desc[] __ALIGN_END = {
-            2 + 14 * 2,
+            2 + (8+6) * 2,
             USB_DESC_TYPE_STRING,
-            'I', 0, 'n', 0, 't', 0, 'e', 0,
-            'r', 0, 'n', 0, 'a', 0, 'l', 0,
-            ' ', 0, 'F', 0, 'l', 0, 'a', 0,
-            's', 0, 'h', 0
+            'I', 0, 'n', 0, 't', 0, 'e', 0, 'r', 0, 'n', 0, 'a', 0, 'l', 0,
+            ' ', 0, 'f', 0, 'l', 0, 'a', 0, 's', 0, 'h', 0
         };
         *length = sizeof(desc);
         return desc;
@@ -255,13 +259,9 @@ static uint8_t *GetUsrStrDescriptor(struct _USBD_HandleTypeDef *pdev, uint8_t in
 
     if (index == 0x31U) {
         __ALIGN_BEGIN static uint8_t desc[] __ALIGN_END = {
-            2 + 17 * 2,
+            2 + 6 * 2,
             USB_DESC_TYPE_STRING,
-            'P', 0, 'a', 0, 'r', 0, 'a', 0,
-            'm', 0, 'e', 0, 't', 0, 'e', 0,
-            'r', 0, 's', 0, ' ', 0, 'E', 0,
-            'E', 0, 'P', 0, 'R', 0, 'O', 0,
-            'm', 0
+            'P', 0, 'a', 0, 'r', 0, 'a', 0, 'm', 0, 's', 0
         };
         *length = sizeof(desc);
         return desc;
@@ -269,11 +269,9 @@ static uint8_t *GetUsrStrDescriptor(struct _USBD_HandleTypeDef *pdev, uint8_t in
 
     if (index == 0x32U) {
         __ALIGN_BEGIN static uint8_t desc[] __ALIGN_END = {
-            2 + 10 * 2,
+            2 + (4) * 2,
             USB_DESC_TYPE_STRING,
-            'F', 0, 'P', 0, 'G', 0, 'A', 0,
-            ' ', 0, 'F', 0, 'l', 0, 'a', 0,
-            's', 0, 'h', 0
+            'F', 0, 'P', 0, 'G', 0, 'A', 0
         };
         *length = sizeof(desc);
         return desc;

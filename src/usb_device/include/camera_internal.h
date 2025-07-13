@@ -14,6 +14,7 @@ struct USBD_CAMERA_handle_t
 };
 
 #define UVC_CS_DEVICE                                  0x21U
+#define DFU_CS_DEVICE                                  0x21U
 
 #define UVC_INTERVAL(n)                               (10000000U/(n))
 
@@ -28,6 +29,7 @@ struct USBD_CAMERA_handle_t
 void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+void DFU_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 
 uint8_t HID_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 void HID_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
@@ -39,6 +41,7 @@ uint8_t VS_SOF(struct _USBD_HandleTypeDef *pdev);
 uint8_t VS_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 
 uint8_t HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
+uint8_t DFU_EP0_RxReady(USBD_HandleTypeDef *pdev);
 void USBD_CAMERA_ExpectRx(uint8_t interface);
 
 extern struct USBD_CAMERA_handle_t USBD_CAMERA_handle;

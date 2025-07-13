@@ -55,6 +55,7 @@ extern "C"
 
 // DFU options
 #define CAMERA_DFU_INTERFACE_ID                         0x03U
+#define DFU_TRANSFER_SIZE                               256U
 
 #define UVC_CAM_FPS_HS 2U
 #define UVC_CAM_FPS_FS 1U

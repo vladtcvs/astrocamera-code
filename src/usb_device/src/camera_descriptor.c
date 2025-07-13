@@ -166,6 +166,30 @@ __ALIGN_BEGIN const uint8_t HID_ReportDesc[] __ALIGN_END =
 };
 
 
+static const uint8_t classSpecificInterfaceDescriptorVC[] = {
+    0x0DU,                  // bLength
+    CS_INTERFACE,           // bDescriptorType
+    VC_HEADER,              // bDescriptorSubType
+    WBVAL(UVC_VERSION),     // bcdUVC
+    WBVAL(0),               // wTotalLength --- UPDATE AFTER!
+    DBVAL(24000000UL),      // dwClockFrequency
+    0x01U,                  // bInCollection
+    CAMERA_VS_INTERFACE_ID, // baInterfaceNr
+};
+
+static const uint8_t classSpecificInterfaceDescriptorDFU[] = {
+    0x09,                     // bLength
+    0x21,                     // bDescriptorType = DFU Functional
+    0x07,                     // bmAttributes:
+                              //   Bit 3: WillDetach = 0 (we won't reset)
+                              //   Bit 2: Manifestation Tolerant = 1
+                              //   Bit 1: CanUpload = 1
+                              //   Bit 0: CanDnload = 1
+    0xFF, 0x00,               // wDetachTimeOut = 255 ms
+    WBVAL(DFU_TRANSFER_SIZE), // wTransferSize = 4096 bytes
+    0x00, 0x01                // DFU v1.0
+};
+
 size_t camera_generate_descriptor(uint8_t *pConf,
                                   uint8_t fps,
                                   uint16_t width,
@@ -240,17 +264,6 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
 
         {
-            const uint8_t classSpecificInterfaceDescriptorVC[] = {
-                0x0DU,                  // bLength
-                CS_INTERFACE,           // bDescriptorType
-                VC_HEADER,              // bDescriptorSubType
-                WBVAL(UVC_VERSION),     // bcdUVC
-                WBVAL(0),               // wTotalLength --- UPDATE AFTER!
-                DBVAL(24000000UL),      // dwClockFrequency
-                0x01U,                  // bInCollection
-                CAMERA_VS_INTERFACE_ID, // baInterfaceNr
-            };
-
             if (pConf != NULL) {
                 memcpy(pConf + size, classSpecificInterfaceDescriptorVC, sizeof(classSpecificInterfaceDescriptorVC));
                 wTotalLengthVC_L = pConf + size + 5;
@@ -521,6 +534,7 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
     }
 
+    /* DFU interface */
     {
         {
             const uint8_t interfaceDescriptorDFU_alt0[] = {
@@ -540,22 +554,9 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
 
         {
-            const uint8_t classInterfaceDescriptorDFU[] = {
-                // DFU Functional Descriptor
-                0x09,       // bLength
-                0x21,       // bDescriptorType = DFU Functional
-                0x0B,       // bmAttributes:
-                            //  bitCanDnload (1)
-                            //  bitCanUpload (0)
-                            //  bitManifestationTolerant (1)
-                            //  bitWillDetach (1) — unused but set for compatibility
-                0xFF, 0x00, // wDetachTimeOut = 255 ms
-                0x00, 0x10, // wTransferSize = 4096 bytes
-                0x1A, 0x01, // bcdDFUVersion = 1.1a
-            };
             if (pConf != NULL)
-                memcpy(pConf + size, classInterfaceDescriptorDFU, sizeof(classInterfaceDescriptorDFU));
-            size += sizeof(classInterfaceDescriptorDFU);
+                memcpy(pConf + size, classSpecificInterfaceDescriptorDFU, sizeof(classSpecificInterfaceDescriptorDFU));
+            size += sizeof(classSpecificInterfaceDescriptorDFU);
         }
 
         {
@@ -608,18 +609,16 @@ size_t camera_hid_report_descriptor(uint8_t *pConf, size_t maxlen)
 
 const void *camera_get_video_descriptor(size_t *len)
 {
-    static const uint8_t classSpecificInterfaceDescriptorVC[] = {
-        0x0DU,                  // bLength
-        CS_INTERFACE,           // bDescriptorType
-        VC_HEADER,              // bDescriptorSubType
-        WBVAL(UVC_VERSION),     // bcdUVC
-        WBVAL(0),               // wTotalLength --- UPDATE AFTER!
-        DBVAL(24000000UL),      // dwClockFrequency
-        0x01U,                  // bInCollection
-        CAMERA_VS_INTERFACE_ID, // baInterfaceNr
-    };
+    
     *len = sizeof(classSpecificInterfaceDescriptorVC);
     return classSpecificInterfaceDescriptorVC;
+}
+
+const void *camera_get_dfu_descriptor(size_t *len)
+{
+    
+    *len = sizeof(classSpecificInterfaceDescriptorDFU);
+    return classSpecificInterfaceDescriptorDFU;
 }
 
 void camera_fill_probe_control(uint8_t *probe, uint16_t width, uint16_t height)
