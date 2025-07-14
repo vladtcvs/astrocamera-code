@@ -20,6 +20,7 @@
 #include "hw/usb.h"
 #include "hw/i2c.h"
 #include "hw/uart.h"
+#include "hw/spi.h"
 #include "hw/quadspi.h"
 #include "usb_device.h"
 
@@ -113,6 +114,7 @@ int main(void)
     {
         USART1_Init(115200);
         UART5_Init(9600);
+        SPI4_Init();
 
         load_config(&camera_config);
         struct usb_context_s *usb_ctx = USB_DEVICE_Init(2, camera_config.width, camera_config.height, camera_config.FourCC);
