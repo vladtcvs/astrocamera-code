@@ -1,7 +1,7 @@
 #pragma once
 
+#include <stdint.h>
 #include <stdbool.h>
-
 
 void core_init(struct usb_context_s *ctx);
 

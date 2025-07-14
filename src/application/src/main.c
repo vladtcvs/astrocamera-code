@@ -22,6 +22,7 @@
 #include "usb_device.h"
 
 #include "core.h"
+#include "config.h"
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -33,6 +34,8 @@
 static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static TaskHandle_t sensors_poll_task;
 static StaticTask_t sensors_poll_task_buffer;
+
+struct config_s config;
 
 extern bool freertos_tick;
 
@@ -104,7 +107,8 @@ int main(void)
     }
     else
     {
-        struct usb_context_s *usb_ctx = USB_DEVICE_Init(2, 640, 480, "Y16 ");
+        load_config(&camera_config);
+        struct usb_context_s *usb_ctx = USB_DEVICE_Init(2, camera_config.width, camera_config.height, camera_config.FourCC);
         if (usb_ctx == NULL)
             goto error;
 

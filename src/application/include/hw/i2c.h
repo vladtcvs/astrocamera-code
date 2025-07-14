@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stm32f4xx_hal.h>
 
 int I2C1_Init(void);
 

@@ -5,6 +5,7 @@ enable_language(C ASM)
 add_executable(${CMAKE_PROJECT_NAME} 
                 src/main.c
                 src/core.c
+                src/config.c
                 src/hw/pll.c
                 src/hw/i2c.c
                 src/hw/usb.c
