@@ -668,14 +668,14 @@ size_t camera_hid_report_descriptor(uint8_t *pConf, size_t maxlen)
     return sizeof(HID_ReportDesc);
 }
 
-const void *camera_get_video_descriptor(size_t *len)
+uint8_t *camera_get_video_descriptor(size_t *len)
 {
     
     *len = sizeof(classSpecificInterfaceDescriptorVC);
     return classSpecificInterfaceDescriptorVC;
 }
 
-const void *camera_get_dfu_descriptor(size_t *len)
+uint8_t *camera_get_dfu_descriptor(size_t *len)
 {
     
     *len = sizeof(classSpecificInterfaceDescriptorDFU);

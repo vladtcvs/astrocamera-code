@@ -15,7 +15,7 @@ size_t camera_generate_descriptor_dfu(uint8_t *pConf,
 
 size_t camera_hid_report_descriptor(uint8_t *pConf, size_t maxlen);
 
-const void *camera_get_video_descriptor(size_t *len);
-const void *camera_get_dfu_descriptor(size_t *len);
+uint8_t *camera_get_video_descriptor(size_t *len);
+uint8_t *camera_get_dfu_descriptor(size_t *len);
 
 void camera_fill_probe_control(uint8_t *probe, uint16_t width, uint16_t height);

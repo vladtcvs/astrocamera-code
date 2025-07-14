@@ -36,6 +36,10 @@ extern "C"
 #define DEVICE_USB_PID 22315
 #define DEVICE_VERSION 0x0001U
 
+/* I2C EEPROM */
+#define I2C_EEPROM_BASE_ADDR 0xA0U
+#define I2C_EEPROM_SIZE 1024U
+
 #ifdef __cplusplus
 }
 #endif
