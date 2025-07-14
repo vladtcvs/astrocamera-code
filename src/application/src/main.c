@@ -19,6 +19,7 @@
 #include "hw/pll.h"
 #include "hw/usb.h"
 #include "hw/i2c.h"
+#include "hw/uart.h"
 #include "usb_device.h"
 
 #include "core.h"
@@ -107,6 +108,9 @@ int main(void)
     }
     else
     {
+        USART1_Init(115200);
+        UART5_Init(9600);
+
         load_config(&camera_config);
         struct usb_context_s *usb_ctx = USB_DEVICE_Init(2, camera_config.width, camera_config.height, camera_config.FourCC);
         if (usb_ctx == NULL)
