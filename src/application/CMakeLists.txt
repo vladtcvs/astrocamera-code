@@ -9,6 +9,7 @@ add_executable(${CMAKE_PROJECT_NAME}
                 src/hw/pll.c
                 src/hw/i2c.c
                 src/hw/uart.c
+                src/hw/quadspi.c
                 src/hw/usb.c
                 src/system.c
                 src/sysmem.c

@@ -40,6 +40,10 @@ extern "C"
 #define I2C_EEPROM_BASE_ADDR 0xA0U
 #define I2C_EEPROM_SIZE 1024U
 
+/* Framebuffer */
+#define SRAM_SIZE (4*0x400000U)
+#define FPGA_FLASH_SIZE (0x80000U)
+
 #ifdef __cplusplus
 }
 #endif

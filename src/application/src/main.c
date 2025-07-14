@@ -20,6 +20,7 @@
 #include "hw/usb.h"
 #include "hw/i2c.h"
 #include "hw/uart.h"
+#include "hw/quadspi.h"
 #include "usb_device.h"
 
 #include "core.h"
@@ -94,6 +95,8 @@ int main(void)
     PLL_Config();
     SYSCLK_Config();
     I2C1_Init();
+    QUADSPI_Init();
+    QSPI_EnableMemoryMapped();
 
     bool boot_dfu = is_dfu();
 
