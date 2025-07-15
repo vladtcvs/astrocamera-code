@@ -10,6 +10,7 @@ add_executable(${CMAKE_PROJECT_NAME}
                 src/hw/i2c.c
                 src/hw/uart.c
                 src/hw/quadspi.c
+                src/hw/fpga-ctl.c
                 src/hw/spi.c
                 src/hw/usb.c
                 src/system.c

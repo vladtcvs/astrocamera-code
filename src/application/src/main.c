@@ -22,6 +22,7 @@
 #include "hw/uart.h"
 #include "hw/spi.h"
 #include "hw/quadspi.h"
+#include "hw/fpga-ctl.h"
 #include "usb_device.h"
 
 #include "core.h"

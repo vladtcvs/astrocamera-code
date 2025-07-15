@@ -2,6 +2,7 @@
 #define STM32F446xx
 #endif
 
+#include "system_config.h"
 #include <hw/uart.h>
 #include <stm32f4xx_hal.h>
 #include <stm32f446xx.h>
@@ -42,7 +43,7 @@ int USART1_Init(int baud)
 int UART5_Init(int baud)
 {
     __HAL_RCC_UART5_CLK_ENABLE();
-    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOE_CLK_ENABLE(); // MODBUS_DIR_GPIO_Port is GPIOE
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -55,11 +56,11 @@ int UART5_Init(int baud)
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     // MODBUS Direction Control pin (DE) on PE9
-    GPIO_InitStruct.Pin = GPIO_PIN_9;
+    GPIO_InitStruct.Pin = MODBUS_DIR_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    HAL_GPIO_Init(MODBUS_DIR_GPIO_Port, &GPIO_InitStruct);
 
     // Set initial state (receive mode)
     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_9, GPIO_PIN_RESET);
