@@ -69,7 +69,7 @@ int QSPI_EnableMemoryMapped(void)
     QSPI_MemoryMappedTypeDef memMappedCfg = {0};
 
     cmd.InstructionMode   = QSPI_INSTRUCTION_1_LINE;
-    cmd.Instruction       = 0x0B;  // Fast Read (with dummy cycles)
+    cmd.Instruction       = 0xEB;  // Fast Read (with dummy cycles)
     cmd.AddressMode       = QSPI_ADDRESS_1_LINE;
     cmd.AddressSize       = QSPI_ADDRESS_32_BITS;
     cmd.AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;

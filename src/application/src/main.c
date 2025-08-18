@@ -99,6 +99,7 @@ int main(void)
     I2C1_Init();
     QUADSPI_Init();
     QSPI_EnableMemoryMapped();
+    FPGA_CTL_Init();
 
     bool boot_dfu = is_dfu();
 
