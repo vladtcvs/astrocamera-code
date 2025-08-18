@@ -1,4 +1,4 @@
 #!/bin/sh
-BINARY="build/src/application/camera-control-code.hex"
+BINARY="../build/src/application/camera-control-code.hex"
 
 openocd -f interface/jlink.cfg -f jtag.cfg -c "program $BINARY verify reset exit"
