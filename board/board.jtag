@@ -1,0 +1,8 @@
+cable jlink
+bsdl path bsdl/
+detect
+part 2
+instruction IDCODE
+shift ir
+shift dr
+dr
