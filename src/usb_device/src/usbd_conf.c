@@ -270,10 +270,12 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
         HAL_PCD_RegisterIsoOutIncpltCallback(&hpcd_USB_OTG_HS, PCD_ISOOUTIncompleteCallback);
         HAL_PCD_RegisterIsoInIncpltCallback(&hpcd_USB_OTG_HS, PCD_ISOINIncompleteCallback);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
-        HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 128U);
-        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 64U);     // EP0
-        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, CAMERA_UVC_TXFIFO);
-        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 2, 32U);
+        HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 128U);       // EP0
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 64U);     // EP80
+
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, EPNUM(CAMERA_UVC_EPIN), CAMERA_UVC_TXFIFO);          // EP81
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, EPNUM(CAMERA_CDC_ACM_EPIN), CAMERA_CDC_ACM_TXFIFO);  // EP82
+        HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, EPNUM(CAMERA_CDC_DATA_EPIN), CAMERA_CDC_DATA_TXFIFO); // EP83
     }
     return USBD_OK;
 }

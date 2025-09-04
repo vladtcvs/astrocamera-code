@@ -48,11 +48,6 @@ uint8_t CDC_DATA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 
 void DFU_Init(bool dfu_mode);
 
-uint8_t HID_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
-void HID_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
-
-uint8_t HID_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
-uint8_t HID_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t VS_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t VS_SOF(struct _USBD_HandleTypeDef *pdev);
 

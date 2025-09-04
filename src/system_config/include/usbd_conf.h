@@ -17,7 +17,7 @@ extern "C"
 
 #define CAMERA_DESC_BUFLEN 300U
 
-#define USBD_MAX_NUM_INTERFACES 6U
+#define USBD_MAX_NUM_INTERFACES 5U
 #define USBD_MAX_NUM_CONFIGURATION 1U
 #define USBD_MAX_STR_DESC_SIZ 512U
 #define USBD_DEBUG_LEVEL 0U
@@ -32,12 +32,10 @@ extern "C"
 /*
  * Endpoints list:
  *     EP0
- *     0x81 - UVC EPIN
- *     0x82 - HID EPIN
- *     0x01 - HID EPOUT
- *     0x83 - CDC ACM EPIN
- *     0x02 - CDC DATA EPOUT
- *     0x84 - CDC DATA EPIN
+ *     0x81 - UVC EPIN        - tx fifo 1
+ *     0x82 - CDC ACM EPIN    - tx fifo 2
+ *     0x01 - CDC DATA EPOUT
+ *     0x83 - CDC DATA EPIN   - tx fifo 3
  */
 
 // Camera options
@@ -55,35 +53,27 @@ extern "C"
 #define CAMERA_UVC_TXFIFO                               ((unsigned)(CAMERA_UVC_EPIN_SIZE/4+1))
 #define UVC_CHUNK                                       512U
 
-// HID options
-#define CAMERA_HID_INTERFACE_ID                         0x02U
-#define CAMERA_HID_EPIN                                 0x82U
-#define CAMERA_HID_EPIN_SIZE                            16U
-
-#define CAMERA_HID_EPOUT                                0x01U
-#define CAMERA_HID_EPOUT_SIZE                           16U
-
-#define CAMERA_HID_OUTREPORT_BUF_SIZE 3U
-#define CAMERA_HID_INREPORT_BUF_SIZE 3U
-
 // DFU options
-#define CAMERA_DFU_RUNTIME_INTERFACE_ID                 0x03U
+#define CAMERA_DFU_RUNTIME_INTERFACE_ID                 0x02U
 #define CAMERA_DFU_DFU_INTERFACE_ID                     0x00U
 #define DFU_TRANSFER_SIZE                               256U
 
 // CDC options
-#define CAMERA_CDC_ACM_INTERFACE_ID                     0x04U
-#define CAMERA_CDC_ACM_EPIN                             0x83U
+#define CAMERA_CDC_ACM_INTERFACE_ID                     0x03U
+#define CAMERA_CDC_ACM_EPIN                             0x82U
 #define CAMERA_CDC_ACM_EPIN_SIZE                        64U
 #define CAMERA_CDC_ACM_MAX_DATA_SIZE                    64U
 #define CAMERA_CDC_ACM_REQ_MAX_DATA_SIZE                7U
 
-#define CAMERA_CDC_DATA_INTERFACE_ID                    0x05U
-#define CAMERA_CDC_DATA_EPIN                            0x84U
+#define CAMERA_CDC_ACM_TXFIFO                          ((unsigned)(CAMERA_CDC_ACM_EPIN_SIZE/4+1))
+
+#define CAMERA_CDC_DATA_INTERFACE_ID                    0x04U
+#define CAMERA_CDC_DATA_EPIN                            0x83U
 #define CAMERA_CDC_DATA_EPIN_SIZE                       64U
-#define CAMERA_CDC_DATA_EPOUT                           0x02U
+#define CAMERA_CDC_DATA_EPOUT                           0x01U
 #define CAMERA_CDC_DATA_EPOUT_SIZE                      64U
 
+#define CAMERA_CDC_DATA_TXFIFO                          ((unsigned)(CAMERA_CDC_DATA_EPIN_SIZE/4+1))
 
 // Camera options
 

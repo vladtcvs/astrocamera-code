@@ -27,7 +27,7 @@
 
 #define CDC_COMMUNICATION_CLASS                         0x02U
 #define CDC_ACM_SUBCLASS                                0x02U
-#define CDC_ACM_PROTOCOL                                0x01U
+#define CDC_ACM_PROTOCOL                                0x00U
 #define CDC_DATA_CLASS                                  0x0AU
 
 
@@ -502,77 +502,6 @@ ssize_t camera_generate_descriptor(uint8_t *pConf,
             if (pConf != NULL)
                 memcpy(pConf + size, isochronousVideoDataEndpointDescriptor, sizeof(isochronousVideoDataEndpointDescriptor));
             size += sizeof(isochronousVideoDataEndpointDescriptor);
-        }
-    }
-
-    /* HID interface */
-    {
-        {
-            const uint8_t interfaceDescriptorHID[] = {
-                0x09U,                   // bLength
-                USB_DESC_TYPE_INTERFACE, // bDescriptorType
-                CAMERA_HID_INTERFACE_ID, // bInterfaceNumber
-                0x00U,                   // bAlternateSetting
-                0x02U,                   // bNumEndpoints
-                0x03U,                   // bInterfaceClass
-                0x00U,                   // bInterfaceSubClass
-                PC_PROTOCOL_UNDEFINED,   // bInterfaceProtocol
-                0x00U,                   // iInterface
-            };
-            if (size + sizeof(interfaceDescriptorHID) > maxlen)
-                return -1;
-            if (pConf != NULL)
-                memcpy(pConf + size, interfaceDescriptorHID, sizeof(interfaceDescriptorHID));
-            size += sizeof(interfaceDescriptorHID);
-        }
-
-        {
-            uint8_t classInterfaceDescriptorHID[] = {
-                0x09U,                         // bLength
-                HID_DESCRIPTOR_TYPE,           // bDescriptorType
-                WBVAL(0x0111U),                // bcdHID
-                0x00U,                         // bCountryCode
-                0x01U,                         // bNumDescriptors
-                0x22U,                         // bDescriptorType
-                WBVAL(sizeof(HID_ReportDesc)), // Report length
-            };
-            if (size + sizeof(classInterfaceDescriptorHID) > maxlen)
-                return -1;
-            if (pConf != NULL)
-                memcpy(pConf + size, classInterfaceDescriptorHID, sizeof(classInterfaceDescriptorHID));
-            size += sizeof(classInterfaceDescriptorHID);
-        }
-
-        {
-            const uint8_t epInDesc[] = {
-                0x07U,                       // bLength
-                USB_DESC_TYPE_ENDPOINT,      // bDescriptorType
-                CAMERA_HID_EPIN,             // bEndpointAddress
-                USBD_EP_TYPE_INTR,           // bmAttributes
-                WBVAL(CAMERA_HID_EPIN_SIZE), // wMaxPacketSize
-                0x01U,                       // bInterval
-            };
-            if (size + sizeof(epInDesc) > maxlen)
-                return -1;
-            if (pConf != NULL)
-                memcpy(pConf + size, epInDesc, sizeof(epInDesc));
-            size += sizeof(epInDesc);
-        }
-
-        {
-            const uint8_t epOutDesc[] = {
-                0x07U,                        // bLength
-                USB_DESC_TYPE_ENDPOINT,       // bDescriptorType
-                CAMERA_HID_EPOUT,             // bEndpointAddress
-                USBD_EP_TYPE_INTR,            // bmAttributes
-                WBVAL(CAMERA_HID_EPOUT_SIZE), // wMaxPacketSize
-                0x01U,                        // bInterval
-            };
-            if (size + sizeof(epOutDesc) > maxlen)
-                return -1;
-            if (pConf != NULL)
-                memcpy(pConf + size, epOutDesc, sizeof(epOutDesc));
-            size += sizeof(epOutDesc);
         }
     }
 

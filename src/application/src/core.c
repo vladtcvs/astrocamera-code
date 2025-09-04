@@ -82,12 +82,7 @@ void core_sensors_poll_function(void *arg)
     int current_temperature = 2961; // 296.1 K = 23 C
     const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
     while (1) {
-        while (send_current_temperature(current_temperature) == USBD_BUSY)
-            vTaskDelay(1);
-
-        while (send_power_settings(state.tec, state.fan, state.window_heater) == USBD_BUSY)
-            vTaskDelay(1);
-
+        // TODO: implement
         vTaskDelay(xDelay);
     }
 }

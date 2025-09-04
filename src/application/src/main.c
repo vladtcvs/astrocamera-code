@@ -132,14 +132,14 @@ int main(void)
         freertos_tick = true;
 
         core_init(usb_ctx);
-/*        sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
+        sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
                                               "sensors",
                                               SENSORS_POLL_TASK_STACK_SIZE,
                                               NULL,
                                               1,
                                               sensors_poll_task_stack,
                                               &sensors_poll_task_buffer);
-*/
+
         serial_send_task = xTaskCreateStatic(core_serial_send_function,
                                               "serial_send",
                                               SERIAL_SEND_TASK_STACK_SIZE,

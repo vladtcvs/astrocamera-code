@@ -91,8 +91,6 @@ static uint8_t CDC_DATA_DataOut(const uint8_t *data, size_t len)
 }
 
 static struct USBD_CAMERA_callbacks_t callbacks = {
-    .HID_OutputReport = HID_OutputReport,
-    .HID_GetInReport  = HID_GetInReport,
     .VS_StartStream = VS_StartStream,
     .VS_StopStream = VS_StopStream,
     .CDC_ACM_Control = CDC_ACM_Control,
@@ -154,25 +152,17 @@ struct usb_context_s* USB_DEVICE_Init_DFU(void)
 
 uint8_t send_current_temperature(int16_t current_temperature)
 {
-    usb_context.current_temperature_buf[0] = 1; // report id
-    usb_context.current_temperature_buf[1] = LOBYTE(current_temperature);
-    usb_context.current_temperature_buf[2] = HIBYTE(current_temperature);
-    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.current_temperature_buf, sizeof(usb_context.current_temperature_buf));
+    return USBD_OK;
 }
 
 uint8_t send_power_settings(bool TEC, bool fan, int window_heater)
 {
-    usb_context.power_status_buf[0] = 2; // report id
-    usb_context.power_status_buf[1] = (TEC << 0) | (fan << 1) | ((window_heater & 0x0F) << 2);
-    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.power_status_buf, sizeof(usb_context.power_status_buf));
+    return USBD_OK;
 }
 
 uint8_t send_shutter(bool exposure)
 {
-    usb_context.exposure_status_buf[0] = 3; // report id
-    usb_context.exposure_status_buf[1] = (exposure << 0);
-    
-    return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.exposure_status_buf, sizeof(usb_context.exposure_status_buf));
+    return USBD_OK;
 }
 
 uint8_t send_serial_data(const uint8_t *data, size_t len)
