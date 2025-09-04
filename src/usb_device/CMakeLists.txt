@@ -18,6 +18,8 @@ add_library(usb_device STATIC
                 src/camera_dfu.c
                 src/usb_device.c
                 src/usbd_conf.c
+                src/camera_cdc_acm.c
+                src/camera_cdc_data.c
                 src/device_descriptor.c
                 )
 

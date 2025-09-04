@@ -33,6 +33,19 @@ void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 void DFU_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 
+uint8_t CDC_ACM_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+void CDC_ACM_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+void CDC_ACM_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+uint8_t CDC_ACM_EP0_RxReady(USBD_HandleTypeDef *pdev);
+uint8_t CDC_ACM_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+
+uint8_t CDC_DATA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+void CDC_DATA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
+void CDC_DATA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+uint8_t CDC_DATA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+uint8_t CDC_DATA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+
+
 void DFU_Init(bool dfu_mode);
 
 uint8_t HID_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
@@ -56,6 +69,6 @@ extern size_t USBD_CAMERA_CfgDesc_len;
 extern size_t USBD_CAMERA_HID_Report_len;
 
 extern uint8_t USBD_CAMERA_HID_Report[256];
-extern uint8_t USBD_CAMERA_CfgDesc[256];
+extern uint8_t USBD_CAMERA_CfgDesc[CAMERA_DESC_BUFLEN];
 extern uint8_t video_Probe_Control[48];
 extern uint8_t video_Commit_Control[48];

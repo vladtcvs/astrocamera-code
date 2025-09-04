@@ -132,15 +132,16 @@ uint8_t HID_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 
 uint8_t HID_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum)
 {
+    uint8_t res = USBD_OK;
     if (pdev->pUserData[USBD_CAMERA_handle.classId] != NULL) {
         struct USBD_CAMERA_callbacks_t *cbs = (struct USBD_CAMERA_callbacks_t *)(pdev->pUserData[USBD_CAMERA_handle.classId]);
         if (cbs->HID_OutputReport != NULL) {
             uint32_t len = USBD_LL_GetRxDataSize(pdev, epnum);
-            return cbs->HID_OutputReport(hid_state.epout_buf[0], hid_state.epout_buf, len, true);
+            res = cbs->HID_OutputReport(hid_state.epout_buf[0], hid_state.epout_buf, len, true);
         }
     }
-    USBD_LL_PrepareReceive(pdev, 0x01, hid_state.epout_buf, CAMERA_HID_EPOUT_SIZE);
-    return USBD_OK;
+    USBD_LL_PrepareReceive(pdev, CAMERA_HID_EPOUT, hid_state.epout_buf, CAMERA_HID_EPOUT_SIZE);
+    return res;
 }
 
 static uint8_t HID_SetReport(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
@@ -246,8 +247,9 @@ uint8_t HID_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx)
     pdev->ep_out[CAMERA_HID_EPOUT & 0x0FU].is_used = 1U;
     pdev->ep_out[CAMERA_HID_EPOUT & 0x0FU].maxpacket = CAMERA_HID_EPOUT_SIZE;
 
-    USBD_LL_PrepareReceive(pdev, 0x01, hid_state.epout_buf, CAMERA_HID_EPOUT_SIZE);
     hid_state.busy = false;
+
+    USBD_LL_PrepareReceive(pdev, CAMERA_HID_EPOUT, hid_state.epout_buf, CAMERA_HID_EPOUT_SIZE);
 
     UNUSED(cfgidx);
     return USBD_OK;

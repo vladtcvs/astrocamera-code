@@ -25,6 +25,12 @@
 #define UVC_CC_VIDEO                                    0x0EU
 #define UVC_VERSION                                     0x0150U      /* UVC 1.1 */
 
+#define CDC_COMMUNICATION_CLASS                         0x02U
+#define CDC_ACM_SUBCLASS                                0x02U
+#define CDC_ACM_PROTOCOL                                0x01U
+#define CDC_DATA_CLASS                                  0x0AU
+
+
 #define USBD_EP_SYNCH_NONE      0x00U
 #define USBD_EP_SYNCH_SYNC      0x0CU
 #define USBD_EP_SYNCH_ADAPTIVE  0x08U
@@ -190,14 +196,14 @@ static const uint8_t classSpecificInterfaceDescriptorDFU[] = {
     0x00, 0x01                // DFU v1.0
 };
 
-size_t camera_generate_descriptor(uint8_t *pConf,
-                                  uint8_t fps,
-                                  uint16_t width,
-                                  uint16_t height,
-                                  const char *FourCC,
-                                  size_t maxlen)
+ssize_t camera_generate_descriptor(uint8_t *pConf,
+                                   uint8_t fps,
+                                   uint16_t width,
+                                   uint16_t height,
+                                   const char *FourCC,
+                                   size_t maxlen)
 {
-    size_t size = 0;
+    ssize_t size = 0;
     uint8_t *wTotalLength_H = NULL;
     uint8_t *wTotalLength_L = NULL;
 
@@ -213,6 +219,9 @@ size_t camera_generate_descriptor(uint8_t *pConf,
             0x80U,                                      // bmAttributes
             USBD_MAX_POWER,                             // bMaxPower
         };
+        if (size + sizeof(configurationDescriptor) > maxlen)
+            return -1;
+
         if (pConf != NULL) {
             memcpy(pConf + size, configurationDescriptor, sizeof(configurationDescriptor));
             wTotalLength_L = pConf + size + 2;
@@ -234,6 +243,9 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 PC_PROTOCOL_UNDEFINED,                  // bFunctionProtocol
                 0x02,                                   // iFunction
             };
+            if (size + sizeof(interfaceAssociationDescriptor) > maxlen)
+                return -1;
+
             if (pConf != NULL)
                 memcpy(pConf + size, interfaceAssociationDescriptor, sizeof(interfaceAssociationDescriptor));
             size += sizeof(interfaceAssociationDescriptor);
@@ -258,12 +270,16 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 PC_PROTOCOL_UNDEFINED,                  // bInterfaceProtocol
                 0x00U,                                  // iInterface
             };
+            if (size + sizeof(interfaceDescriptorVC) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, interfaceDescriptorVC, sizeof(interfaceDescriptorVC));
             size += sizeof(interfaceDescriptorVC);
         }
 
         {
+            if (size + sizeof(classSpecificInterfaceDescriptorVC) > maxlen)
+                return -1;
             if (pConf != NULL) {
                 memcpy(pConf + size, classSpecificInterfaceDescriptorVC, sizeof(classSpecificInterfaceDescriptorVC));
                 wTotalLengthVC_L = pConf + size + 5;
@@ -288,6 +304,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 0x02U,             // bControlSize
                 WBVAL(0),          // bmControls
             };
+            if (size + sizeof(inputTerminalDescriptor) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, inputTerminalDescriptor, sizeof(inputTerminalDescriptor));
             size += sizeof(inputTerminalDescriptor);
@@ -305,6 +323,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 0x01U,               // bSourceID
                 0x00U,               // iTerminal
             };
+            if (size + sizeof(outputTerminalDescriptor) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, outputTerminalDescriptor, sizeof(outputTerminalDescriptor));
             size += sizeof(outputTerminalDescriptor);
@@ -335,6 +355,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 PC_PROTOCOL_UNDEFINED,                  // bInterfaceProtocol
                 0x00U,                                  // iInterface
             };
+            if (size + sizeof(interfaceDescriptorVS) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, interfaceDescriptorVS, sizeof(interfaceDescriptorVS));
             size += sizeof(interfaceDescriptorVS);
@@ -356,6 +378,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 0x01U,           // bControlSize
                 0x00U,           // bmaControls
             };
+            if (size + sizeof(classSpecificInterfaceDescriptorVS) > maxlen)
+                return -1;
             if (pConf != NULL) {
                 memcpy(pConf + size, classSpecificInterfaceDescriptorVS, sizeof(classSpecificInterfaceDescriptorVS));
                 wTotalLengthVS_L = pConf + size + 4;
@@ -386,6 +410,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 0x00U, // bmInterlaceFlags
                 0x00U, // bCopyProtect
             };
+            if (size + sizeof(formatDescriptor) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, formatDescriptor, sizeof(formatDescriptor));
             size += sizeof(formatDescriptor);
@@ -410,6 +436,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 DBVAL(UVC_INTERVAL(UVC_CAM_FPS_HS)),            // dwMaxFrameInterval
                 DBVAL(0),                                       // dwFrameIntervalStep
             };
+            if (size + sizeof(frameDescriptor) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, frameDescriptor, sizeof(frameDescriptor));
             size += sizeof(frameDescriptor);
@@ -425,6 +453,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 CAMERA_UVC_TFR_CHARACTERISTICS, // bTransferCharacteristics
                 CAMERA_UVC_MATRIX_COEFFICIENTS, // bMatrixCoefficients
             };
+            if (size + sizeof(colorMatchingDescriptor) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, colorMatchingDescriptor, sizeof(colorMatchingDescriptor));
             size += sizeof(colorMatchingDescriptor);
@@ -451,6 +481,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 PC_PROTOCOL_UNDEFINED,                  // bInterfaceProtocol
                 0x00U,                                  // iInterface
             };
+            if (size + sizeof(interfaceDescriptorVS) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, interfaceDescriptorVS, sizeof(interfaceDescriptorVS));
             size += sizeof(interfaceDescriptorVS);
@@ -465,6 +497,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 WBVAL(CAMERA_UVC_EPIN_SIZE),                // wMaxPacketSize
                 0x01U,                                      // bInterval
             };
+            if (size + sizeof(isochronousVideoDataEndpointDescriptor) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, isochronousVideoDataEndpointDescriptor, sizeof(isochronousVideoDataEndpointDescriptor));
             size += sizeof(isochronousVideoDataEndpointDescriptor);
@@ -485,6 +519,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 PC_PROTOCOL_UNDEFINED,   // bInterfaceProtocol
                 0x00U,                   // iInterface
             };
+            if (size + sizeof(interfaceDescriptorHID) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, interfaceDescriptorHID, sizeof(interfaceDescriptorHID));
             size += sizeof(interfaceDescriptorHID);
@@ -500,6 +536,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 0x22U,                         // bDescriptorType
                 WBVAL(sizeof(HID_ReportDesc)), // Report length
             };
+            if (size + sizeof(classInterfaceDescriptorHID) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, classInterfaceDescriptorHID, sizeof(classInterfaceDescriptorHID));
             size += sizeof(classInterfaceDescriptorHID);
@@ -514,6 +552,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 WBVAL(CAMERA_HID_EPIN_SIZE), // wMaxPacketSize
                 0x01U,                       // bInterval
             };
+            if (size + sizeof(epInDesc) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, epInDesc, sizeof(epInDesc));
             size += sizeof(epInDesc);
@@ -528,6 +568,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 WBVAL(CAMERA_HID_EPOUT_SIZE), // wMaxPacketSize
                 0x01U,                        // bInterval
             };
+            if (size + sizeof(epOutDesc) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, epOutDesc, sizeof(epOutDesc));
             size += sizeof(epOutDesc);
@@ -548,6 +590,8 @@ size_t camera_generate_descriptor(uint8_t *pConf,
                 0x01,                    // bInterfaceProtocol = Runtime mode
                 0x00,                    // iInterface = 0, no string
             };
+            if (size + sizeof(interfaceDescriptorDFU_alt0) > maxlen)
+                return -1;
             if (pConf != NULL)
                 memcpy(pConf + size, interfaceDescriptorDFU_alt0, sizeof(interfaceDescriptorDFU_alt0));
             size += sizeof(interfaceDescriptorDFU_alt0);
@@ -560,10 +604,184 @@ size_t camera_generate_descriptor(uint8_t *pConf,
         }
     }
 
+    /* CDC interface */
+
+    /* CDC IAD interface */
+    {
+        {
+            uint8_t interfaceAssociationDescriptor[] = {
+                0x08U,                                  // bLength
+                USB_DESC_TYPE_IAD,                      // bDescriptorType
+                CAMERA_CDC_ACM_INTERFACE_ID,            // bFirstInterface
+                0x02U,                                  // bInterfaceCount
+                CDC_COMMUNICATION_CLASS,                // bFunctionClass
+                CDC_ACM_SUBCLASS,                       // bFunctionSubClass
+                CDC_ACM_PROTOCOL,                       // bFunctionProtocol
+                0x00,                                   // iFunction
+            };
+            if (size + sizeof(interfaceAssociationDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceAssociationDescriptor, sizeof(interfaceAssociationDescriptor));
+            size += sizeof(interfaceAssociationDescriptor);
+        }
+    }
+
+    /* CDC ACM interface */
+    {
+        {
+            const uint8_t interfaceDescriptorCDC_CTL[] = {
+                0x09U,                          // bLength
+                USB_DESC_TYPE_INTERFACE,        // bDescriptorType
+                CAMERA_CDC_ACM_INTERFACE_ID,    // bInterfaceNumber
+                0x00U,                          // bAlternateSetting
+                0x01U,                          // bNumEndpoints
+                CDC_COMMUNICATION_CLASS,        // bInterfaceClass
+                CDC_ACM_SUBCLASS,               // bInterfaceSubClass
+                CDC_ACM_PROTOCOL,               // bInterfaceProtocol
+                0x00U,                          // iInterface
+            };
+            if (size + sizeof(interfaceDescriptorCDC_CTL) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceDescriptorCDC_CTL, sizeof(interfaceDescriptorCDC_CTL));
+            size += sizeof(interfaceDescriptorCDC_CTL);
+        }
+
+        {
+            const uint8_t functionalDescriptor[] = {
+                0x05U,                          // bLength
+                0x24U,                          // bDescriptorType CS_INTERFACE
+                0x00U,                          // bDescriptorSubtype : Header
+                0x10, 0x01,                     // bcdCDC: 1.10
+            };
+            if (size + sizeof(functionalDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, functionalDescriptor, sizeof(functionalDescriptor));
+            size += sizeof(functionalDescriptor);
+        }
+
+        {
+            const uint8_t functionalDescriptor[] = {
+                0x05U,                          // bLength
+                0x24U,                          // bDescriptorType CS_INTERFACE
+                0x01U,                          // bDescriptorSubtype : Call management
+                0x00,                           // bmCapabilities: no call mgmt
+                CAMERA_CDC_DATA_INTERFACE_ID,   // bDataInterface
+            };
+            if (size + sizeof(functionalDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, functionalDescriptor, sizeof(functionalDescriptor));
+            size += sizeof(functionalDescriptor);
+        }
+
+        {
+            const uint8_t functionalDescriptor[] = {
+                0x04U,                          // bLength
+                0x24U,                          // bDescriptorType CS_INTERFACE
+                0x02U,                          // bDescriptorSubtype : Abstract Control Management
+                0x02U,                          // bmCapabilities (Set_Line_Coding, Set_Control_Line_State, etc.)
+            };
+            if (size + sizeof(functionalDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, functionalDescriptor, sizeof(functionalDescriptor));
+            size += sizeof(functionalDescriptor);
+        }
+
+        {
+            const uint8_t functionalDescriptor[] = {
+                0x05,                           // bFunctionLength
+                0x24,                           // bDescriptorType: CS_INTERFACE
+                0x06,                           // bDescriptorSubtype: Union
+                CAMERA_CDC_ACM_INTERFACE_ID,    // bMasterInterface (Comm IF)
+                CAMERA_CDC_DATA_INTERFACE_ID,   // bSlaveInterface0 (Data IF)
+            };
+            if (size + sizeof(functionalDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, functionalDescriptor, sizeof(functionalDescriptor));
+            size += sizeof(functionalDescriptor);
+        }
+
+        {
+            const uint8_t epInDesc[] = {
+                0x07U,                       // bLength
+                USB_DESC_TYPE_ENDPOINT,      // bDescriptorType
+                CAMERA_CDC_ACM_EPIN,         // bEndpointAddress
+                USBD_EP_TYPE_INTR,           // bmAttributes
+                WBVAL(CAMERA_CDC_ACM_EPIN_SIZE), // wMaxPacketSize
+                0x10U,                       // bInterval
+            };
+            if (size + sizeof(epInDesc) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, epInDesc, sizeof(epInDesc));
+            size += sizeof(epInDesc);
+        }
+    }
+
+    /* CDC DATA interface */
+    {
+        {
+            const uint8_t interfaceDescriptorCDC_DATA[] = {
+                0x09U,                          // bLength
+                USB_DESC_TYPE_INTERFACE,        // bDescriptorType
+                CAMERA_CDC_DATA_INTERFACE_ID,    // bInterfaceNumber
+                0x00U,                          // bAlternateSetting
+                0x02U,                          // bNumEndpoints
+                CDC_DATA_CLASS,                 // bInterfaceClass
+                0x00U,                          // bInterfaceSubClass
+                PC_PROTOCOL_UNDEFINED,          // bInterfaceProtocol
+                0x00U,                          // iInterface
+            };
+            if (size + sizeof(interfaceDescriptorCDC_DATA) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, interfaceDescriptorCDC_DATA, sizeof(interfaceDescriptorCDC_DATA));
+            size += sizeof(interfaceDescriptorCDC_DATA);
+        }
+
+        {
+            const uint8_t epInDesc[] = {
+                0x07U,                       // bLength
+                USB_DESC_TYPE_ENDPOINT,      // bDescriptorType
+                CAMERA_CDC_DATA_EPIN,        // bEndpointAddress
+                USBD_EP_TYPE_BULK,           // bmAttributes
+                WBVAL(CAMERA_CDC_DATA_EPIN_SIZE), // wMaxPacketSize
+                0x10U,                       // bInterval
+            };
+            if (size + sizeof(epInDesc) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, epInDesc, sizeof(epInDesc));
+            size += sizeof(epInDesc);
+        }
+
+        {
+            const uint8_t epOutDesc[] = {
+                0x07U,                       // bLength
+                USB_DESC_TYPE_ENDPOINT,      // bDescriptorType
+                CAMERA_CDC_DATA_EPOUT,       // bEndpointAddress
+                USBD_EP_TYPE_BULK,           // bmAttributes
+                WBVAL(CAMERA_CDC_DATA_EPOUT_SIZE), // wMaxPacketSize
+                0x10U,                       // bInterval
+            };
+            if (size + sizeof(epOutDesc) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, epOutDesc, sizeof(epOutDesc));
+            size += sizeof(epOutDesc);
+        }
+    }
+
     if (pConf != NULL) {
         *wTotalLength_L = LOBYTE(size);
         *wTotalLength_H = HIBYTE(size);
     }
+
     return size;
 }
 

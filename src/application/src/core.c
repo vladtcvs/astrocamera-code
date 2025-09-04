@@ -84,8 +84,22 @@ void core_sensors_poll_function(void *arg)
     while (1) {
         while (send_current_temperature(current_temperature) == USBD_BUSY)
             vTaskDelay(1);
-        while (send_power_settings(state.tec, state.fan, state.window_heater))
+
+        while (send_power_settings(state.tec, state.fan, state.window_heater) == USBD_BUSY)
             vTaskDelay(1);
+
+        vTaskDelay(xDelay);
+    }
+}
+
+void core_serial_send_function(void *arg)
+{
+    const uint8_t data[] = "test\n";
+    const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+    while (1) {
+        while (send_serial_data(data, strlen(data)) == USBD_BUSY)
+            vTaskDelay(1);
+
         vTaskDelay(xDelay);
     }
 }

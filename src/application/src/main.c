@@ -39,6 +39,11 @@ static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static TaskHandle_t sensors_poll_task;
 static StaticTask_t sensors_poll_task_buffer;
 
+#define SERIAL_SEND_TASK_STACK_SIZE 200
+static StackType_t  serial_send_task_stack[SERIAL_SEND_TASK_STACK_SIZE];
+static TaskHandle_t serial_send_task;
+static StaticTask_t serial_send_task_buffer;
+
 struct config_s config;
 
 extern bool freertos_tick;
@@ -127,13 +132,21 @@ int main(void)
         freertos_tick = true;
 
         core_init(usb_ctx);
-        sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
+/*        sensors_poll_task = xTaskCreateStatic(core_sensors_poll_function,
                                               "sensors",
                                               SENSORS_POLL_TASK_STACK_SIZE,
                                               NULL,
                                               1,
                                               sensors_poll_task_stack,
                                               &sensors_poll_task_buffer);
+*/
+        serial_send_task = xTaskCreateStatic(core_serial_send_function,
+                                              "serial_send",
+                                              SERIAL_SEND_TASK_STACK_SIZE,
+                                              NULL,
+                                              1,
+                                              serial_send_task_stack,
+                                              &serial_send_task_buffer);
     }
     vTaskStartScheduler();
 

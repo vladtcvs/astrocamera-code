@@ -18,6 +18,7 @@ struct usb_context_s* USB_DEVICE_Init_DFU(void);
 uint8_t send_current_temperature(int16_t current_temperature);
 uint8_t send_power_settings(bool TEC, bool fan, int window_heater);
 uint8_t send_shutter(bool exposure);
+uint8_t send_serial_data(const uint8_t *data, size_t len);
 
 struct usb_context_s {
     uint8_t (*set_target_temperature)(unsigned temperature);

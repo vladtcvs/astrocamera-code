@@ -15,7 +15,9 @@ extern "C"
 // Common USB options
 #define USE_USB_HS 1U
 
-#define USBD_MAX_NUM_INTERFACES 4U
+#define CAMERA_DESC_BUFLEN 300U
+
+#define USBD_MAX_NUM_INTERFACES 6U
 #define USBD_MAX_NUM_CONFIGURATION 1U
 #define USBD_MAX_STR_DESC_SIZ 512U
 #define USBD_DEBUG_LEVEL 0U
@@ -25,7 +27,18 @@ extern "C"
 
 #define USBD_SUPPORT_USER_STRING_DESC                   1U
 
-#define CAMERA_TOTAL_INTERFACES                         0x04U
+#define CAMERA_TOTAL_INTERFACES                         0x06U
+
+/*
+ * Endpoints list:
+ *     EP0
+ *     0x81 - UVC EPIN
+ *     0x82 - HID EPIN
+ *     0x01 - HID EPOUT
+ *     0x83 - CDC ACM EPIN
+ *     0x02 - CDC DATA EPOUT
+ *     0x84 - CDC DATA EPIN
+ */
 
 // Camera options
 #define USBD_UVC_FORMAT_UNCOMPRESSED
@@ -58,12 +71,27 @@ extern "C"
 #define CAMERA_DFU_DFU_INTERFACE_ID                     0x00U
 #define DFU_TRANSFER_SIZE                               256U
 
+// CDC options
+#define CAMERA_CDC_ACM_INTERFACE_ID                     0x04U
+#define CAMERA_CDC_ACM_EPIN                             0x83U
+#define CAMERA_CDC_ACM_EPIN_SIZE                        64U
+#define CAMERA_CDC_ACM_MAX_DATA_SIZE                    64U
+#define CAMERA_CDC_ACM_REQ_MAX_DATA_SIZE                7U
+
+#define CAMERA_CDC_DATA_INTERFACE_ID                    0x05U
+#define CAMERA_CDC_DATA_EPIN                            0x84U
+#define CAMERA_CDC_DATA_EPIN_SIZE                       64U
+#define CAMERA_CDC_DATA_EPOUT                           0x02U
+#define CAMERA_CDC_DATA_EPOUT_SIZE                      64U
+
+
+// Camera options
+
 #define UVC_CAM_FPS_HS 2U
 #define UVC_CAM_FPS_FS 1U
 #define UVC_WIDTH 640U
 #define UVC_HEIGHT 480U
 #define UVC_BITS_PER_PIXEL 16U
-
 
 
 /****************************************/

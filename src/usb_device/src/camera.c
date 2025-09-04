@@ -26,7 +26,7 @@ size_t USBD_CAMERA_HID_Report_len;
 
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
-__ALIGN_BEGIN uint8_t USBD_CAMERA_CfgDesc[256] __ALIGN_END;
+__ALIGN_BEGIN uint8_t USBD_CAMERA_CfgDesc[CAMERA_DESC_BUFLEN] __ALIGN_END;
 __ALIGN_BEGIN uint8_t USBD_CAMERA_HID_Report[256] __ALIGN_END;
 __ALIGN_BEGIN uint8_t video_Probe_Control[48] __ALIGN_END;
 __ALIGN_BEGIN uint8_t video_Commit_Control[48] __ALIGN_END;
@@ -84,13 +84,17 @@ uint8_t USBD_CAMERA_Configure(unsigned fps, unsigned width, unsigned height, con
     USBD_CAMERA_Config.FourCC[1] = FourCC[1];
     USBD_CAMERA_Config.FourCC[2] = FourCC[2];
     USBD_CAMERA_Config.FourCC[3] = FourCC[3];
-    USBD_CAMERA_CfgDesc_len = camera_generate_descriptor(USBD_CAMERA_CfgDesc,
-                                                         USBD_CAMERA_Config.fps,
-                                                         USBD_CAMERA_Config.width,
-                                                         USBD_CAMERA_Config.height,
-                                                         USBD_CAMERA_Config.FourCC,
-                                                         sizeof(USBD_CAMERA_CfgDesc));
+    ssize_t len = camera_generate_descriptor(USBD_CAMERA_CfgDesc,
+                                             USBD_CAMERA_Config.fps,
+                                             USBD_CAMERA_Config.width,
+                                             USBD_CAMERA_Config.height,
+                                             USBD_CAMERA_Config.FourCC,
+                                             sizeof(USBD_CAMERA_CfgDesc));
 
+    if (len < 0)
+        return USBD_FAIL;
+
+    USBD_CAMERA_CfgDesc_len = len;
     USBD_CAMERA_HID_Report_len = camera_hid_report_descriptor(USBD_CAMERA_HID_Report,
                                                               sizeof(USBD_CAMERA_HID_Report));
 
@@ -116,6 +120,8 @@ static uint8_t USBD_CAMERA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx
         // nothing
     } else {
         HID_Init(pdev, cfgidx);
+        CDC_ACM_Init(pdev, cfgidx);
+        CDC_DATA_Init(pdev, cfgidx);
         USBD_CAMERA_handle.VS_alt = 0x00U;
     }
 
@@ -131,6 +137,21 @@ static uint8_t USBD_CAMERA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgi
         {
             USBD_LL_CloseEP(pdev, CAMERA_UVC_EPIN);
             pdev->ep_in[CAMERA_UVC_EPIN & 0xFU].is_used = 0U;
+        }
+        if (pdev->ep_in[CAMERA_CDC_ACM_EPIN & 0xFU].is_used)
+        {
+            USBD_LL_CloseEP(pdev, CAMERA_CDC_ACM_EPIN);
+            pdev->ep_in[CAMERA_CDC_ACM_EPIN & 0xFU].is_used = 0U;
+        }
+        if (pdev->ep_in[CAMERA_CDC_DATA_EPIN & 0xFU].is_used)
+        {
+            USBD_LL_CloseEP(pdev, CAMERA_CDC_DATA_EPIN);
+            pdev->ep_in[CAMERA_CDC_DATA_EPIN & 0xFU].is_used = 0U;
+        }
+        if (pdev->ep_in[CAMERA_CDC_DATA_EPOUT & 0xFU].is_used)
+        {
+            USBD_LL_CloseEP(pdev, CAMERA_CDC_DATA_EPOUT);
+            pdev->ep_in[CAMERA_CDC_DATA_EPOUT & 0xFU].is_used = 0U;
         }
     }
     return (uint8_t)USBD_OK;
@@ -165,6 +186,12 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
             break;
         case CAMERA_DFU_RUNTIME_INTERFACE_ID:
             DFU_Setup(pdev, req);
+            break;
+        case CAMERA_CDC_ACM_INTERFACE_ID:
+            CDC_ACM_Setup(pdev, req);
+            break;
+        case CAMERA_CDC_DATA_INTERFACE_ID:
+            CDC_DATA_Setup(pdev, req);
             break;
         default:
             break;
@@ -208,6 +235,11 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
         case CAMERA_DFU_RUNTIME_INTERFACE_ID:
             res = DFU_EP0_RxReady(pdev);
             break;
+        case CAMERA_CDC_ACM_INTERFACE_ID:
+            //res = CDC_ACM_EP0_RxReady(pdev);
+            break;
+        case CAMERA_CDC_DATA_INTERFACE_ID:
+            break;
         default:
             res = USBD_FAIL;
             break;
@@ -229,6 +261,12 @@ static uint8_t USBD_CAMERA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnu
         case EPNUM(CAMERA_UVC_EPIN):
             VS_DataIn(pdev, epnum);
             break;
+        case EPNUM(CAMERA_CDC_ACM_EPIN):
+            CDC_ACM_DataIn(pdev, epnum);
+            break;
+        case EPNUM(CAMERA_CDC_DATA_EPIN):
+            CDC_DATA_DataIn(pdev, epnum);
+            break;
         }
     }
     return (uint8_t)USBD_OK;
@@ -242,6 +280,9 @@ static uint8_t USBD_CAMERA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epn
         {
         case EPNUM(CAMERA_HID_EPOUT):
             HID_DataOut(pdev, epnum);
+            break;
+        case EPNUM(CAMERA_CDC_DATA_EPOUT):
+            CDC_DATA_DataOut(pdev, epnum);
             break;
         }
     }

@@ -79,11 +79,24 @@ static uint8_t VS_StopStream(void)
     return USBD_OK;
 }
 
+static uint8_t CDC_ACM_Control(uint8_t request, uint8_t *data, size_t len)
+{
+    memset(data, 0, len);
+    return USBD_OK;
+}
+
+static uint8_t CDC_DATA_DataOut(const uint8_t *data, size_t len)
+{
+    return USBD_OK;
+}
+
 static struct USBD_CAMERA_callbacks_t callbacks = {
     .HID_OutputReport = HID_OutputReport,
     .HID_GetInReport  = HID_GetInReport,
     .VS_StartStream = VS_StartStream,
     .VS_StopStream = VS_StopStream,
+    .CDC_ACM_Control = CDC_ACM_Control,
+    .CDC_DATA_DataOut = CDC_DATA_DataOut,
 };
 
 struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned height, const char *FourCC)
@@ -95,7 +108,8 @@ struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned hei
     HAL_Delay(1);
 
     /* Config camera parameters */
-    USBD_CAMERA_Configure(fps, width, height, FourCC);
+    if (USBD_CAMERA_Configure(fps, width, height, FourCC) != USBD_OK)
+        return NULL;
 
     /* Init USB */
     if (USBD_Init(&hUsbDeviceHS, &USB_Descriptors, DEVICE_HS) != USBD_OK)
@@ -159,4 +173,11 @@ uint8_t send_shutter(bool exposure)
     usb_context.exposure_status_buf[1] = (exposure << 0);
     
     return USBD_CAMERA_HID_SendReport(&hUsbDeviceHS, usb_context.exposure_status_buf, sizeof(usb_context.exposure_status_buf));
+}
+
+uint8_t send_serial_data(const uint8_t *data, size_t len)
+{
+    if (len == 0)
+        return USBD_OK;
+    return USBD_CAMERA_CDC_DATA_SendSerial(&hUsbDeviceHS, data, len);
 }

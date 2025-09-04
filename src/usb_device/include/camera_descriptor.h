@@ -3,15 +3,15 @@
 #include <unistd.h>
 #include <stdint.h>
 
-size_t camera_generate_descriptor(uint8_t *pConf,
-                                  uint8_t fps,
-                                  uint16_t width,
-                                  uint16_t height,
-                                  const char *FourCC,
-                                  size_t maxlen);
+ssize_t camera_generate_descriptor(uint8_t *pConf,
+                                   uint8_t fps,
+                                   uint16_t width,
+                                   uint16_t height,
+                                   const char *FourCC,
+                                   size_t maxlen);
 
 size_t camera_generate_descriptor_dfu(uint8_t *pConf,
-                                      size_t maxlen);
+                                       size_t maxlen);
 
 size_t camera_hid_report_descriptor(uint8_t *pConf, size_t maxlen);
 
