@@ -60,6 +60,11 @@ static uint8_t exposure_mode_cb(unsigned exposure_mode)
     return USBD_OK;
 }
 
+static uint8_t serial_data_cb(const uint8_t *data, size_t len)
+{
+    return USBD_OK;
+}
+
 void core_init(struct usb_context_s *ctx)
 {
     usb_ctx = ctx;
@@ -67,6 +72,7 @@ void core_init(struct usb_context_s *ctx)
     usb_ctx->exposure_mode = exposure_mode_cb;
     usb_ctx->set_power_settings = set_power_settings_cb;
     usb_ctx->set_target_temperature = set_target_temperature_cb;
+    usb_ctx->serial_data = serial_data_cb;
     exposure_timer = xTimerCreateStatic(
         "ExposureTimer",              // Name
         pdMS_TO_TICKS(1000),          // Period: 1 second
@@ -89,10 +95,10 @@ void core_sensors_poll_function(void *arg)
 
 void core_serial_send_function(void *arg)
 {
-    const uint8_t data[] = "test\n";
+    const char data[] = "test\n";
     const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
     while (1) {
-        while (send_serial_data(data, strlen(data)) == USBD_BUSY)
+        while (send_serial_data((const uint8_t*)data, strlen(data)) == USBD_BUSY)
             vTaskDelay(1);
 
         vTaskDelay(xDelay);

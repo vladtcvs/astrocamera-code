@@ -20,55 +20,6 @@ void OTG_HS_IRQHandler(void)
 #define UNSIGNED16(low, high) ((((unsigned)(high)) << 8) | (low))
 #define BOOL(x) ((x) != 0)
 
-static uint8_t HID_OutputReport(uint8_t report_id, const uint8_t *data, size_t len, bool from_interrupt)
-{
-    switch (report_id) {
-    case TARGET_TEMPERATURE:
-        if (len != 3)
-            return USBD_FAIL;
-        if (usb_context.set_target_temperature != NULL)
-            return usb_context.set_target_temperature(UNSIGNED16(data[1], data[2]));
-        return USBD_OK;
-    case POWER_CTL:
-        if (len != 2)
-            return USBD_FAIL;
-        if (usb_context.set_power_settings != NULL)
-            return usb_context.set_power_settings(BOOL(data[1] & 0x01U), BOOL(data[1] & 0x02U), (data[1] >> 2) & 0x0FU);
-        return USBD_OK;
-    case EXPOSURE_CTL:
-        if (len != 3)
-            return USBD_FAIL;
-        if (usb_context.exposure != NULL)
-            return usb_context.exposure(UNSIGNED16(data[1], data[2]));
-        return USBD_OK;
-    case EXPOSURE_MODE_CTL:
-        if (len != 2)
-            return USBD_FAIL;
-        if (usb_context.exposure_mode != NULL)
-            return usb_context.exposure_mode(data[1] & 0x03U);
-        return USBD_OK;
-    }
-    return USBD_FAIL;
-}
-
-static uint8_t *HID_GetInReport(uint8_t report_id, size_t* len)
-{
-    switch (report_id) {
-    case CURRENT_TEMPERATURE:
-        *len = sizeof(usb_context.current_temperature_buf);
-        return usb_context.current_temperature_buf;
-    case POWER_STATUS:
-        *len = sizeof(usb_context.power_status_buf);
-        return usb_context.power_status_buf;
-    case EXPOSURE_STATUS:
-        *len = sizeof(usb_context.exposure_status_buf);
-        return usb_context.exposure_status_buf;
-    default:
-        *len = 0;
-        return NULL;
-    }
-}
-
 static uint8_t VS_StartStream(void)
 {
     return USBD_OK;
@@ -87,6 +38,8 @@ static uint8_t CDC_ACM_Control(uint8_t request, uint8_t *data, size_t len)
 
 static uint8_t CDC_DATA_DataOut(const uint8_t *data, size_t len)
 {
+    if (usb_context.serial_data != NULL)
+        return usb_context.serial_data(data, len);
     return USBD_OK;
 }
 
