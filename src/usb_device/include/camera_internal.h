@@ -28,16 +28,13 @@ struct USBD_CAMERA_handle_t
 
 #define EPNUM(x) ((x) & 0x0FU)
 
-void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-void HID_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
-void DFU_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 
 uint8_t CDC_ACM_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 void CDC_ACM_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 void CDC_ACM_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 uint8_t CDC_ACM_EP0_RxReady(USBD_HandleTypeDef *pdev);
 uint8_t CDC_ACM_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
+
 
 uint8_t CDC_DATA_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 void CDC_DATA_DeInit(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx);
@@ -46,15 +43,19 @@ uint8_t CDC_DATA_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t CDC_DATA_DataOut(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 
 
-void DFU_Init(bool dfu_mode);
-
+void VS_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 uint8_t VS_DataIn(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 uint8_t VS_SOF(struct _USBD_HandleTypeDef *pdev);
-
 uint8_t VS_IsoINIncomplete(struct _USBD_HandleTypeDef *pdev, uint8_t epnum);
 
+
+void VC_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+uint8_t VC_EP0_RxReady(struct _USBD_HandleTypeDef *pdev);
+
+
+void DFU_Init(bool dfu_mode);
+void DFU_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
 uint8_t DFU_SOF(USBD_HandleTypeDef *pdev);
-uint8_t HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
 uint8_t DFU_EP0_RxReady(USBD_HandleTypeDef *pdev);
 
 void USBD_CAMERA_ExpectRx(uint8_t interface);

@@ -13,8 +13,6 @@ ssize_t camera_generate_descriptor(uint8_t *pConf,
 size_t camera_generate_descriptor_dfu(uint8_t *pConf,
                                        size_t maxlen);
 
-size_t camera_hid_report_descriptor(uint8_t *pConf, size_t maxlen);
-
 uint8_t *camera_get_video_descriptor(size_t *len);
 uint8_t *camera_get_dfu_descriptor(size_t *len);
 

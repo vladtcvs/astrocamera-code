@@ -14,18 +14,18 @@
 #define UVC_GET_INFO 0x86U
 #define UVC_GET_DEF 0x87U
 
-#define VS_PROBE_CONTROL 0x100U
-#define VS_COMMIT_CONTROL 0x200U
+#define VS_PROBE_CONTROL_SELECTOR 0x01U
+#define VS_COMMIT_CONTROL_SELECTOR 0x02U
 
 static void VS_Req_GET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-    switch (req->wValue)
+    switch (HIBYTE(req->wValue))
     {
-    case VS_PROBE_CONTROL:
+    case VS_PROBE_CONTROL_SELECTOR:
         USBD_CAMERA_handle.ep0tx_iface = CAMERA_VS_INTERFACE_ID;
         USBD_CtlSendData(pdev, video_Probe_Control, sizeof(video_Probe_Control));
         break;
-    case VS_COMMIT_CONTROL:
+    case VS_COMMIT_CONTROL_SELECTOR:
         USBD_CAMERA_handle.ep0tx_iface = CAMERA_VS_INTERFACE_ID;
         USBD_CtlSendData(pdev, video_Probe_Control, sizeof(video_Probe_Control));
         break;
@@ -34,13 +34,18 @@ static void VS_Req_GET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     }
 }
 
+static void VS_Req_GET_INFO(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+{
+
+}
+
 static void VS_Req_SET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
-    switch (req->wValue) {
-    case VS_PROBE_CONTROL:
+    switch (HIBYTE(req->wValue)) {
+    case VS_PROBE_CONTROL_SELECTOR:
         USBD_CtlPrepareRx(pdev, video_Probe_Control, MIN(req->wLength, sizeof(video_Probe_Control)));
         break;
-    case VS_COMMIT_CONTROL:
+    case VS_COMMIT_CONTROL_SELECTOR:
         USBD_CtlPrepareRx(pdev, video_Probe_Control, MIN(req->wLength, sizeof(video_Probe_Control)));
         break;
     default:
@@ -49,7 +54,7 @@ static void VS_Req_SET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     }
 }
 
-void VS_SetupClass(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
+static void VS_SetupClass(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
 {
     switch (req->bRequest)
     {
@@ -61,8 +66,13 @@ void VS_SetupClass(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
         break;
 
     case UVC_GET_RES:
+        break;
+
     case UVC_GET_LEN:
+        break;
+
     case UVC_GET_INFO:
+        VS_Req_GET_INFO(pdev, req);
         break;
 
     case UVC_SET_CUR:

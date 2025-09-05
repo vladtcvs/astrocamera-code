@@ -159,7 +159,7 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
     uint8_t requestRecipicient = req->bmRequest & USB_REQ_RECIPIENT_MASK;
 
     if (USBD_CAMERA_handle.dfu_mode) {
-        switch (req->wIndex)
+        switch (LOBYTE(req->wIndex))
         {
         case CAMERA_DFU_DFU_INTERFACE_ID:
             DFU_Setup(pdev, req);
@@ -168,7 +168,7 @@ static uint8_t USBD_CAMERA_Setup(struct _USBD_HandleTypeDef *pdev, USBD_SetupReq
             break;
         }
     } else {
-        switch (req->wIndex)
+        switch (LOBYTE(req->wIndex))
         {
         case CAMERA_VS_INTERFACE_ID:
             VS_Setup(pdev, req);
@@ -220,6 +220,7 @@ static uint8_t USBD_CAMERA_EP0_RxReady(USBD_HandleTypeDef *pdev)
         case CAMERA_VS_INTERFACE_ID:
             break;
         case CAMERA_VC_INTERFACE_ID:
+            res = VC_EP0_RxReady(pdev);
             break;
         case CAMERA_DFU_RUNTIME_INTERFACE_ID:
             res = DFU_EP0_RxReady(pdev);

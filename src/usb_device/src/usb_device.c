@@ -30,6 +30,22 @@ static uint8_t VS_StopStream(void)
     return USBD_OK;
 }
 
+static uint8_t VC_GetGain(unsigned *gain)
+{
+    if (usb_context.get_gain != NULL)
+        return usb_context.get_gain(gain);
+    else
+        *gain = 0;
+    return USBD_OK;
+}
+
+static uint8_t VC_SetGain(unsigned gain)
+{
+    if (usb_context.set_gain != NULL)
+        return usb_context.set_gain(gain);
+    return USBD_OK;
+}
+
 static uint8_t CDC_ACM_Control(uint8_t request, uint8_t *data, size_t len)
 {
     memset(data, 0, len);
@@ -46,6 +62,8 @@ static uint8_t CDC_DATA_DataOut(const uint8_t *data, size_t len)
 static struct USBD_CAMERA_callbacks_t callbacks = {
     .VS_StartStream = VS_StartStream,
     .VS_StopStream = VS_StopStream,
+    .VC_GetGain = VC_GetGain,
+    .VC_SetGain = VC_SetGain,
     .CDC_ACM_Control = CDC_ACM_Control,
     .CDC_DATA_DataOut = CDC_DATA_DataOut,
 };
@@ -54,7 +72,7 @@ struct usb_context_s* USB_DEVICE_Init(unsigned fps, unsigned width, unsigned hei
 {
     /* Reset PHY */
     HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_SET);
-    HAL_Delay(1);
+    HAL_Delay(100);
     HAL_GPIO_WritePin(USB_RST_GPIO_Port, USB_RST_Pin, GPIO_PIN_RESET);
     HAL_Delay(1);
 

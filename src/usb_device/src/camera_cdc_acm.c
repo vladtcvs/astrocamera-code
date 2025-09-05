@@ -14,14 +14,14 @@ struct CDC_ACM_State {
 
 uint8_t CDC_ACM_Init(struct _USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
-/*    USBD_StatusTypeDef status;
+    USBD_StatusTypeDef status;
     status = USBD_LL_OpenEP(pdev, CAMERA_CDC_ACM_EPIN, USBD_EP_TYPE_INTR, CAMERA_CDC_ACM_EPIN_SIZE);
     if (status != USBD_OK)
         return status;
 
     pdev->ep_in[CAMERA_CDC_ACM_EPIN & 0x0FU].is_used = 1U;
     pdev->ep_in[CAMERA_CDC_ACM_EPIN & 0x0FU].maxpacket = CAMERA_CDC_ACM_EPIN_SIZE;
-*/
+
     UNUSED(cfgidx);
     return USBD_OK;
 }

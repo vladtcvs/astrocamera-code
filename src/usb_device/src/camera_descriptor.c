@@ -18,6 +18,9 @@
 #define VC_HEADER                                     0x01U
 #define VC_INPUT_TERMINAL                             0x02U
 #define VC_OUTPUT_TERMINAL                            0x03U
+#define VC_PROCESSING_TERMINAL                        0x05U
+
+#define VC_PROCESSING_GAIN                              (1U << 9)
 
 #define TT_STREAMING                                   0x0101U
 #define ITT_CAMERA                                     0x0201U
@@ -36,141 +39,7 @@
 #define USBD_EP_SYNCH_ADAPTIVE  0x08U
 #define USBD_EP_SYNCH_ASYNC     0x04U
 
-#define HID_DESCRIPTOR_TYPE                             0x21U
 #define PC_PROTOCOL_UNDEFINED                           0x00U
-
-__ALIGN_BEGIN const uint8_t HID_ReportDesc[] __ALIGN_END =
-    {
-        0x06, 0x00, 0xFF, // Usage Page (Vendor-defined 0xFF00)
-        0x09, 0x01,       // Usage (Vendor-defined)
-        0xA1, 0x01,       // Collection (Application)
-
-        // Input 
-
-        0x85, CURRENT_TEMPERATURE, //   Report ID (1)
-        // ----- Current Temperature (16-bit) -----
-        0x09, 0x10,       //   Usage (Current Temperature)
-        0x15, 0x00,       //   Logical Min (0)
-        0x26, 0xFF, 0x7F, //   Logical Max (32767)
-        0x75, 0x10,       //   Report Size (16 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs)
-
-        0x85, POWER_STATUS, //   Report ID (2)
-        // ----- TEC status (1 bit) -
-        0x09, 0x11,       //   Usage (TEC status)
-        0x15, 0x00,       //   Logical Min (0)
-        0x25, 0x01,       //   Logical Max (1)
-        0x75, 0x01,       //   Report Size (1 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs)
-
-        // ----- FAN status (1 bit) -
-        0x09, 0x12,       //   Usage (FAN status)
-        0x15, 0x00,       //   Logical Min (0)
-        0x25, 0x01,       //   Logical Max (1)
-        0x75, 0x01,       //   Report Size (1 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs)
-
-        // ----- HEATER status (4 bit) -
-        0x09, 0x13,       //   Usage (FAN status)
-        0x15, 0x00,       //   Logical Min (0)
-        0x25, 0x10,       //   Logical Max (16)
-        0x75, 0x04,       //   Report Size (4 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs) — Read Only on host
-
-        // Padding to next byte
-        0x75, 0x02,       // Report Size = 2
-        0x95, 0x01,       // Report Count = 1
-        0x81, 0x03,       // Input (Constant)
-
-        0x85, EXPOSURE_STATUS, //   Report ID (3)
-        // ----- exposure status (1 bit) -
-        0x09, 0x14,       //   Usage (exposure status)
-        0x15, 0x00,       //   Logical Min (0)
-        0x25, 0x01,       //   Logical Max (1)
-        0x75, 0x01,       //   Report Size (1 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x81, 0x02,       //   Input (Data, Var, Abs)
-
-        // Padding to next byte
-        0x75, 0x07,       // Report Size = 7
-        0x95, 0x01,       // Report Count = 1
-        0x81, 0x03,       // Input (Constant)
-
-        // Output 
-
-        0x85, TARGET_TEMPERATURE, //   Report ID (1)
-
-        // ----- Target Temperature (RW, 16-bit) -----
-        0x09, 0x10,       //   Usage (Target Temperature)
-        0x15, 0x00,       //   Logical Min (0)
-        0x26, 0xFF, 0x7F, //   Logical Max (32767)
-        0x75, 0x10,       //   Report size (16 bits)
-        0x95, 0x01,
-        0x91, 0x02,       //   Output
-
-        0x85, POWER_CTL, //   Report ID (2)
-
-        // ----- TEC Enabled (1-bit) -----
-        0x09, 0x11,    // Usage (TEC Enabled)
-        0x15, 0x00,    // Logical Minimum (0)
-        0x25, 0x01,    // Logical Maximum (1)
-        0x75, 0x01,    // Report Size (1 bit)
-        0x95, 0x01,    // Report Count (1)
-        0x91, 0x02,    // Output
-
-        // ----- Fan Enabled (1-bit) -----
-        0x09, 0x12,    //   Usage (Fan Enabled)
-        0x15, 0x00,    // Logical Minimum (0)
-        0x25, 0x01,    // Logical Maximum (1)
-        0x75, 0x01,    // Report Size (1 bit)
-        0x95, 0x01,    // Report Count (1)
-        0x91, 0x02,    // Output
-
-        // ----- Heater Power (4-bit) -----
-        0x09, 0x13,    //   Usage (Heater Enabled)
-        0x15, 0x00,    // Logical Minimum (0)
-        0x25, 0x10,    // Logical Maximum (16)
-        0x75, 0x04,    // Report Size (4 bit)
-        0x95, 0x01,    // Report Count (1)
-        0x91, 0x02,    // Output
-
-        // Padding to next byte
-        0x75, 0x07,       // Report Size = 2
-        0x95, 0x01,       // Report Count = 1
-        0x91, 0x03,       // Input (Constant)
-
-        0x85, EXPOSURE_CTL, //   Report ID (3)
-
-        // ----- exposure (16 bit) -
-        0x09, 0x14,       //   Usage (exposure)
-        0x15, 0x00,       //   Logical Min (0)
-        0x26, 0xFF, 0x7F, //   Logical Max (32767)
-        0x75, 0x10,       //   Report Size (16 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x91, 0x02,       //   Input (Data, Var, Abs)
-
-        0x85, EXPOSURE_MODE_CTL, //   Report ID (4)
-
-        // ----- exposure mode (2 bit)
-        0x09, 0x15,       //   Usage (exposure status)
-        0x15, 0x00,       //   Logical Min (0)
-        0x25, 0x02,       //   Logical Max (2)
-        0x75, 0x02,       //   Report Size (2 bits)
-        0x95, 0x01,       //   Report Count (1)
-        0x91, 0x02,       //   Output (Data, Var, Abs)
-
-        // Padding to next byte
-        0x75, 0x06,       // Report Size = 6
-        0x95, 0x01,       // Report Count = 1
-        0x91, 0x03,       // Output (Constant)
-
-        0xC0 // End Collection
-};
-
 
 static const uint8_t classSpecificInterfaceDescriptorVC[] = {
     0x0DU,                  // bLength
@@ -313,14 +182,35 @@ ssize_t camera_generate_descriptor(uint8_t *pConf,
         }
 
         {
+            const uint8_t processingTerminalDescriptor[] = {
+                0x0CU,                      // bLength
+                CS_INTERFACE,               // bDescriptorType
+                VC_PROCESSING_TERMINAL,     // bDescriptorSubType
+                0x02U,                      // bTerminalID
+                0x01U,                      // bSourceID
+                WBVAL(0x0000U),             // wMaxMultiplier
+                0x02U,                      // bControlSize
+                WBVAL(VC_PROCESSING_GAIN),  // bmControls
+                0x00U,                      // iProcessing
+                0x01U,                      // bmVideoStandards
+            };
+            if (size + sizeof(processingTerminalDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, processingTerminalDescriptor, sizeof(processingTerminalDescriptor));
+            size += sizeof(processingTerminalDescriptor);
+            wTotalLengthVC += sizeof(processingTerminalDescriptor);
+        }
+
+        {
             const uint8_t outputTerminalDescriptor[] = {
                 0x09U,               // bLength
                 CS_INTERFACE,        // bDescriptorType
                 VC_OUTPUT_TERMINAL,  // bDescriptorSubType
-                0x02U,               // bTerminalID
+                0x03U,               // bTerminalID
                 WBVAL(TT_STREAMING), // wTerminalType
                 0x00U,               // bAssocTerminal
-                0x01U,               // bSourceID
+                0x02U,               // bSourceID
                 0x00U,               // iTerminal
             };
             if (size + sizeof(outputTerminalDescriptor) > maxlen)
@@ -371,7 +261,7 @@ ssize_t camera_generate_descriptor(uint8_t *pConf,
                 WBVAL(0),        // wTotalLength --- UPDATE LATER!
                 CAMERA_UVC_EPIN, // bEndpointAddress
                 0x00U,           // bmInfo
-                0x02U,           // bTerminalLink
+                0x03U,           // bTerminalLink
                 0x01U,           // bStillCaptureMethod
                 0x01U,           // bTriggerSupport
                 0x00U,           // bTriggerUsage
@@ -809,22 +699,14 @@ size_t camera_generate_descriptor_dfu(uint8_t *pConf,
     return size;
 }
 
-size_t camera_hid_report_descriptor(uint8_t *pConf, size_t maxlen)
-{
-    memcpy(pConf, HID_ReportDesc, sizeof(HID_ReportDesc));
-    return sizeof(HID_ReportDesc);
-}
-
 uint8_t *camera_get_video_descriptor(size_t *len)
 {
-    
     *len = sizeof(classSpecificInterfaceDescriptorVC);
     return classSpecificInterfaceDescriptorVC;
 }
 
 uint8_t *camera_get_dfu_descriptor(size_t *len)
 {
-    
     *len = sizeof(classSpecificInterfaceDescriptorDFU);
     return classSpecificInterfaceDescriptorDFU;
 }
