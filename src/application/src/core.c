@@ -22,6 +22,8 @@ enum exposure_state_e {
 struct core_state_s
 {
     unsigned gain;
+    uint32_t exposure;
+
     int target_temperature;
     enum exposure_mode_e exposure_mode;
     enum exposure_state_e state;
@@ -78,6 +80,19 @@ static uint8_t set_gain(unsigned gain)
     return USBD_OK;
 }
 
+static uint8_t get_exposure(uint32_t *exposure)
+{
+    *exposure = state.exposure;
+    return USBD_OK;
+}
+
+static uint8_t set_exposure(uint32_t exposure)
+{
+    state.exposure = exposure;
+    return USBD_OK;
+}
+
+
 void core_init(struct usb_context_s *ctx)
 {
     usb_ctx = ctx;
@@ -88,6 +103,11 @@ void core_init(struct usb_context_s *ctx)
     usb_ctx->serial_data = serial_data_cb;
     usb_ctx->get_gain = get_gain;
     usb_ctx->set_gain = set_gain;
+    usb_ctx->get_exposure = get_exposure;
+    usb_ctx->set_exposure = set_exposure;
+
+    state.exposure = VC_DEFAULT_EXPOSURE;
+
     exposure_timer = xTimerCreateStatic(
         "ExposureTimer",              // Name
         pdMS_TO_TICKS(1000),          // Period: 1 second

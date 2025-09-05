@@ -77,6 +77,8 @@ extern "C"
 
 // Camera options
 
+#define VC_DEFAULT_EXPOSURE 1000U
+
 #define UVC_CAM_FPS_HS 2U
 #define UVC_CAM_FPS_FS 1U
 #define UVC_WIDTH 640U

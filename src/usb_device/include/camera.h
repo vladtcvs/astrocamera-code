@@ -20,8 +20,12 @@ enum HID_OutputReportId_e {
 struct USBD_CAMERA_callbacks_t {
     uint8_t (*VS_StartStream)(void);
     uint8_t (*VS_StopStream)(void);
+
     uint8_t (*VC_SetGain)(unsigned gain);
     uint8_t (*VC_GetGain)(unsigned *gain);
+    
+    uint8_t (*VC_SetExposure)(uint32_t exposure);
+    uint8_t (*VC_GetExposure)(uint32_t *exposure);
     uint8_t (*CDC_ACM_Control)(uint8_t request, uint8_t *data, size_t len);
     uint8_t (*CDC_DATA_DataOut)(const uint8_t *data, size_t len);
 };

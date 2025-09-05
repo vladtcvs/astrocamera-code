@@ -77,6 +77,18 @@ static void VC_Req_GET_DEF(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            const uint32_t exposure = VC_DEFAULT_EXPOSURE; // 0.1 sec
+            switch (cs) {
+            case 0x04:  // Absolute time
+                buf[0] = exposure & 0xFFU;
+                buf[1] = (exposure >> 8) & 0xFFU;
+                buf[2] = (exposure >> 16) & 0xFFU;
+                buf[3] = (exposure >> 24) & 0xFFU;
+                len = 4;
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -108,6 +120,17 @@ static void VC_Req_GET_MIN(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            switch (cs) {
+            case 0x04:  // Absolute time
+                buf[0] = 0x01;
+                buf[1] = 0x00;
+                buf[2] = 0x00;
+                buf[3] = 0x00;
+                len = 4;
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -139,6 +162,18 @@ static void VC_Req_GET_MAX(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            const uint32_t max_exposure = 10000*3600; // 1 hour
+            switch (cs) {
+            case 0x04:  // Absolute time
+                buf[0] = max_exposure & 0xFFU;
+                buf[1] = (max_exposure >> 8) & 0xFFU;
+                buf[2] = (max_exposure >> 16) & 0xFFU;
+                buf[3] = (max_exposure >> 24) & 0xFFU;
+                len = 4;
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -170,6 +205,17 @@ static void VC_Req_GET_RES(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            switch (cs) {
+            case 0x04:  // Absolute time
+                buf[0] = 0x01;
+                buf[1] = 0x00;
+                buf[2] = 0x00;
+                buf[3] = 0x00;
+                len = 4;
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -201,6 +247,15 @@ static void VC_Req_GET_LEN(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            switch (cs) {
+            case 0x04:  // Absolute time
+                buf[0] = 0x04;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -232,6 +287,13 @@ static void VC_Req_GET_INFO(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
     uint8_t cs = HIBYTE(req->wValue);
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            switch (cs) {
+            case 0x04:  // Absolute exposure time
+                caps = 0x03U;
+                break;
+            }
+        }    
         break;
     case 0x02U: // Processing terminal
         {
@@ -259,6 +321,26 @@ static void VC_Req_GET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            switch (cs) {
+            case 0x04:  // Absolute exposure time
+                if (cbs != NULL && cbs->VC_GetExposure != NULL) {
+                    uint32_t time;
+                    cbs->VC_GetExposure(&time);
+                    buf[0] = time & 0xFFU;
+                    buf[1] = (time >> 8) & 0xFFU;
+                    buf[2] = (time >> 16) & 0xFFU;
+                    buf[3] = (time >> 24) & 0xFFU;
+                } else {
+                    buf[0] = VC_DEFAULT_EXPOSURE & 0xFFU;
+                    buf[1] = (VC_DEFAULT_EXPOSURE >> 8) & 0xFFU;
+                    buf[2] = (VC_DEFAULT_EXPOSURE >> 16) & 0xFFU;
+                    buf[3] = (VC_DEFAULT_EXPOSURE >> 24) & 0xFFU;
+                }
+                len = 4;
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -295,6 +377,21 @@ static void VC_Req_SET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     uint8_t entity = HIBYTE(req->wIndex);
     switch (entity) {
     case 0x01U: // Input terminal
+        {
+            switch (cs) {
+            case 0x04:  // absolute time
+                vc_state.expect_buf = true;
+                vc_state.set_cur_buf_len = 4;
+                vc_state.set_cur_entity = 0x01U;
+                vc_state.set_cur_selector = 0x04U;  // absolute time
+                USBD_CAMERA_ExpectRx(CAMERA_VC_INTERFACE_ID);
+                USBD_CtlPrepareRx(pdev, vc_state.set_cur_buf, 4);
+                break;
+            default:
+                USBD_LL_StallEP(pdev, 0x80U);
+                break;
+            }
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -327,6 +424,21 @@ uint8_t VC_EP0_RxReady(struct _USBD_HandleTypeDef *pdev)
     switch (vc_state.set_cur_entity)
     {
         case 0x01U: // Camera terminal
+            switch (vc_state.set_cur_selector)
+            {
+                case 0x04U:  // Exposure
+                    {
+                        uint32_t gain = vc_state.set_cur_buf[3];
+                        gain = gain << 8 | vc_state.set_cur_buf[2];
+                        gain = gain << 8 | vc_state.set_cur_buf[1];
+                        gain = gain << 8 | vc_state.set_cur_buf[0];
+
+                        if (cbs != NULL && cbs->VC_SetExposure != NULL) {
+                            cbs->VC_SetExposure(gain);
+                        }
+                    }
+                    break;
+            }
             break;
         case 0x02U: // Processing terminal
             switch (vc_state.set_cur_selector)

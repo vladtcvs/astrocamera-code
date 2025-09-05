@@ -20,6 +20,7 @@
 #define VC_OUTPUT_TERMINAL                            0x03U
 #define VC_PROCESSING_TERMINAL                        0x05U
 
+#define VC_CAMERA_ABSOLUTE_TIME                         (1U << 3)
 #define VC_PROCESSING_GAIN                              (1U << 9)
 
 #define TT_STREAMING                                   0x0101U
@@ -171,7 +172,7 @@ ssize_t camera_generate_descriptor(uint8_t *pConf,
                 WBVAL(0),          // wObjectiveFocalLengthMax
                 WBVAL(0),          // wOcularFocalLength
                 0x02U,             // bControlSize
-                WBVAL(0),          // bmControls
+                WBVAL(VC_CAMERA_ABSOLUTE_TIME), // bmControls
             };
             if (size + sizeof(inputTerminalDescriptor) > maxlen)
                 return -1;

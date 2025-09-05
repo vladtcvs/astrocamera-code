@@ -46,6 +46,23 @@ static uint8_t VC_SetGain(unsigned gain)
     return USBD_OK;
 }
 
+static uint8_t VC_GetExposure(uint32_t *exposure)
+{
+    if (usb_context.get_exposure != NULL)
+        return usb_context.get_exposure(exposure);
+    else
+        *exposure = VC_DEFAULT_EXPOSURE;
+    return USBD_OK;
+}
+
+static uint8_t VC_SetExposure(uint32_t exposure)
+{
+    if (usb_context.set_exposure != NULL)
+        return usb_context.set_exposure(exposure);
+    return USBD_OK;
+}
+
+
 static uint8_t CDC_ACM_Control(uint8_t request, uint8_t *data, size_t len)
 {
     memset(data, 0, len);
@@ -64,6 +81,8 @@ static struct USBD_CAMERA_callbacks_t callbacks = {
     .VS_StopStream = VS_StopStream,
     .VC_GetGain = VC_GetGain,
     .VC_SetGain = VC_SetGain,
+    .VC_GetExposure = VC_GetExposure,
+    .VC_SetExposure = VC_SetExposure,
     .CDC_ACM_Control = CDC_ACM_Control,
     .CDC_DATA_DataOut = CDC_DATA_DataOut,
 };
