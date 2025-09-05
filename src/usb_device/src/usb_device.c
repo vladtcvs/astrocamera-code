@@ -62,6 +62,103 @@ static uint8_t VC_SetExposure(uint32_t exposure)
     return USBD_OK;
 }
 
+uint8_t VC_GetFan(unsigned *fan)
+{
+    if (usb_context.get_fan != NULL)
+        return usb_context.get_fan(fan);
+    else
+        *fan = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_GetTec(unsigned *tec)
+{
+    if (usb_context.get_tec != NULL)
+        return usb_context.get_tec(tec);
+    else
+        *tec = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_GetWindowHeater(unsigned *heater)
+{
+    if (usb_context.get_window_heater != NULL)
+        return usb_context.get_window_heater(heater);
+    else
+        *heater = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_GetTriggerMode(unsigned *trigger_mode)
+{
+    if (usb_context.get_trigger_mode != NULL)
+        return usb_context.get_trigger_mode(trigger_mode);
+    else
+        *trigger_mode = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_GetTargetTemperature(unsigned *temperature)
+{
+    if (usb_context.get_target_temperature != NULL)
+        return usb_context.get_target_temperature(temperature);
+    else
+        *temperature = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_GetCurrentTemperature(unsigned *temperature)
+{
+    if (usb_context.get_current_temperature != NULL)
+        return usb_context.get_current_temperature(temperature);
+    else
+        *temperature = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_GetWindowTemperature(unsigned *temperature)
+{
+    if (usb_context.get_window_temperature != NULL)
+        return usb_context.get_window_temperature(temperature);
+    else
+        *temperature = 0;
+    return USBD_OK;
+}
+
+uint8_t VC_SetFan(unsigned fan)
+{
+    if (usb_context.set_fan != NULL)
+        return usb_context.set_fan(fan);
+    return USBD_OK;
+}
+
+uint8_t VC_SetTec(unsigned tec)
+{
+    if (usb_context.set_tec != NULL)
+        return usb_context.set_tec(tec);
+    return USBD_OK;
+}
+
+uint8_t VC_SetWindowHeater(unsigned heater)
+{
+    if (usb_context.set_window_heater != NULL)
+        return usb_context.set_window_heater(heater);
+    return USBD_OK;
+}
+
+uint8_t VC_SetTriggerMode(unsigned trigger_mode)
+{
+    if (usb_context.set_trigger_mode != NULL)
+        return usb_context.set_trigger_mode(trigger_mode);
+    return USBD_OK;
+}
+
+uint8_t VC_SetTargetTemperature(unsigned temperature)
+{
+    if (usb_context.set_target_temperature != NULL)
+        return usb_context.set_target_temperature(temperature);
+    return USBD_OK;
+}
 
 static uint8_t CDC_ACM_Control(uint8_t request, uint8_t *data, size_t len)
 {
@@ -79,10 +176,27 @@ static uint8_t CDC_DATA_DataOut(const uint8_t *data, size_t len)
 static struct USBD_CAMERA_callbacks_t callbacks = {
     .VS_StartStream = VS_StartStream,
     .VS_StopStream = VS_StopStream,
+
     .VC_GetGain = VC_GetGain,
     .VC_SetGain = VC_SetGain,
     .VC_GetExposure = VC_GetExposure,
     .VC_SetExposure = VC_SetExposure,
+
+    .VC_GetCurrentTemperature = VC_GetCurrentTemperature,
+    .VC_GetTargetTemperature = VC_GetTargetTemperature,
+    .VC_GetWindowTemperature = VC_GetWindowTemperature,
+    .VC_GetFan = VC_GetFan,
+    .VC_GetTec = VC_GetTec,
+    .VC_GetWindowHeater = VC_GetWindowHeater,
+    .VC_GetTriggerMode = VC_GetTriggerMode,
+
+    .VC_SetTargetTemperature = VC_SetTargetTemperature,
+    .VC_SetFan = VC_SetFan,
+    .VC_SetTec = VC_SetTec,
+    .VC_SetWindowHeater = VC_SetWindowHeater,
+    .VC_SetTriggerMode = VC_SetTriggerMode,
+
+
     .CDC_ACM_Control = CDC_ACM_Control,
     .CDC_DATA_DataOut = CDC_DATA_DataOut,
 };

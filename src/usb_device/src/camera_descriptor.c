@@ -19,9 +19,18 @@
 #define VC_INPUT_TERMINAL                             0x02U
 #define VC_OUTPUT_TERMINAL                            0x03U
 #define VC_PROCESSING_TERMINAL                        0x05U
+#define VC_XU_TERMINAL                                0x06U
 
 #define VC_CAMERA_ABSOLUTE_TIME                         (1U << 3)
 #define VC_PROCESSING_GAIN                              (1U << 9)
+
+#define XU_FAN                                          (1U << 0)
+#define XU_TEC                                          (1U << 1)
+#define XU_WINDOW_HEATER                                (1U << 2)
+#define XU_TARGET_TEMPERATURE                           (1U << 3)
+#define XU_CURRENT_TEMPERATURE                          (1U << 4)
+#define XU_WINDOW_TEMPERATURE                           (1U << 5)
+#define XU_TRIGGER_MODE                                 (1U << 6)
 
 #define TT_STREAMING                                   0x0101U
 #define ITT_CAMERA                                     0x0201U
@@ -220,6 +229,34 @@ ssize_t camera_generate_descriptor(uint8_t *pConf,
                 memcpy(pConf + size, outputTerminalDescriptor, sizeof(outputTerminalDescriptor));
             size += sizeof(outputTerminalDescriptor);
             wTotalLengthVC += sizeof(outputTerminalDescriptor);
+        }
+
+        {
+            const uint8_t xuTerminalDescriptor[] = {
+                26U,                 // bLength
+                CS_INTERFACE,        // bDescriptorType
+                VC_XU_TERMINAL,      // bDescriptorSubType
+                0x04U,               // bTerminalID
+                0x03,0x84,0xcc,0xd7, // GUID
+                0x9c,0x62,0x38,0x4d,
+                0xb5,0x2a,0x2a,0xf4,
+                0x30,0x52,0x3f,0xd5,
+                0x07U,               // bNumControls
+                0x00U,               // bNrInPins
+                0x02U,               // bControlSize
+                WBVAL(XU_FAN | XU_TEC | XU_WINDOW_HEATER |
+                      XU_TARGET_TEMPERATURE |
+                      XU_CURRENT_TEMPERATURE |
+                      XU_WINDOW_TEMPERATURE |
+                      XU_TRIGGER_MODE),
+                0x00U,               // iExtension
+            };
+            if (size + sizeof(xuTerminalDescriptor) > maxlen)
+                return -1;
+            if (pConf != NULL)
+                memcpy(pConf + size, xuTerminalDescriptor, sizeof(xuTerminalDescriptor));
+            size += sizeof(xuTerminalDescriptor);
+            wTotalLengthVC += sizeof(xuTerminalDescriptor);
         }
 
         if (pConf != NULL) {

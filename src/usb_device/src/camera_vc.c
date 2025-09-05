@@ -14,6 +14,17 @@
 #define UVC_GET_INFO 0x86U
 #define UVC_GET_DEF 0x87U
 
+#define XU_FAN                  0x01U
+#define XU_TEC                  0x02U
+#define XU_WINDOW_HEATER        0x03U
+#define XU_TARGET_TEMPERATURE   0x04U
+#define XU_CURRENT_TEMPERATURE  0x05U
+#define XU_WINDOW_TEMPERATURE   0x06U
+#define XU_TRIGGER_MODE         0x07U
+
+#define MAX_EXPECTED_TEMPERATURE 10000U // 1000 K in 0.1K
+#define MAX_TM 0x03
+
 #define VS_PROBE_CONTROL 0x100U
 #define VS_COMMIT_CONTROL 0x200U
 
@@ -103,6 +114,43 @@ static void VC_Req_GET_DEF(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         break;
     case 0x03U: // Output terminal
         break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                buf[0] = 0x00U;
+                len = 1;
+                break;
+            case XU_TEC:     // TEC
+                buf[0] = 0x00U;
+                len = 1;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                buf[0] = 0x00U;
+                len = 1;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                buf[0] = 0x00;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                buf[0] = 0x00;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                buf[0] = 0x00;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                buf[0] = 0x03;
+                len = 1;
+                break;
+            }
+        }
+        break;
     }
     if (len > 0) {
         USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
@@ -144,6 +192,43 @@ static void VC_Req_GET_MIN(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         }
         break;
     case 0x03U: // Output terminal
+        break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                buf[0] = 0x00;
+                len = 1;
+                break;
+            case XU_TEC:     // TEC
+                buf[0] = 0x00;
+                len = 1;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                buf[0] = 0x00;
+                len = 1;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                buf[0] = 0x00;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                buf[0] = 0x00;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                buf[0] = 0x00;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                buf[0] = 0x00;
+                len = 1;
+                break;
+            }
+        }
         break;
     }
     if (len > 0) {
@@ -188,6 +273,43 @@ static void VC_Req_GET_MAX(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         break;
     case 0x03U: // Output terminal
         break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                buf[0] = 0x01U;
+                len = 1;
+                break;
+            case XU_TEC:     // TEC
+                buf[0] = 0x01U;
+                len = 1;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                buf[0] = 0xFFU;
+                len = 1;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                buf[0] = LOBYTE(MAX_EXPECTED_TEMPERATURE);
+                buf[1] = HIBYTE(MAX_EXPECTED_TEMPERATURE);
+                len = 2;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                buf[0] = LOBYTE(MAX_EXPECTED_TEMPERATURE);
+                buf[1] = HIBYTE(MAX_EXPECTED_TEMPERATURE);
+                len = 2;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                buf[0] = LOBYTE(MAX_EXPECTED_TEMPERATURE);
+                buf[1] = HIBYTE(MAX_EXPECTED_TEMPERATURE);
+                len = 2;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                buf[0] = MAX_TM;
+                len = 1;
+                break;
+            }
+        }
+        break;
     }
     if (len > 0) {
         USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
@@ -230,6 +352,43 @@ static void VC_Req_GET_RES(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         break;
     case 0x03U: // Output terminal
         break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                buf[0] = 0x01U;
+                len = 1;
+                break;
+            case XU_TEC:     // TEC
+                buf[0] = 0x01U;
+                len = 1;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                buf[0] = 0x01U;
+                len = 1;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                buf[0] = 0x01U;
+                buf[1] = 0x00U;
+                len = 2;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                buf[0] = 0x01U;
+                buf[1] = 0x00U;
+                len = 2;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                buf[0] = 0x01;
+                buf[1] = 0x00;
+                len = 2;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                buf[0] = 0x01;
+                len = 1;
+                break;
+            }
+        }
+        break;
     }
     if (len > 0) {
         USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
@@ -245,13 +404,13 @@ static void VC_Req_GET_LEN(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
     uint8_t cs = HIBYTE(req->wValue);
     uint8_t buf[4];
     size_t len = 0;
+    unsigned ctl_len;
     switch (entity) {
     case 0x01U: // Input terminal
         {
             switch (cs) {
             case 0x04:  // Absolute time
-                buf[0] = 0x04;
-                buf[1] = 0x00;
+                ctl_len = 4;
                 len = 2;
                 break;
             }
@@ -261,8 +420,7 @@ static void VC_Req_GET_LEN(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         {
             switch (cs) {
             case 0x04:  // Gain
-                buf[0] = 0x02;
-                buf[1] = 0x00;
+                ctl_len = 2;
                 len = 2;
                 break;
             }
@@ -270,8 +428,45 @@ static void VC_Req_GET_LEN(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         break;
     case 0x03U: // Output terminal
         break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                ctl_len = 1;
+                len = 2;
+                break;
+            case XU_TEC:     // TEC
+                ctl_len = 1;
+                len = 2;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                ctl_len = 1;
+                len = 2;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                ctl_len = 2;
+                len = 2;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                ctl_len = 2;
+                len = 2;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                ctl_len = 2;
+                len = 2;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                ctl_len = 1;
+                len = 2;
+                break;
+            }
+        }
+        break;
     }
-    if (len > 0) {
+    
+    if (len == 2) {
+        buf[0] = LOBYTE(ctl_len);
+        buf[1] = HIBYTE(ctl_len);
         USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
         USBD_CtlSendData(pdev, buf, len);
     } else {
@@ -293,7 +488,7 @@ static void VC_Req_GET_INFO(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
                 caps = 0x03U;
                 break;
             }
-        }    
+        }
         break;
     case 0x02U: // Processing terminal
         {
@@ -306,6 +501,33 @@ static void VC_Req_GET_INFO(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTyped
         break;
     case 0x03U: // Output terminal
         break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                caps = 0x03U;
+                break;
+            case XU_TEC:     // TEC
+                caps = 0x03U;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                caps = 0x03U;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                caps = 0x03U;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                caps = 0x01U;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                caps = 0x01U;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                caps = 0x03U;
+                break;
+            }
+        }
+        break;
     }
     USBD_CAMERA_handle.ep0tx_iface = CAMERA_VC_INTERFACE_ID;
     USBD_CtlSendData(pdev, &caps, 1);
@@ -317,7 +539,7 @@ static void VC_Req_GET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
 
     uint8_t entity = HIBYTE(req->wIndex);
     uint8_t cs = HIBYTE(req->wValue);
-    uint8_t buf[4];
+    uint8_t buf[4] = {0};
     size_t len = 0;
     switch (entity) {
     case 0x01U: // Input terminal
@@ -361,6 +583,88 @@ static void VC_Req_GET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         }
         break;
     case 0x03U: // Output terminal
+        break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:     // FAN
+                if (cbs != NULL && cbs->VC_GetFan != NULL) {
+                    unsigned fan;
+                    cbs->VC_GetFan(&fan);
+                    buf[0] = MIN(fan, 0x01U);
+                } else {
+                    buf[0] = 0x00U;
+                }
+                len = 1;
+                break;
+            case XU_TEC:     // TEC
+                if (cbs != NULL && cbs->VC_GetTec != NULL) {
+                    unsigned tec;
+                    cbs->VC_GetTec(&tec);
+                    buf[0] = MIN(tec, 0x01U);
+                } else {
+                    buf[0] = 0x00U;
+                }
+                len = 1;
+                break;
+            case XU_WINDOW_HEATER:     // WINDOW HEATER
+                if (cbs != NULL && cbs->VC_GetWindowHeater != NULL) {
+                    unsigned wh;
+                    cbs->VC_GetWindowHeater(&wh);
+                    buf[0] = MIN(wh, 0xFFU);
+                } else {
+                    buf[0] = 0x00U;
+                }
+                len = 1;
+                break;
+            case XU_TARGET_TEMPERATURE:     // TARGET TEMPERATURE
+                if (cbs != NULL && cbs->VC_GetTargetTemperature != NULL) {
+                    unsigned tt;
+                    cbs->VC_GetTargetTemperature(&tt);
+                    buf[0] = LOBYTE(tt);
+                    buf[1] = LOBYTE(tt);
+                } else {
+                    buf[0] = 0x00U;
+                    buf[1] = 0x00;
+                }
+                len = 2;
+                break;
+            case XU_CURRENT_TEMPERATURE:     // CURRENT TEMPERATURE
+                if (cbs != NULL && cbs->VC_GetCurrentTemperature != NULL) {
+                    unsigned ct;
+                    cbs->VC_GetCurrentTemperature(&ct);
+                    buf[0] = LOBYTE(ct);
+                    buf[1] = HIBYTE(ct);
+                } else {
+                    buf[0] = 0x00U;
+                    buf[1] = 0x00;
+                }
+                len = 2;
+                break;
+            case XU_WINDOW_TEMPERATURE:     // WINDOW TEMPERATURE
+                if (cbs != NULL && cbs->VC_GetWindowTemperature != NULL) {
+                    unsigned wt;
+                    cbs->VC_GetWindowTemperature(&wt);
+                    buf[0] = LOBYTE(wt);
+                    buf[1] = HIBYTE(wt);
+                } else {
+                    buf[0] = 0x00U;
+                    buf[1] = 0x00;
+                }
+                len = 2;
+                break;
+            case XU_TRIGGER_MODE:     // TRIGGER MODE
+                if (cbs != NULL && cbs->VC_GetTriggerMode != NULL) {
+                    unsigned tm;
+                    cbs->VC_GetTriggerMode(&tm);
+                    buf[0] = MIN(tm, MAX_TM);
+                } else {
+                    buf[0] = 0x00U;
+                }
+                len = 1;
+                break;
+            }
+        }
         break;
     }
     if (len > 0) {
@@ -412,6 +716,34 @@ static void VC_Req_SET_CUR(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
         break;
     case 0x03U: // Output terminal
         break;
+    case 0x04U: // XU
+        {
+            switch (cs) {
+            case XU_FAN:
+            case XU_TEC:
+            case XU_WINDOW_HEATER:
+            case XU_TRIGGER_MODE:
+                vc_state.expect_buf = true;
+                vc_state.set_cur_buf_len = 1;
+                vc_state.set_cur_entity = 0x04U;
+                vc_state.set_cur_selector = cs;
+                USBD_CAMERA_ExpectRx(CAMERA_VC_INTERFACE_ID);
+                USBD_CtlPrepareRx(pdev, vc_state.set_cur_buf, 1);
+                break;
+            case XU_TARGET_TEMPERATURE:
+                vc_state.expect_buf = true;
+                vc_state.set_cur_buf_len = 2;
+                vc_state.set_cur_entity = 0x04U;
+                vc_state.set_cur_selector = cs;
+                USBD_CAMERA_ExpectRx(CAMERA_VC_INTERFACE_ID);
+                USBD_CtlPrepareRx(pdev, vc_state.set_cur_buf, 2);
+                break;
+            default:
+                USBD_LL_StallEP(pdev, 0x80U);
+                break;
+            }
+        }
+        break;
     }
 }
 
@@ -455,6 +787,53 @@ uint8_t VC_EP0_RxReady(struct _USBD_HandleTypeDef *pdev)
             break;
         case 0x03U: // Output terminal
             break;
+        case 0x04U: // XU
+            switch (vc_state.set_cur_selector)
+            {
+                case XU_FAN:
+                    {
+                        unsigned fan = vc_state.set_cur_buf[0];
+                        if (cbs != NULL && cbs->VC_SetFan != NULL) {
+                            cbs->VC_SetFan(fan);
+                        }
+                    }
+                    break;
+                case XU_TEC:
+                    {
+                        unsigned tec = vc_state.set_cur_buf[0];
+                        if (cbs != NULL && cbs->VC_SetTec != NULL) {
+                            cbs->VC_SetTec(tec);
+                        }
+                    }
+                    break;
+                case XU_WINDOW_HEATER:
+                    {
+                        unsigned wh = vc_state.set_cur_buf[0];
+                        if (cbs != NULL && cbs->VC_SetWindowHeater != NULL) {
+                            cbs->VC_SetWindowHeater(wh);
+                        }
+                    }
+                    break;
+                case XU_TRIGGER_MODE:
+                    {
+                        unsigned tm = vc_state.set_cur_buf[0];
+                        if (cbs != NULL && cbs->VC_SetTriggerMode != NULL) {
+                            cbs->VC_SetTriggerMode(tm);
+                        }
+                    }
+                    break;
+                case XU_TARGET_TEMPERATURE:
+                    {
+                        unsigned tt = vc_state.set_cur_buf[1];
+                        tt = tt << 8 | vc_state.set_cur_buf[0];
+                        if (cbs != NULL && cbs->VC_SetWindowHeater != NULL) {
+                            cbs->VC_SetWindowHeater(tt);
+                        }
+                    }
+                    break;
+            }
+            break;
+            
     }
     vc_state.expect_buf = false;
     return USBD_OK;

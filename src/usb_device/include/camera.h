@@ -24,6 +24,20 @@ struct USBD_CAMERA_callbacks_t {
     uint8_t (*VC_SetGain)(unsigned gain);
     uint8_t (*VC_GetGain)(unsigned *gain);
     
+    uint8_t (*VC_GetFan)(unsigned *fan);
+    uint8_t (*VC_GetTec)(unsigned *tec);
+    uint8_t (*VC_GetWindowHeater)(unsigned *heater);
+    uint8_t (*VC_GetTriggerMode)(unsigned *trigger_mode);
+    uint8_t (*VC_GetTargetTemperature)(unsigned *temperature);
+    uint8_t (*VC_GetCurrentTemperature)(unsigned *temperature);
+    uint8_t (*VC_GetWindowTemperature)(unsigned *temperature);
+
+    uint8_t (*VC_SetFan)(unsigned fan);
+    uint8_t (*VC_SetTec)(unsigned tec);
+    uint8_t (*VC_SetWindowHeater)(unsigned heater);
+    uint8_t (*VC_SetTriggerMode)(unsigned trigger_mode);
+    uint8_t (*VC_SetTargetTemperature)(unsigned temperature);
+
     uint8_t (*VC_SetExposure)(uint32_t exposure);
     uint8_t (*VC_GetExposure)(uint32_t *exposure);
     uint8_t (*CDC_ACM_Control)(uint8_t request, uint8_t *data, size_t len);

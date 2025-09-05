@@ -21,15 +21,15 @@ enum exposure_state_e {
 
 struct core_state_s
 {
+    unsigned fan;
+    unsigned tec;
+    unsigned window_heater;
+    unsigned trigger_mode;
+    unsigned target_temperature;
+    unsigned current_temperature;
+    unsigned window_temperature;
     unsigned gain;
-    uint32_t exposure;
-
-    int target_temperature;
-    enum exposure_mode_e exposure_mode;
-    enum exposure_state_e state;
-    bool tec;
-    bool fan;
-    int window_heater;
+    unsigned exposure;
 };
 
 
@@ -92,13 +92,81 @@ static uint8_t set_exposure(uint32_t exposure)
     return USBD_OK;
 }
 
+static uint8_t get_fan(unsigned *fan)
+{
+    *fan = state.fan;
+    return USBD_OK;
+}
+
+static uint8_t set_fan(unsigned fan)
+{
+    state.fan = fan;
+    return USBD_OK;
+}
+
+static uint8_t get_tec(unsigned *tec)
+{
+    *tec = state.tec;
+    return USBD_OK;
+}
+
+static uint8_t set_tec(unsigned tec)
+{
+    state.tec = tec;
+    return USBD_OK;
+}
+
+static uint8_t get_window_heater(unsigned *heater)
+{
+    *heater = state.window_heater;
+    return USBD_OK;
+}
+
+static uint8_t set_window_heater(unsigned heater)
+{
+    state.window_heater = heater;
+    return USBD_OK;
+}
+
+static uint8_t get_trigger_mode(unsigned *trigger_mode)
+{
+    *trigger_mode = state.trigger_mode;
+    return USBD_OK;
+}
+
+static uint8_t set_trigger_mode(unsigned trigger_mode)
+{
+    state.trigger_mode = trigger_mode;
+    return USBD_OK;
+}
+
+static uint8_t get_target_temperature(unsigned *temperature)
+{
+    *temperature = state.target_temperature;
+    return USBD_OK;
+}
+
+static uint8_t set_target_temperature(unsigned temperature)
+{
+    state.target_temperature = temperature;
+    return USBD_OK;
+}
+
+static uint8_t get_current_temperature(unsigned *temperature)
+{
+    *temperature = state.current_temperature;
+    return USBD_OK;
+}
+
+static uint8_t get_window_temperature(unsigned *temperature)
+{
+    *temperature = state.window_temperature;
+    return USBD_OK;
+}
 
 void core_init(struct usb_context_s *ctx)
 {
     usb_ctx = ctx;
-    usb_ctx->exposure = exposure_cb;
-    usb_ctx->exposure_mode = exposure_mode_cb;
-    usb_ctx->set_power_settings = set_power_settings_cb;
     usb_ctx->set_target_temperature = set_target_temperature_cb;
     usb_ctx->serial_data = serial_data_cb;
     usb_ctx->get_gain = get_gain;
@@ -142,17 +210,10 @@ void core_serial_send_function(void *arg)
 
 static void start_exposure(void)
 {
-    while (send_shutter(true) == USBD_BUSY)
-        vTaskDelay(1);
-    state.state = EXPOSURING;
 }
 
 static void complete_exposure(void)
 {
-    while (send_shutter(false) == USBD_BUSY)
-        vTaskDelay(1);
-    state.state = READING;
-    read_ccd();
 }
 
 static void read_ccd(void)
@@ -173,72 +234,14 @@ static void start_exposure_timer(int exposure)
 
 void core_read_ccd_completed_cb(void)
 {
-    state.state = IDLE;
 }
 
 void core_process_exposure_cb(unsigned exposure)
-{
-    switch (state.exposure_mode) {
-    case FREERUN:
-        // Do nothing
-        break;
-    case TRIGGERED_BEGIN:
-        if (state.state == IDLE) {
-            if (exposure > 0) {
-                start_exposure_timer(exposure);
-                start_exposure();
-            } else {
-                // ignore
-            }
-        } else if (state.state == EXPOSURING) {
-            if (exposure == 0) {
-                complete_exposure();
-            } else {
-                // error
-            }
-        } else {
-            // error
-        }
-        break;
-    case TRIGGERED_BEGIN_END:
-        if (state.state == IDLE) {
-            if (exposure > 0) {
-                start_exposure();
-            } else {
-                // ignore
-            }
-        } else if (state.state == EXPOSURING) {
-            if (exposure == 0) {
-                complete_exposure();
-            } else {
-                // error
-            }
-        } else {
-            // error
-        }
-        break;
-    default:
-        // error
-        break;
-    }
+{   
 }
 
 void core_process_exposure_mode_cb(unsigned mode)
 {
-    switch (mode) {
-    case 0:
-        state.exposure_mode = FREERUN;
-        break;
-    case 1:
-        state.exposure_mode = TRIGGERED_BEGIN;
-        break;
-    case 2:
-        state.exposure_mode = TRIGGERED_BEGIN_END;
-        break;
-    default:
-        // error
-        break;
-    }
 }
 
 void core_process_target_temperature_cb(unsigned target_temperature)
