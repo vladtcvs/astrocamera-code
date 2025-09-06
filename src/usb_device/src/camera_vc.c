@@ -145,7 +145,7 @@ static void VC_Req_GET_DEF(struct _USBD_HandleTypeDef *pdev, USBD_SetupReqTypede
                 len = 2;
                 break;
             case XU_TRIGGER_MODE:     // TRIGGER MODE
-                buf[0] = 0x03;
+                buf[0] = 0x00;
                 len = 1;
                 break;
             }
