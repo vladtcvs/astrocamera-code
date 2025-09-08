@@ -6,7 +6,6 @@
 void core_init(struct usb_context_s *ctx);
 
 void core_sensors_poll_function(void *ctx);
-void core_serial_send_function(void *ctx);
 
 void core_read_ccd_completed_cb(void);
 

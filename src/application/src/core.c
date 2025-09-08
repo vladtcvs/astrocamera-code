@@ -63,8 +63,10 @@ static uint8_t exposure_mode_cb(unsigned exposure_mode)
     return USBD_OK;
 }
 
+void system_save_rx_data(const uint8_t *data, size_t len);
 static uint8_t serial_data_cb(const uint8_t *data, size_t len)
 {
+    system_save_rx_data(data, len);
     return USBD_OK;
 }
 
@@ -192,18 +194,6 @@ void core_sensors_poll_function(void *arg)
     const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
     while (1) {
         // TODO: implement
-        vTaskDelay(xDelay);
-    }
-}
-
-void core_serial_send_function(void *arg)
-{
-    const char data[] = "test\n";
-    const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
-    while (1) {
-        while (send_serial_data((const uint8_t*)data, strlen(data)) == USBD_BUSY)
-            vTaskDelay(1);
-
         vTaskDelay(xDelay);
     }
 }
