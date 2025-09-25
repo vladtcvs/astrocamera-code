@@ -17,13 +17,21 @@ int SPI4_Init(void)
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-    // Configure NSS (PE11), SCK (PE12), MISO (PE13), MOSI (PE14)
-    GPIO_InitStruct.Pin = GPIO_PIN_11 | GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14;
+    // Configure NSS SCK (PE12), MISO (PE13), MOSI (PE14)
+    GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI4;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+    // Configure NSS (PE11)
+    GPIO_InitStruct.Pin = GPIO_PIN_11;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, GPIO_PIN_SET);
 
     // SPI4 init
     hspi4.Instance = SPI4;
@@ -40,4 +48,19 @@ int SPI4_Init(void)
     hspi4.Init.CRCPolynomial = 7;
 
     return HAL_SPI_Init(&hspi4);
+}
+
+void SPI4_SetCS(int level)
+{
+    if (level)
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, GPIO_PIN_SET);
+    else
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11, GPIO_PIN_RESET);
+}
+
+uint8_t SPI4_Transfer(uint8_t data)
+{
+    uint8_t rxdata;
+    int res = HAL_SPI_TransmitReceive(&hspi4, &data, &rxdata, 1, HAL_MAX_DELAY);
+    return rxdata;
 }

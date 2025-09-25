@@ -40,7 +40,7 @@ static StackType_t  sensors_poll_task_stack[SENSORS_POLL_TASK_STACK_SIZE];
 static TaskHandle_t sensors_poll_task;
 static StaticTask_t sensors_poll_task_buffer;
 
-#define SHELL_TASK_STACK_SIZE 200
+#define SHELL_TASK_STACK_SIZE 300
 static StackType_t  shell_task_stack[SHELL_TASK_STACK_SIZE];
 static TaskHandle_t shell_task;
 static StaticTask_t shell_task_buffer;
@@ -104,7 +104,7 @@ int main(void)
     SYSCLK_Config();
     I2C1_Init();
     QUADSPI_Init();
-    QSPI_EnableMemoryMapped();
+    //QSPI_EnableMemoryMapped();
     FPGA_CTL_Init();
 
     bool boot_dfu = is_dfu();

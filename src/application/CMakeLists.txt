@@ -7,6 +7,7 @@ add_executable(${CMAKE_PROJECT_NAME}
                 src/core.c
                 src/shell.c
                 src/config.c
+                src/ctl_spi.c
                 src/hw/pll.c
                 src/hw/i2c.c
                 src/hw/uart.c

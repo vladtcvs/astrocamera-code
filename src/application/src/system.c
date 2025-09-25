@@ -87,29 +87,47 @@ int _write(int file, char *ptr, int len)
     return len;
 }
 
-#define RXBUFLEN 64
+#define RXBUFLEN 64 // MUST be power of 2
 static char rxbuf[RXBUFLEN];
 static uint16_t head = 0, tail = 0;
 
 void system_save_rx_data(const uint8_t *data, size_t len)
 {
+    __disable_irq();
     while (len > 0) {
         rxbuf[tail] = *(data++);
-        tail = (tail + 1) % RXBUFLEN;
+        tail = (tail + 1) & (RXBUFLEN - 1);
+        if (tail == head) {
+            head = (head + 1) & (RXBUFLEN - 1);
+        }
+        len--;
     }
+    __enable_irq();
 }
 
 int _read(int file, char *ptr, int len)
 {
-    if (len > rxbuflen)
-        len = rxbuflen;
-    if (len == 0)
-        return 0;
-
-    memcpy(ptr, rxbuf, len);
-    memmove(rxbuf, rxbuf + len, rxbuflen - len);
-    rxbuflen -= len;
-    return len;
+    int cnt = 0;
+    while (1)
+    {
+        bool need_break = false;
+        __disable_irq();
+        if (head != tail)
+            need_break = true;
+        __enable_irq();
+        if (need_break)
+            break;
+        else
+            vTaskDelay(1);
+    }
+    __disable_irq();
+    while (head != tail && cnt < len) {
+        *(ptr++) = rxbuf[head];
+        head = (head + 1) & (RXBUFLEN - 1);
+        cnt++;
+    }
+    __enable_irq();
+    return cnt;
 }
 
 void _close(int file)
